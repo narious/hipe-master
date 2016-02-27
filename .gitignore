@@ -1,3 +1,8 @@
 server/hiped
 server/build
 server/build-debug
+api/build/*
+api/test/calc
+api/test/clock
+api/test/jpegviewer
+api/test/quadrant
