@@ -1,0 +1,6 @@
+echo 'NOTE: Must be run from its own directory. Script also assumes there are no backgrounded jobs.'
+
+#run from console mode; will start hipe daemon in a new bare X session.
+xinit ./hiped -- :1 
+
+#the user now sees a blank screen. The user now needs to run Hipe applications using an external terminal.

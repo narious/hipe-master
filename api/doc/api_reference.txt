@@ -1,0 +1,63 @@
+ADDING HIPE TO A CLIENT APPLICATION
+
+To use Hipe in a client application, include the following directive in your C/C++ code:
+
+#include <hipe.h>
+
+Then when you compile your application, pass the -lhipe argument to gcc/g++, so that
+the Hipe API will be statically linked to your application.
+
+
+
+
+DATA STRUCTURES
+
+The Hipe API provides the following data types:
+
+hipe_session
+
+A variable of this type is returned by hipe_open_session, and must be passed to
+each subsequent Hipe API function in order to identify which Hipe session the
+function calls should act upon.
+
+hipe_instruction
+
+You exchange information with the Hipe server by placing the relevant values in
+(or retrieving them from) a hipe_instruction variable.
+Functions prefixed with 'hipe_instruction_' are provided for properly initialising
+hipe_instruction structures and ensuring memory is managed correctly.
+
+
+
+ANATOMY OF AN INSTRUCTION
+
+
+opcode: one of several predefined constants (prefixed HIPE_OPCODE_) to specify the
+nature of the instruction
+
+requestor: A 64 bit integer value by which the user can make a request and then
+identify the response (the response will be sent with the same requestor value).
+For example, when requesting to be notified of a particular event, each event
+occasion will generate a response with the requestor value that was specified by the user.
+requestor has no defined meaning - Hipe merely passes back the same values it
+receives. It provides a workable means of uniquely identifying which responses
+from the hipe server correspond to what.
+
+location: a reference to a particular HTML tag. By requesting and then keeping
+a particular location reference, you can manipulate and obtain the contents of 
+tags after they have been rendered to the screen. location is just an integer handle,
+so a variable storing it needs no special memory management considerations, however
+when a location handle is no longer required the server should be informed
+(send a HIPE_OPCODE_FREE_LOCATION instruction) so that the location reference can be
+freed for reuse by the server.
+
+arg1, arg2: string arguments relevant to a particular instruction.
+
+
+
+
+
+
+
+
+

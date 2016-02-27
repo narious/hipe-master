@@ -1,0 +1,35 @@
+To compile the API:
+-------------------
+
+$ make
+
+
+To install: (please also read the note below)
+-----------
+
+$ sudo make install
+
+
+IMPORTANT:
+
+* The makefile is set up to copy headers into /usr/include/ and the static
+library file (libhipe.a) into /usr/lib/.
+
+* These paths are correct for Debian-based distributions (including Ubuntu).
+For other distributions, please modify the 'cp' statements in the Makefile accordingly.
+
+
+
+To build test application:
+--------------------------
+
+$ make testing
+
+
+
+To run test application:
+------------------------
+
+* Ensure an instance of the server process is currently running
+
+* Run the compiled test application in ./test/

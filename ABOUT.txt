@@ -1,0 +1,81 @@
+
+  Hipe: A Hypertext Pipe.
+ 
+ 
+  Hipe is an effort to turn Webkit from a web browser engine into a fully-fledged HTML-powered display server.
+ 
+ FIRST OF ALL, What is a display server?
+ 
+  Unless you're reading this on a sheet of paper, you're probably using a graphical display server right now.
+ 
+  All mainstream operating systems provide a graphical display server. This provides apps and users with services
+  such as GUI rendering, windowing (nesting applications within rectangular frames), and mouse interaction.
+ 
+  Windows has traditionally used the GDI system, Apple uses the Quartz system based loosely on postscript and PDF,
+  and Unix-style operating systems use the insanely complicated and outdated X Window System.
+ 
+ THE PROBLEM:
+ 
+  The problem is that nobody really cares about display servers anymore. Rendering user interfaces and managing
+  screen layout are complex problems. Compared to the cumulative billions of dollars that the software industry has
+  put into perfecting graphical engines for web browsers, native OS-level display servers have fallen behind.
+ 
+  You might ask, 'why not just use web browsers for everything?', and at first glance, that's the way things
+  are heading. But web browsers require web pages, and are constrained by the nature of the hypertext transfer
+  protocol that facilitates page request. Native applications don't work that way. Native app experiences aren't
+  delivered in page-loads. They are delivered by manipulating on-screen elements directly.
+ 
+ THE SOLUTION:
+ 
+  If we had a display server that worked with HTML as its native language (and rendering capabilities to match
+  those of a modern web browser), and provided direct API-level access for inserting, deleting and manipulating
+  individual HTML elements (rather than whole pages), we wouldn't
+  need to bother with anything else.
+ 
+  This is what Hipe aims for. It provides the ability for an application to request a frame (analogous to a window)
+  to display itself in, then build up a user interface in terms of HTML elements. It also allows one application
+  to act as a 'framing manager' in order to provide frames for other applications (analogous to a window manager
+  in Linux). Applications then use the Hipe API to build up their user interfaces in terms of HTML elements.
+ 
+  A framing manager uses <iframes> to host other applications. At the moment, you still need to run the Hipe server
+  inside an X environment in order to diplay the top level windows, but this requirement will eventually become
+  redundant.
+ 
+ WHY NOT JUST...?
+ 
+  Some GUI toolkits already provide the ability to build a GUI using HTML elements, notably Qt with QWebView.
+  (Indeed, this is the approach Hipe uses internally in order to implement its server process.)
+  This approach avoids the limitations of the underlying display server by implementing better rendering
+  capabilities on top. However, it only applies to individual applications, it does not enhance the underlying
+  environment, and in the long run, can only lead to more fragmented user experiences with reduced interoperability
+  between applications. Then there's the elephant in the room: not everyone necessarily *wants* to write their
+  application in Qt, for various reasons.
+ 
+ 
+ IS HIPE A GUI TOOLKIT?
+ 
+  Not by itself, but you can build your own GUI toolkit around the Hipe API fairly easily.
+ 
+  The API is deliberately minimal and low-level. While you can build a complete application using the Hipe API
+  to pass HTML elements to the display server directly, it would probably be tedious to do so without first wrapping
+  the API in something a little more programmer-friendly.
+ 
+ Hipe consists of the following architectural components:
+ 
+  - display server process encapsulating the Webkit engine (this part is licensed under the terms of the GNU General Public License)
+  - A client API written in C to allow clients to connect to the display server. (This part is distributed as public domain. You can build any kind of application you want with it.)
+  - A UNIX domain local socket to facilitate communications between client applications and the display server.
+  - A message-passing protocol consisting of variable-length instructions.
+  - A set of randomised, non-repeating security keys. An application needs to know a security key in order to be granted
+    a frame within a particular framing manager. Exactly how the keys are shared with applications is up to the author of the
+    framing manager.
+ 
+ 
+ 
+ 
+  Hipe is a display server consisting of the Webkit engine, an C-based API for applications, a local socket
+  for applications to connect to, and a message-passing protocol to tie everything together. 
+  While you can build an application using Hipe's API by passing HTML elements to
+  the Hipe server process directly, the coding experience would be too tedious for most people.
+ 
+ 
