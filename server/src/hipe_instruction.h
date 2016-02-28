@@ -168,6 +168,12 @@ extern "C" {
 #define HIPE_OPCODE_SET_FOCUS          33
 /* Keyboard-focuses the element at location */
 
+#define HIPE_OPCODE_SET_BACKGROUND_SRC 34
+/* Applies a background image to the element at location.
+ * arg1 is the mime type of the background image,
+ * arg2 is the binary contents of the media file itself.
+ */
+
 
 /*--------------*/
 
