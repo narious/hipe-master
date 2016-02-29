@@ -46,6 +46,8 @@ int main(int argc, char *argv[])
     clp.setApplicationDescription("Hipe display server.");
     QCommandLineOption socketFileArg("socketfile", "Create server socket file with a custom name. The socket location is /tmp/ and cannot be changed.", "filename", "");
     clp.addOption(socketFileArg);
+    QCommandLineOption keyFileArg("keyfile", "Create top-level host key file with a custom path and filename.", "file path", "");
+    clp.addOption(keyFileArg);
     clp.addHelpOption();
     clp.addVersionOption();
     clp.process(a);
@@ -56,7 +58,13 @@ int main(int argc, char *argv[])
 
     std::stringstream userid; userid << getuid();
 
-    ContainerManager containerManager(std::string("/tmp/hipe-uid")+userid.str()+".hostkey");
+    std::string keyFile;
+    if(clp.isSet(keyFileArg))
+        keyFile = clp.value(keyFileArg).toStdString();
+    else
+        keyFile = std::string("/tmp/hipe-uid")+userid.str()+".hostkey";
+
+    ContainerManager containerManager(keyFile);
     globalContainerManager = &containerManager; //make the instance globally available so containers can register themselves.
     ConnectionManager connectionManager(&containerManager);
 
