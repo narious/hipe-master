@@ -27,10 +27,12 @@
 
 #include <QApplication>
 #include <string>
+#include <iostream>
 #include <sstream> //for std::stringstream
 #include <unistd.h> //for getuid()
 #include <sys/types.h> //for getuid()
 #include <QWebSettings>
+#include <QCommandLineParser>
 #include "connectionmanager.h"
 #include "containermanager.h"
 #include "keylist.h"
@@ -38,6 +40,17 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+    a.setApplicationName("hiped");
+    a.setApplicationVersion("v0 alpha. Check README.md for more specific info.");
+    QCommandLineParser clp;
+    clp.setApplicationDescription("Hipe display server.");
+    QCommandLineOption socketFileArg("socketfile", "Create server socket file with a custom name. The socket location is /tmp/ and cannot be changed.", "filename", "");
+    clp.addOption(socketFileArg);
+    clp.addHelpOption();
+    clp.addVersionOption();
+    clp.process(a);
+
+
     a.setQuitOnLastWindowClosed(false);
     desktop = a.desktop();
 
@@ -47,8 +60,20 @@ int main(int argc, char *argv[])
     globalContainerManager = &containerManager; //make the instance globally available so containers can register themselves.
     ConnectionManager connectionManager(&containerManager);
 
-    connectionManager.listen(QString("hipe-uid")+userid.str().c_str()+".socket"); //this maps the socket file and begins listening
-    //the socket is created as /tmp/hipe-uid1000.socket, where 1000 is the user's UID.
+    QString socketFile;
+    if(clp.isSet(socketFileArg))
+        socketFile = clp.value(socketFileArg);
+    else
+        socketFile = QString("hipe-uid")+userid.str().c_str()+".socket";
 
-    return a.exec(); //start Qt's event loop, listening for connections, responding to events, etc.
+    connectionManager.removeServer(socketFile); //remove any abandoned socket file of the same name.
+    if(connectionManager.listen(socketFile)) { //this maps the socket file and begins listening
+    //by default, the socket is created as /tmp/hipe-uid1000.socket, where 1000 is the user's UID.
+        std::cout << "Listening on " << connectionManager.fullServerName().toStdString() << "\n";
+        return a.exec(); //start Qt's event loop, listening for connections, responding to events, etc.
+    } else {
+        std::cerr << "Couldn't open socket.\n";
+        return 1;
+    }
+
 }
