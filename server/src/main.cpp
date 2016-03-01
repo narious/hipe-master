@@ -57,12 +57,13 @@ int main(int argc, char *argv[])
     desktop = a.desktop();
 
     std::stringstream userid; userid << getuid();
+    uid = userid.str(); //uid defined in containermanager.h as a convenient global variable.
 
     std::string keyFile;
     if(clp.isSet(keyFileArg))
         keyFile = clp.value(keyFileArg).toStdString();
     else
-        keyFile = std::string("/tmp/hipe-uid")+userid.str()+".hostkey";
+        keyFile = std::string("/tmp/hipe-uid")+uid+".hostkey";
 
     ContainerManager containerManager(keyFile);
     globalContainerManager = &containerManager; //make the instance globally available so containers can register themselves.
@@ -72,7 +73,7 @@ int main(int argc, char *argv[])
     if(clp.isSet(socketFileArg))
         socketFile = clp.value(socketFileArg);
     else
-        socketFile = QString("hipe-uid")+userid.str().c_str()+".socket";
+        socketFile = QString("hipe-uid")+uid.c_str()+".socket";
 
     connectionManager.removeServer(socketFile); //remove any abandoned socket file of the same name.
     if(connectionManager.listen(socketFile)) { //this maps the socket file and begins listening

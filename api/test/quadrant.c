@@ -4,6 +4,7 @@
 #include <hipe.h>
 #include <unistd.h> //for sleep function
 #include <stdio.h>
+#include <stdlib.h>
 #include <string.h>
 
 hipe_session session;
@@ -144,6 +145,10 @@ int main(int argc, char** argv) {
 
     }
 
+    //request keyboard events...
+    hipe_send(session, HIPE_OPCODE_EVENT_REQUEST, 'K', 0, "keydown", "");
+
+
     int fAvailable[3];
     fAvailable[0] = 1;  //boolean flags indicate which frames are vacant for client connections.
     fAvailable[1] = 1;
@@ -221,7 +226,17 @@ int main(int argc, char** argv) {
             }
         } else if(hi.opcode == HIPE_OPCODE_EVENT) {
             i = hi.requestor;
-            if(hi.location == closeButton[i]) {
+            if(i == 'K') { //keyboard event.
+                if(hi.arg2Length==2 && hi.arg2[0] == '4' && hi.arg2[1] == '4') { //44 is the keycode for PrintScreen
+                    printf("Taking screenshot.\n");
+                    hipe_send(session, HIPE_OPCODE_TAKE_SNAPSHOT, 0,0, "pdf", 0);
+                    hipe_await_instruction(session, &instruction, HIPE_OPCODE_FILE_RETURN);
+                    FILE* fp;
+                    fp = fopen("/tmp/quadrant_screenshot.pdf", "w");
+                    fwrite(instruction.arg1, 1, instruction.arg1Length, fp);
+                    fclose(fp);
+                }
+            } else if(hi.location == closeButton[i]) {
                 hipe_send(session, HIPE_OPCODE_FRAME_CLOSE, 0, f[i], 0,0);
                 //close the application
             } else if(hi.location == maxButton[i]) {

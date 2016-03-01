@@ -1,9 +1,11 @@
 server/hiped
 server/build
 server/build-debug
+server/*.o
 api/build/*.o
 api/build/*.a
 api/test/calc
 api/test/clock
 api/test/jpegviewer
 api/test/quadrant
+README

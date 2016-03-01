@@ -26,6 +26,7 @@
 
 extern ContainerManager* globalContainerManager; //pointer to the one and only ContainerManager instance created in main().
 extern QDesktopWidget* desktop;
+extern std::string uid; //UID number of the Unix user that owns this hiped instance.
 
 class ContainerManager
 {

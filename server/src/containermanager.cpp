@@ -23,6 +23,7 @@
 
 ContainerManager* globalContainerManager; //pointer to the one and only ContainerManager instance created in main().
 QDesktopWidget* desktop;
+std::string uid;
 
 ContainerManager::ContainerManager(std::string keyFilePath)
 {

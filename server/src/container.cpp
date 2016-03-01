@@ -22,6 +22,8 @@
 
 #include <QWebFrame>
 #include <QWebPage>
+#include <QPrinter>
+#include <stdio.h>
 
 //INCOMING REQUESTS FROM CLIENTTHREAD (must come from there)
 // - requestor: arbitrary pointer to the entity on the client end that requires the action.
@@ -192,6 +194,60 @@ void Container::receiveInstruction(hipe_instruction instruction)
         location.toggleClass(arg1);
     } else if(instruction.opcode == HIPE_OPCODE_SET_FOCUS) {
         location.setFocus();
+    } else if(instruction.opcode == HIPE_OPCODE_TAKE_SNAPSHOT) {
+        if(arg1.toLower() == "pdf") { //vector screenshot.
+            QPrinter pdfGen(QPrinter::HighResolution);
+            pdfGen.setOutputFormat(QPrinter::PdfFormat);
+            pdfGen.setFontEmbeddingEnabled(true);
+            pdfGen.setFullPage(true);
+            //use 300DPI default resolution. Hmm, we probably ought to get a preferred resolution from the user.
+            pdfGen.setPaperSize(QSizeF(webElement.webFrame()->contentsSize().width()/300., webElement.webFrame()->contentsSize().height()/300.), QPrinter::Inch);
+            QString snapshotFile = QString("/tmp/hipe-uid") + uid.c_str() + "_snapshot.pdf";
+            pdfGen.setOutputFileName(snapshotFile);
+            webElement.webFrame()->print(&pdfGen);
+
+            //We now have the screenshot in a temporary file. We need to get that file's contents and send
+            //it back to the client.
+            FILE* ssFile = fopen(snapshotFile.toStdString().c_str(), "r");
+            bool success = true;
+            char* fData = 0;
+            size_t size;
+            if(ssFile) { //successfully opened
+                fseek(ssFile, 0, SEEK_END); //determine file size
+                size = ftell(ssFile);
+                rewind(ssFile);
+                fData = (char*) malloc(size);
+                size_t result = fread(fData, 1, size, ssFile);
+                if(result != size) success = false;
+                fclose(ssFile);
+            } else {
+                success = false;
+            }
+
+            //send the file and/or error state to the client.
+            hipe_instruction payload;
+            hipe_instruction_init(&payload);
+            payload.opcode = HIPE_OPCODE_FILE_RETURN;
+            payload.requestor = instruction.requestor;
+            payload.location = instruction.location;
+            if(success) {
+                payload.arg1 = fData;
+                payload.arg1Length = size;
+                payload.arg2 = 0; payload.arg2Length = 0;
+            } else {
+                payload.arg1 = 0; payload.arg1Length = 0;
+                payload.arg2 = "File error.";
+                payload.arg2Length = 11;
+            }
+
+///FIXME: to this point, I've verified that the payload contains the whole file.
+/// But when this is transmitted/read back into quadrant past this point, quadrant writes a truncated file which is
+/// then padded out to the right size.
+
+            client->sendInstruction(payload);
+            free(fData);
+            //remove(snapshotFile.toStdString().c_str());
+        }
     }
 }
 

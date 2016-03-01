@@ -60,6 +60,16 @@ void Connection::sendInstruction(char opcode, int64_t requestor, int64_t locatio
     instruction_encoder_clear(&outgoingInstruction);
 }
 
+void Connection::sendInstruction(hipe_instruction& instruction)
+{
+    instruction_encoder outgoingInstruction;
+    instruction_encoder_init (&outgoingInstruction);
+    instruction_encoder_encodeinstruction(&outgoingInstruction, instruction);
+
+    con->write((const char*)outgoingInstruction.encoded_output, outgoingInstruction.encoded_length);
+    instruction_encoder_clear(&outgoingInstruction);
+}
+
 void Connection::publishInstruction()
 {
     if(currentInstruction.output.opcode == HIPE_OPCODE_REQUEST_CONTAINER) {

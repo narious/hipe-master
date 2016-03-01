@@ -174,6 +174,16 @@ extern "C" {
  * arg2 is the binary contents of the media file itself.
  */
 
+#define HIPE_OPCODE_TAKE_SNAPSHOT      35
+/* Takes a screenshot of the client frame.
+ * arg1 is the file format. ("pdf" for vector screenshots, or "png" for raster screenshots.)
+ */
+
+#define HIPE_OPCODE_FILE_RETURN        36
+/* Sent to the client when the client requests a file (e.g. a snapshot of the frame contents).
+ * requestor carries the value of the instruction that requested the file.
+ */
+
 
 /*--------------*/
 
