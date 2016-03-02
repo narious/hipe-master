@@ -50,6 +50,9 @@ void hipe_instruction_copy(hipe_instruction* dest, hipe_instruction* src)
     *dest = *src;
     dest->arg1 = malloc(dest->arg1Length);
     dest->arg2 = malloc(dest->arg2Length);
-    strncpy(dest->arg1, src->arg1, src->arg1Length);
-    strncpy(dest->arg2, src->arg2, src->arg2Length);
+    uint32_t i;
+    for(i=0; i<dest->arg1Length; i++)
+        dest->arg1[i] = src->arg1[i];
+    for(i=0; i<dest->arg2Length; i++)
+        dest->arg2[i] = src->arg2[i];
 }

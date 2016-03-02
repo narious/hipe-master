@@ -200,8 +200,9 @@ void Container::receiveInstruction(hipe_instruction instruction)
             pdfGen.setOutputFormat(QPrinter::PdfFormat);
             pdfGen.setFontEmbeddingEnabled(true);
             pdfGen.setFullPage(true);
-            //use 300DPI default resolution. Hmm, we probably ought to get a preferred resolution from the user.
-            pdfGen.setPaperSize(QSizeF(webElement.webFrame()->contentsSize().width()/300., webElement.webFrame()->contentsSize().height()/300.), QPrinter::Inch);
+            //scale paper size to 1200DPI resolution, which is what QPrinter::HighResolution uses.
+            pdfGen.setResolution(QPrinter::HighResolution);
+            pdfGen.setPaperSize(QSizeF(webElement.webFrame()->contentsSize().width()/1200., webElement.webFrame()->contentsSize().height()/1200.), QPrinter::Inch);
             QString snapshotFile = QString("/tmp/hipe-uid") + uid.c_str() + "_snapshot.pdf";
             pdfGen.setOutputFileName(snapshotFile);
             webElement.webFrame()->print(&pdfGen);
@@ -236,17 +237,13 @@ void Container::receiveInstruction(hipe_instruction instruction)
                 payload.arg2 = 0; payload.arg2Length = 0;
             } else {
                 payload.arg1 = 0; payload.arg1Length = 0;
-                payload.arg2 = "File error.";
+                payload.arg2 = (char*) "File error.";
                 payload.arg2Length = 11;
             }
 
-///FIXME: to this point, I've verified that the payload contains the whole file.
-/// But when this is transmitted/read back into quadrant past this point, quadrant writes a truncated file which is
-/// then padded out to the right size.
-
             client->sendInstruction(payload);
             free(fData);
-            //remove(snapshotFile.toStdString().c_str());
+            remove(snapshotFile.toStdString().c_str()); //delete the temporary file.
         }
     }
 }
