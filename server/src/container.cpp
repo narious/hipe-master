@@ -196,13 +196,12 @@ void Container::receiveInstruction(hipe_instruction instruction)
         location.setFocus();
     } else if(instruction.opcode == HIPE_OPCODE_TAKE_SNAPSHOT) {
         if(arg1.toLower() == "pdf") { //vector screenshot.
-            QPrinter pdfGen(QPrinter::HighResolution);
+            QPrinter pdfGen(QPrinter::ScreenResolution);
             pdfGen.setOutputFormat(QPrinter::PdfFormat);
             pdfGen.setFontEmbeddingEnabled(true);
             pdfGen.setFullPage(true);
-            //scale paper size to 1200DPI resolution, which is what QPrinter::HighResolution uses.
-            pdfGen.setResolution(QPrinter::HighResolution);
-            pdfGen.setPaperSize(QSizeF(webElement.webFrame()->contentsSize().width()/1200., webElement.webFrame()->contentsSize().height()/1200.), QPrinter::Inch);
+            //scale paper size to whichever resolution the QPrinter object is using:
+            pdfGen.setPaperSize(QSizeF(webElement.webFrame()->contentsSize().width()/pdfGen.resolution(), webElement.webFrame()->contentsSize().height()/pdfGen.resolution()), QPrinter::Inch);
             QString snapshotFile = QString("/tmp/hipe-uid") + uid.c_str() + "_snapshot.pdf";
             pdfGen.setOutputFileName(snapshotFile);
             webElement.webFrame()->print(&pdfGen);

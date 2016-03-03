@@ -29,6 +29,8 @@ hipe_loc getLastChild(hipe_loc parent) {
 int main(int argc, char** argv) {
     int i;
 
+    printf("To take a vector screenshot, focus the top-right Quadrant frame and press Print Screen.\nThe screenshot will be saved in /tmp/.\n");
+
     //Request a new top-level application frame from the Hipe server
     session = hipe_open_session(argc>1 ? argv[1] : 0,0,0,"Quadrant");
     if(!session) return 1;
