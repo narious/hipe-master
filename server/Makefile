@@ -1107,6 +1107,9 @@ main.o: src/main.cpp /usr/include/qt5/QtWidgets/QApplication \
 		/usr/include/qt5/QtWebKit/qwebsettings.h \
 		/usr/include/qt5/QtWebKit/qwebkitglobal.h \
 		/usr/include/qt5/QtGui/qicon.h \
+		/usr/include/qt5/QtCore/QCommandLineParser \
+		/usr/include/qt5/QtCore/qcommandlineparser.h \
+		/usr/include/qt5/QtCore/qcommandlineoption.h \
 		src/connectionmanager.h \
 		/usr/include/qt5/QtNetwork/QLocalServer \
 		/usr/include/qt5/QtNetwork/qlocalserver.h \
@@ -1776,7 +1779,11 @@ container.o: src/container.cpp src/container.h \
 		src/containerframe.h \
 		/usr/include/qt5/QtWebKitWidgets/QWebPage \
 		/usr/include/qt5/QtWebKitWidgets/qwebpage.h \
-		/usr/include/qt5/QtWebKit/qwebsettings.h
+		/usr/include/qt5/QtWebKit/qwebsettings.h \
+		/usr/include/qt5/QtPrintSupport/QPrinter \
+		/usr/include/qt5/QtPrintSupport/qprinter.h \
+		/usr/include/qt5/QtGui/qpagedpaintdevice.h \
+		/usr/include/qt5/QtPrintSupport/qtprintsupportglobal.h
 	$(CXX) -c $(CXXFLAGS) $(INCPATH) -o container.o src/container.cpp
 
 containerframe.o: src/containerframe.cpp src/containerframe.h \
