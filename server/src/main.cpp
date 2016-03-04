@@ -52,7 +52,6 @@ int main(int argc, char *argv[])
     clp.addVersionOption();
     clp.process(a);
 
-
     a.setQuitOnLastWindowClosed(false);
     desktop = a.desktop();
 

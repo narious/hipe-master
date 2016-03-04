@@ -90,22 +90,28 @@ hipe_session hipe_open_session(const char* host_key, const char* socket_path, co
     char keyPath[200];
     char key[200];
 
-    if(socket_path) {
-        strcpy(sockPath, socket_path);
-    } else {
+    if(socket_path) { /*socket path specified by the caller*/
+        strncpy(sockPath, socket_path, 200);
+    } else if(getenv("HIPE_SOCKET")) { /*socket path specified by environment variable HIPE_SOCKET*/
+        strncpy(sockPath, getenv("HIPE_SOCKET"), 200);
+    } else { /*Infer default socket path*/
         /*by default, the socket path is /tmp/H-uid1000.socket, where 1000 is the user's UID.*/
-        sprintf(sockPath, "/tmp/hipe-uid%u.socket", getuid());
+        snprintf(sockPath, 200, "/tmp/hipe-uid%u.socket", getuid());
     }
 
-    if(key_path) {
-        strcpy(keyPath, key_path);
+    if(key_path) { /*keyfile path specified by caller*/
+        strncpy(keyPath, key_path, 200);
+    } else if(getenv("HIPE_KEYFILE")) { //keyfile path specified by environment variable HIPE_KEYFILE
+        strncpy(keyPath, getenv("HIPE_KEYFILE"), 200);
     } else {
-        sprintf(keyPath, "/tmp/hipe-uid%u.hostkey", getuid());
+        snprintf(keyPath, 200, "/tmp/hipe-uid%u.hostkey", getuid());
     }
 
-    if(host_key)
-        strcpy(key, host_key);
-    else { /*need to load a key from the given key_path.*/
+    if(host_key) { /*host key specified by user*/
+        strncpy(key, host_key, 200);
+    } else if(getenv("HIPE_HOSTKEY")) { /*key specified by environment [note: each key can only be used once.]*/
+        strncpy(key, getenv("HIPE_HOSTKEY"), 200);
+    } else { /*need to load a key from the given key_path.*/
         FILE* keyfile;
         keyfile = fopen(keyPath, "r");
         if(!keyfile) { /*could not open keyfile*/

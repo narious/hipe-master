@@ -2,6 +2,7 @@ server/hiped
 server/build
 server/build-debug
 server/*.o
+server/moc_*.cpp
 api/build/*.o
 api/build/*.a
 api/test/calc
