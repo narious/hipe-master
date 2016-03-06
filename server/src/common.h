@@ -78,7 +78,7 @@ the completed instruction may be read from the output member variable.*/
 
 
 
-void decodeInstructionPreamble(const char* preamble, char* opcode, uint64_t* requestor, uint64_t* location, uint32_t* arg1len, uint32_t* arg2len);
+void decodeInstructionPreamble(const char* preamble, char* opcode, uint64_t* requestor, hipe_loc* location, uint32_t* arg1len, uint32_t* arg2len);
 
 
 

@@ -70,7 +70,7 @@ short instruction_decoder_iscomplete(instruction_decoder* obj)
 
 
 
-void decodeInstructionPreamble(const char* preamble, char* opcode, uint64_t* requestor, uint64_t* location, uint32_t* arg1len, uint32_t* arg2len)
+void decodeInstructionPreamble(const char* preamble, char* opcode, uint64_t* requestor, hipe_loc* location, uint32_t* arg1len, uint32_t* arg2len)
 /*preamble is an array of characters of length PREAMBLE_LENGTH that have been read into the array.
  *They are the initial fixed-length preamble of the instruction.
  *Returns everything except the two variable-length arguments, but returns their lengths so they

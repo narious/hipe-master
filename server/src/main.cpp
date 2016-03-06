@@ -83,5 +83,4 @@ int main(int argc, char *argv[])
         std::cerr << "Couldn't open socket.\n";
         return 1;
     }
-
 }
