@@ -110,7 +110,7 @@ int main(int argc, char** argv)
     hipe_send(session, HIPE_OPCODE_SET_STYLE, 0, tableLoc, "visibility", "hidden"); //hide the table until constructed.
 
     hipe_send(session, HIPE_OPCODE_APPEND_TAG, 0, tableLoc, "tbody", 0);
-    hipe_loc tbodyLoc = getLastChild(tbodyLoc);
+    hipe_loc tbodyLoc = getLastChild(tableLoc);
     hipe_send(session, HIPE_OPCODE_APPEND_TAG, 0, tbodyLoc, "tr", 0);
 
     //first row of table layout shows the calculator's mantissa display
