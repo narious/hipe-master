@@ -8,7 +8,9 @@
 #include <string.h>
 
 hipe_session session;
-
+int fAvailable[3]; //indicates which frames are available.
+char hostkey[3][40]; //assume hostkeys won't be longer than 40 characters. A little risky perhaps but we should be OK.
+hipe_loc keyDisp;
 
 hipe_loc getLoc(char* id) {
     hipe_send(session, HIPE_OPCODE_GET_BY_ID, 0, 0, id, 0); 
@@ -24,6 +26,20 @@ hipe_loc getLastChild(hipe_loc parent) {
     hipe_instruction_init(&instruction);
     hipe_await_instruction(session, &instruction, HIPE_OPCODE_LOCATION_RETURN);
     return instruction.location;
+}
+
+void updateKey() {
+    int i;
+    for(i=0; i<3; i++) {
+        if(fAvailable[i]) 
+            break;
+    }
+    if(i==3) //session full.
+        hipe_send(session, HIPE_OPCODE_SET_TEXT, 0, keyDisp, "[Session full]", 0);
+    else {
+        hipe_send(session, HIPE_OPCODE_SET_TEXT, 0, keyDisp, hostkey[i], 0); //update display with new host key
+        printf("Quadrant: new host key: %s\n", hostkey[i]);  //echo new host key to console
+    }
 }
 
 int main(int argc, char** argv) {
@@ -151,7 +167,6 @@ int main(int argc, char** argv) {
     hipe_send(session, HIPE_OPCODE_EVENT_REQUEST, 'K', 0, "keydown", "");
 
 
-    int fAvailable[3];
     fAvailable[0] = 1;  //boolean flags indicate which frames are vacant for client connections.
     fAvailable[1] = 1;
     fAvailable[2] = 1;
@@ -160,8 +175,6 @@ int main(int argc, char** argv) {
     fMaxed[0] = 0; //boolean flags indicate whether a frame is maximised.
     fMaxed[1] = 0;
     fMaxed[2] = 0;
-
-    char hostkey[3][40]; //assume hostkeys won't be longer than 40 characters. A little risky perhaps but we should be OK.
 
     //Get hostkey of each frame
     for(i=0; i<3; i++) {
@@ -172,8 +185,8 @@ int main(int argc, char** argv) {
         hostkey[i][instruction.arg1Length] = '\0'; //received arguments don't have null-terminators, so add one.
     }
 
-    hipe_loc keyDisp = getLoc("nextkeydisp");
-    hipe_send(session, HIPE_OPCODE_SET_TEXT, 0, keyDisp, hostkey[0], 0);
+    keyDisp = getLoc("nextkeydisp");
+    updateKey();
 
     hipe_instruction hi;
     hipe_instruction_init(&hi); //each received instruction will be read into hi.
@@ -217,14 +230,7 @@ int main(int argc, char** argv) {
 
             //determine the next hostkey to display to the user
             if(hi.arg1[0] == HIPE_FRAME_EVENT_CLIENT_CONNECTED || hi.arg1[0] == HIPE_FRAME_EVENT_CLIENT_DISCONNECTED) {
-                for(i=0; i<3; i++) {
-                    if(fAvailable[i]) {
-                        hipe_send(session, HIPE_OPCODE_SET_TEXT, 0, keyDisp, hostkey[i], 0);
-                        break;
-                    }
-                }
-                if(i==3) //session full.
-                    hipe_send(session, HIPE_OPCODE_SET_TEXT, 0, keyDisp, "[Session full]", 0);
+                updateKey();
             }
         } else if(hi.opcode == HIPE_OPCODE_EVENT) {
             i = hi.requestor;
