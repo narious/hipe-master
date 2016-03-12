@@ -60,6 +60,8 @@ int main(int argc, char** argv) {
     hipe_send(session, HIPE_OPCODE_ADD_STYLE_RULE, 0,0, ".frame","position:fixed;height:50%;width:50%;background-color:white;border:2px inset;");
     hipe_send(session, HIPE_OPCODE_ADD_STYLE_RULE, 0,0, ".frame.maximised","top:12.5% !important;height:87.5%;width:100%;z-index:99;");
     hipe_send(session, HIPE_OPCODE_ADD_STYLE_RULE, 0,0, ".caption.maximised","top:0 !important; left:0 !important; width:100%;");
+    hipe_send(session, HIPE_OPCODE_ADD_STYLE_RULE, 0,0, "button","border-radius: 18%; font-size:small");
+    hipe_send(session, HIPE_OPCODE_ADD_STYLE_RULE, 0,0, "button","margin:2px;");
 
     hipe_send(session, HIPE_OPCODE_APPEND_TAG, 0,0, "div", 0);
     hipe_loc infoFrame = getLastChild(0);
@@ -147,6 +149,11 @@ int main(int argc, char** argv) {
         hipe_send(session, HIPE_OPCODE_SET_STYLE, 0, closeButton[i], "bottom", "0");
         hipe_send(session, HIPE_OPCODE_SET_STYLE, 0, closeButton[i], "left", "0");
         hipe_send(session, HIPE_OPCODE_SET_STYLE, 0, closeButton[i], "width", "2em");
+        hipe_send(session, HIPE_OPCODE_SET_STYLE, 0, closeButton[i], "background-color", "darkred");
+        hipe_send(session, HIPE_OPCODE_SET_STYLE, 0, closeButton[i], "border-color", "red");
+        hipe_send(session, HIPE_OPCODE_SET_STYLE, 0, closeButton[i], "color", "white");
+        hipe_send(session, HIPE_OPCODE_SET_STYLE, 0, closeButton[i], "font-weight", "bold");
+        
 
         hipe_send(session, HIPE_OPCODE_GET_LAST_CHILD, 0, fInfo[i], 0,0);
         hipe_await_instruction(session, &instruction, HIPE_OPCODE_LOCATION_RETURN);
@@ -156,6 +163,10 @@ int main(int argc, char** argv) {
         hipe_send(session, HIPE_OPCODE_SET_STYLE, 0, maxButton[i], "bottom", "0");
         hipe_send(session, HIPE_OPCODE_SET_STYLE, 0, maxButton[i], "left", "2em");
         hipe_send(session, HIPE_OPCODE_SET_STYLE, 0, maxButton[i], "width", "2em");
+        hipe_send(session, HIPE_OPCODE_SET_STYLE, 0, maxButton[i], "background-color", "green");
+        hipe_send(session, HIPE_OPCODE_SET_STYLE, 0, maxButton[i], "border-color", "lightgreen");
+        hipe_send(session, HIPE_OPCODE_SET_STYLE, 0, maxButton[i], "color", "white");
+        hipe_send(session, HIPE_OPCODE_SET_STYLE, 0, maxButton[i], "font-weight", "bold");
 
         //request events from the close and maximise buttons...
         hipe_send(session, HIPE_OPCODE_EVENT_REQUEST, i, closeButton[i], "click", 0);
