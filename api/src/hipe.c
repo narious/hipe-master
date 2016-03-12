@@ -96,7 +96,10 @@ hipe_session hipe_open_session(const char* host_key, const char* socket_path, co
         strncpy(sockPath, getenv("HIPE_SOCKET"), 200);
     } else { /*Infer default socket path*/
         /*by default, the socket path is /tmp/H-uid1000.socket, where 1000 is the user's UID.*/
-        snprintf(sockPath, 200, "/tmp/hipe-uid%u.socket", getuid());
+        //snprintf(sockPath, 200, "/tmp/hipe-uid%u.socket", getuid());
+
+        default_runtime_dir(sockPath, 200);
+        strncat(sockPath, "hipe.socket", 200-strlen(sockPath));
     }
 
     if(key_path) { /*keyfile path specified by caller*/
@@ -104,7 +107,10 @@ hipe_session hipe_open_session(const char* host_key, const char* socket_path, co
     } else if(getenv("HIPE_KEYFILE")) { //keyfile path specified by environment variable HIPE_KEYFILE
         strncpy(keyPath, getenv("HIPE_KEYFILE"), 200);
     } else {
-        snprintf(keyPath, 200, "/tmp/hipe-uid%u.hostkey", getuid());
+        //snprintf(keyPath, 200, "/tmp/hipe-uid%u.hostkey", getuid());
+
+        default_runtime_dir(keyPath, 200);
+        strncat(keyPath, "hipe.hostkey", 200-strlen(keyPath));
     }
 
     if(host_key) { /*host key specified by user*/

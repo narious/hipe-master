@@ -29,7 +29,7 @@ ConnectionManager::ConnectionManager(ContainerManager* theContainerManager, QObj
     QLocalServer(parent)
 {
     containerManager = theContainerManager;
-    setSocketOptions(QLocalServer::UserAccessOption);
+//    setSocketOptions(QLocalServer::UserAccessOption);
     connect(this,SIGNAL(newConnection()),this,SLOT(acceptConnection()));
 }
 

@@ -24,7 +24,31 @@
 
 #include "common.h"
 #include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
+#include <sys/types.h>
 
+int default_runtime_dir(char path_ret[], int buffer_size)
+{
+    char* xdg_path;
+    int length;
+    if(!getuid()) { //if root.
+        strncpy(path_ret, "/run/", buffer_size);
+    } else if((xdg_path = getenv("XDG_RUNTIME_DIR"))) { //this will be a path like "/run/user/1000", if set.
+        if(strlen(xdg_path) >= buffer_size-1) return -1;
+        strncpy(path_ret, xdg_path, buffer_size);
+    } else { //fallback if XDG_RUNTIME_DIR isn't set. /tmp/ is writable by everyone.
+        strncpy(path_ret, "/tmp/", buffer_size);
+    }
+    length = strlen(path_ret);
+    if(length < buffer_size-1) {
+        if(path_ret[length-1] != '/')
+            path_ret[length++] = '/'; //ensure trailing slash in path name.
+        path_ret[length++] = '\0';
+        return length;
+    } else
+        return -1;
+}
 
 void instruction_decoder_init(instruction_decoder* obj)
 {
