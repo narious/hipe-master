@@ -44,7 +44,7 @@ int main(int argc, char *argv[])
     a.setApplicationVersion("v0 alpha. Check README.md for more specific info.");
     QCommandLineParser clp;
     clp.setApplicationDescription("Hipe display server.");
-    QCommandLineOption socketFileArg("socket", "Create server socket file with a custom name. The socket location is /tmp/ and cannot be changed.", "filename", "");
+    QCommandLineOption socketFileArg("socket", "Create server socket file with a custom path and filename.", "file path", "");
     clp.addOption(socketFileArg);
     QCommandLineOption keyFileArg("keyfile", "Create top-level host key file with a custom path and filename.", "file path", "");
     clp.addOption(keyFileArg);
