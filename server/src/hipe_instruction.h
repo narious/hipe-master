@@ -184,6 +184,10 @@ extern "C" {
  * requestor carries the value of the instruction that requested the file.
  */
 
+#define HIPE_OPCODE_ADD_STYLE_RULE_SRC 37
+/* Sets background image data for a particular CSS style rule.
+ * arg1 is the CSS designator and arg2 is the image file data, which should be PNG format.
+ */
 
 /*--------------*/
 

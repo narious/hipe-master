@@ -139,11 +139,14 @@ void Container::receiveInstruction(hipe_instruction instruction)
         location.setAttribute("src", dataURI);
     } else if(instruction.opcode == HIPE_OPCODE_SET_BACKGROUND_SRC) {
         QString dataURI = QString("data:") + arg1 + ";base64,";
-
         QByteArray b64Data = QByteArray(instruction.arg2, instruction.arg2Length).toBase64();
-
         dataURI += QString::fromLocal8Bit(b64Data);
         location.setStyleProperty("background-image", QString("url(\"") + dataURI + "\")");
+    } else if(instruction.opcode == HIPE_OPCODE_ADD_STYLE_RULE_SRC) {
+        QString dataURI = QString("data:image/png;base64,");
+        QByteArray b64Data = QByteArray(instruction.arg2, instruction.arg2Length).toBase64();
+        dataURI += QString::fromLocal8Bit(b64Data);
+        stylesheet += arg1 + "{background-image:url(\"" + dataURI + "\");}\n";
     } else if(instruction.opcode == HIPE_OPCODE_GET_FRAME_KEY) {
         //Check if the location is already represented in the frame table.
         QString frameID = location.attribute("id"); //Need this for matching the frame. (Webkit seems to supply IDs automatically when none are provided by the user.)
