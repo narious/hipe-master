@@ -3,6 +3,7 @@ server/build
 server/build-debug
 server/*.o
 server/moc_*.cpp
+server/Makefile
 api/build/*.o
 api/build/*.a
 api/test/calc

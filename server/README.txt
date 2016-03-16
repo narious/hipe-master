@@ -4,8 +4,9 @@ Build instructions:
 
 You can either build the Qt project using Qt Creator, or alternatively from the terminal as follows:
 
-Run the following command.
+Run the following commands from this directory.
 
+$ qmake -makefile ./src/hiped.pro
 $ make
 
 Then clean up the object files with:
@@ -14,13 +15,6 @@ $ make clean
 
 
 Now the hiped executable is ready to run.
-
-
-IF THE MAKEFILE ISN'T WORKING FOR YOU:
-
-Generate a new Makefile as follows:
-
-$ qmake -makefile ./src/hiped.pro
 
 
 
