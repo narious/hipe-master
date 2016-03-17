@@ -39,7 +39,7 @@ ContainerFrame::~ContainerFrame()
 void ContainerFrame::setBody(QString newBodyHtml, bool overwrite)
 {
     if(!initYet) {
-        frame->setHtml(QString("<html><head><style>") + stylesheet + "</style></head><body></body></html>");
+        frame->setHtml(QString("<html><head><style>") + stylesheet + "</style><script>var canvascontext;</script></head><body></body></html>");
         webElement = frame->documentElement().lastChild();
         initYet = true;
     }

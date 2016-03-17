@@ -189,6 +189,22 @@ extern "C" {
  * arg1 is the CSS designator and arg2 is the image file data, which should be PNG format.
  */
 
+#define HIPE_OPCODE_USE_CANVAS         38
+/* Sets a canvas object at location to be the active canvas for drawing.
+ * arg1 is the canvas drawing context to be used (e.g. "2d").
+ */
+
+#define HIPE_OPCODE_CANVAS_ACTION      39
+/* Carries out a drawing method on the canvas object selected with HIPE_OPCODE_USE_CANVAS.
+ * arg1 is the method to use (e.g. "fillRect") and arg2 is a string of comma-separated
+ * parameters (e.g "0,0,150,75").
+ */
+
+#define HIPE_OPCODE_CANVAS_SET_PROPERTY 40
+/* Sets a property on the current canvas context.
+ * arg1 is the property, arg2 is the desired value.
+ */
+
 /*--------------*/
 
 #define HIPE_FRAME_EVENT_CLIENT_CONNECTED    1 //arg2 is client name

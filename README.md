@@ -1,7 +1,6 @@
-v0.15alpha -- 12 Mar 2016
+next: v0.16alpha -- >12 Mar 2016
 
-- Placement of socket and key files is now in line with XDG guidelines, so clients have a predictable scheme for locating the Hipe display server.
-- Minor improvements to the included test applications.
+- Improvements to the repository distribution.
+- Ability to have background images for things like button hover.
 
 TODO:
-* Provide the ability to manipulate a canvas object.

@@ -49,7 +49,7 @@ void ContainerTopLevel::setTitle(QString newTitle) {
 
 void ContainerTopLevel::setBody(QString newBodyHtml, bool overwrite) {
     if(!w->wasInitYet()) {
-        webElement = w->initBoilerplate(QString("<html><head><style>") + stylesheet + "</style></head><body></body></html>"); //initialiser. If ommitted, resource images won't display (!)
+        webElement = w->initBoilerplate(QString("<html><head><style>") + stylesheet + "</style><script>var canvascontext;</script></head><body></body></html>"); //initialiser. If ommitted, resource images won't display (!)
         webElement.removeAllChildren();
     }
     if(overwrite) webElement.setInnerXml(newBodyHtml); //remove any existing body as the user wishes to overwrite it.

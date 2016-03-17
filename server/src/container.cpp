@@ -247,6 +247,19 @@ void Container::receiveInstruction(hipe_instruction instruction)
             free(fData);
             remove(snapshotFile.toStdString().c_str()); //delete the temporary file.
         }
+    } else if(instruction.opcode == HIPE_OPCODE_USE_CANVAS) {
+        webElement.evaluateJavaScript(QString("canvascontext=document.getElementById(\"")
+                                      + location.attribute("id") + "\").getContext(\"" + arg1 + "\");");
+        //TODO: sanitise arg1 against e.g. quotation marks.
+        //Don't allow parentheses or semicolons.
+    } else if(instruction.opcode == HIPE_OPCODE_CANVAS_ACTION) {
+        webElement.evaluateJavaScript(QString("canvascontext.") + arg1 + "(" + arg2 + ");");
+        //TODO sanitise arg1 and arg2 against javascript injections.
+        //Don't allow parentheses or semicolons.
+    } else if(instruction.opcode == HIPE_OPCODE_CANVAS_SET_PROPERTY) {
+        webElement.evaluateJavaScript(QString("canvascontext.") + arg1 + "=" + arg2 + ";");
+        //TODO sanitise arg1 and arg2 against javascript injections.
+        //Don't allow parentheses, semicolons, etc.
     }
 }
 
