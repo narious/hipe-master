@@ -1,9 +1,11 @@
 server/hiped
 server/build
 server/build-debug
+server/build-hiped-Desktop-Debug
 server/*.o
 server/moc_*.cpp
 server/Makefile
+server/src/hiped.pro.user
 api/build/*.o
 api/build/*.a
 api/test/calc
