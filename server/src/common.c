@@ -28,10 +28,10 @@
 #include <unistd.h>
 #include <sys/types.h>
 
-int default_runtime_dir(char path_ret[], int buffer_size)
+int default_runtime_dir(char path_ret[], size_t buffer_size)
 {
     char* xdg_path;
-    int length;
+    size_t length;
     if(!getuid()) { //if root.
         strncpy(path_ret, "/run/", buffer_size);
     } else if((xdg_path = getenv("XDG_RUNTIME_DIR"))) { //this will be a path like "/run/user/1000", if set.

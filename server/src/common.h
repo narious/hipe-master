@@ -42,7 +42,7 @@ extern "C" {
 #include "hipe_instruction.h"
 
 
-int default_runtime_dir(char path_ret[], int buffer_size);
+int default_runtime_dir(char path_ret[], size_t buffer_size);
 /* Determines a suitable default runtime path for storing files shared between the server and clients,
 copies the path (including trailing slash) into passed array pathRet (with maximum array size given),
 and returns the character length of the path (not counting the final null-terminator).
