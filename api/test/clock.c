@@ -63,7 +63,6 @@ int main(int argc, char** argv)
     hipe_send(session, HIPE_OPCODE_EVENT_REQUEST, 0, small_digits, "click", "");
     //hipe_send(session, HIPE_OPCODE_EVENT_CANCEL, 0, small_digits, "mouseover", "");
 
-    //For now, just loop until the user hits ^C to terminate the application.
     while(1) {
         time(&timestamp);
         timeinfo = localtime(&timestamp);

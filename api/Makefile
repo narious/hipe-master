@@ -13,3 +13,4 @@ testing:
 	(cd test && gcc calc.c -o calc -lhipe)
 	(cd test && gcc jpegviewer.c -o jpegviewer -lhipe)
 	(cd test && gcc quadrant.c -o quadrant -lhipe)
+	(cd test && gcc canvas.c -o canvas -lhipe)

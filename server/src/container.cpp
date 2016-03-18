@@ -115,7 +115,12 @@ void Container::receiveInstruction(hipe_instruction instruction)
     } else if(instruction.opcode == HIPE_OPCODE_EVENT_REQUEST) {
         QString locStr = QString::number(instruction.location);
         QString reqStr = QString::number(requestor);
-        location.setAttribute(QString("on") + arg1, QString("c.receiveGuiEvent(") + locStr + "," + reqStr + ",'" + arg1 + "',event.which)");
+        QString evtDetailArgs;
+        if(arg1 == "mousemove" || arg1 == "mousedown" || arg1 == "mouseup")
+            evtDetailArgs = "'' + event.which + ',' + event.pageX + ',' + event.pageY";
+        else
+            evtDetailArgs = "event.which";
+        location.setAttribute(QString("on") + arg1, QString("c.receiveGuiEvent(") + locStr + "," + reqStr + ",'" + arg1 + "'," + evtDetailArgs + ")");
     } else if(instruction.opcode == HIPE_OPCODE_EVENT_CANCEL) {
         location.removeAttribute(QString("on") + arg1);
     } else if(instruction.opcode == HIPE_OPCODE_GET_GEOMETRY) {
