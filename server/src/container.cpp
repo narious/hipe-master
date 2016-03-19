@@ -267,7 +267,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
     } else if(instruction.opcode == HIPE_OPCODE_SET_ICON) {
         //TODO: implement this instruction.
     } else if(instruction.opcode == HIPE_OPCODE_REMOVE_ATTRIBUTE) {
-        if(isAllowedAttribute())
+        if(isAllowedAttribute(arg1))
             location.removeAttribute(arg1);
     }
 }
