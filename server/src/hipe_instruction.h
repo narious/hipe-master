@@ -205,6 +205,16 @@ extern "C" {
  * arg1 is the property, arg2 is the desired value.
  */
 
+#define HIPE_OPCODE_SET_ICON           41
+/* Sets the client application's icon, which will be passed to the client's
+ * parent environment for the purpose of helping the user identify this application.
+ * arg2 is the image file in PNG format. arg1 is unused/reserved for future use.
+ */
+
+#define HIPE_OPCODE_REMOVE_ATTRIBUTE   42
+/* Removes (unsets) the attribute specified in arg1. arg2 is unused.
+ */
+
 /*--------------*/
 
 #define HIPE_FRAME_EVENT_CLIENT_CONNECTED    1 //arg2 is client name

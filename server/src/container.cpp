@@ -103,7 +103,6 @@ void Container::receiveInstruction(hipe_instruction instruction)
     } else if(instruction.opcode == HIPE_OPCODE_GET_BY_ID) {
         client->sendInstruction(HIPE_OPCODE_LOCATION_RETURN, instruction.requestor,
                                 getIndexOfElement(webElement.findFirst(QString("#") + arg1)), "", "");
-
     } else if(instruction.opcode == HIPE_OPCODE_SET_ATTRIBUTE) {
         if(isAllowedAttribute(arg1))
             location.setAttribute(arg1, sanitisePlainText(arg2));
@@ -265,10 +264,13 @@ void Container::receiveInstruction(hipe_instruction instruction)
         webElement.evaluateJavaScript(QString("canvascontext.") + arg1 + "=" + arg2 + ";");
         //TODO sanitise arg1 and arg2 against javascript injections.
         //Don't allow parentheses, semicolons, etc.
+    } else if(instruction.opcode == HIPE_OPCODE_SET_ICON) {
+        //TODO: implement this instruction.
+    } else if(instruction.opcode == HIPE_OPCODE_REMOVE_ATTRIBUTE) {
+        if(isAllowedAttribute())
+            location.removeAttribute(arg1);
     }
 }
-
-
 
 void Container::containerClosed()
 //Called when the container is requested to be closed by the user.
