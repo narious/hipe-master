@@ -74,11 +74,11 @@ void Container::receiveInstruction(hipe_instruction instruction)
     } else if(instruction.opcode == HIPE_OPCODE_SET_TEXT) {
         arg1 = sanitisePlainText(arg1);
         if(!locationSpecified) setBody(arg1);
-        location.setInnerXml(arg1);
+        else location.setInnerXml(arg1);
     } else if(instruction.opcode == HIPE_OPCODE_APPEND_TEXT) {
         arg1 = sanitisePlainText(arg1);
         if(!locationSpecified) setBody(arg1, false);
-        location.appendInside(arg1);
+        else location.appendInside(arg1);
     } else if(instruction.opcode == HIPE_OPCODE_ADD_STYLE_RULE) {
         if(isAllowedCSS(arg1) && isAllowedCSS(arg2))
             stylesheet += arg1 + "{" + arg2 + "}\n";

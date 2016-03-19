@@ -58,16 +58,16 @@ int main(int argc, char** argv) {
                 sscanf(xy, "%d,%d", &x, &y);
 
                 if(button == '1' && !nowDrawing) {  /*start line.*/
-                    hipe_send(session, HIPE_OPCODE_CANVAS_ACTION, 0,canvas, "beginPath", 0);
-                    hipe_send(session, HIPE_OPCODE_CANVAS_ACTION, 0,canvas, "moveTo", xy);
+                    hipe_send(session, HIPE_OPCODE_CANVAS_ACTION, 0,0, "beginPath", 0);
+                    hipe_send(session, HIPE_OPCODE_CANVAS_ACTION, 0,0, "moveTo", xy);
                     nowDrawing = 1;
                 } else if(button == '0' && nowDrawing) {
-                    hipe_send(session, HIPE_OPCODE_CANVAS_ACTION, 0,canvas, "lineTo", xy);
-                    hipe_send(session, HIPE_OPCODE_CANVAS_ACTION, 0,canvas, "stroke", 0);
+                    hipe_send(session, HIPE_OPCODE_CANVAS_ACTION, 0,0, "lineTo", xy);
+                    hipe_send(session, HIPE_OPCODE_CANVAS_ACTION, 0,0, "stroke", 0);
                     nowDrawing = 0;
                 } else if(nowDrawing) {
-                    hipe_send(session, HIPE_OPCODE_CANVAS_ACTION, 0,canvas, "lineTo", xy);
-                    hipe_send(session, HIPE_OPCODE_CANVAS_ACTION, 0,canvas, "stroke", 0);
+                    hipe_send(session, HIPE_OPCODE_CANVAS_ACTION, 0,0, "lineTo", xy);
+                    hipe_send(session, HIPE_OPCODE_CANVAS_ACTION, 0,0, "stroke", 0);
                 }
 
                 free(xy);
