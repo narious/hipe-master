@@ -60,6 +60,7 @@ public:
     void receiveInstruction(hipe_instruction instruction);
 
     virtual void setTitle(QString newTitle)=0;
+    virtual void setIcon(const char* imgData, size_t length)=0;
     virtual void setBody(QString newBodyHtml, bool overwrite=true)=0;
 
     void containerClosed();

@@ -34,6 +34,7 @@ public:
     void setBody(QString newBodyHtml, bool overwrite=true);
 protected:
     void setTitle(QString newTitle);
+    void setIcon(const char* imgData, size_t length);
 private:
     bool initYet;
     Container* parent;

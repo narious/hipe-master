@@ -51,3 +51,8 @@ void ContainerFrame::setTitle(QString newTitle)
 {
     parent->receiveSubFrameEvent(HIPE_FRAME_EVENT_TITLE_CHANGED, frame, newTitle.toStdString());
 }
+
+void ContainerFrame::setIcon(const char* imgData, size_t length)
+{
+    parent->receiveSubFrameEvent(HIPE_FRAME_EVENT_ICON_CHANGED, frame, std::string(imgData, length));
+}

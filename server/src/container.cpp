@@ -265,6 +265,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
         //TODO sanitise arg1 and arg2 against javascript injections.
         //Don't allow parentheses, semicolons, etc.
     } else if(instruction.opcode == HIPE_OPCODE_SET_ICON) {
+
         //TODO: implement this instruction.
     } else if(instruction.opcode == HIPE_OPCODE_REMOVE_ATTRIBUTE) {
         if(isAllowedAttribute(arg1))

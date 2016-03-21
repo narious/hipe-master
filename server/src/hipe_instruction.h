@@ -220,6 +220,7 @@ extern "C" {
 #define HIPE_FRAME_EVENT_CLIENT_CONNECTED    1 //arg2 is client name
 #define HIPE_FRAME_EVENT_CLIENT_DISCONNECTED 2
 #define HIPE_FRAME_EVENT_TITLE_CHANGED       3 //arg2 is new title
+#define HIPE_FRAME_EVENT_ICON_CHANGED        4 //arg2 is binary PNG image data.
 
 
 typedef uint64_t hipe_loc;

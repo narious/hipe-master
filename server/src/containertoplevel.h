@@ -71,6 +71,7 @@ private:
 protected:
     void setTitle(QString newTitle);
     void setBody(QString newBodyHtml, bool overwrite=true);
+    void setIcon(const char* imgData, size_t length);
 };
 
 #endif // CLIENTWINDOW_H

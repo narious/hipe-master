@@ -26,6 +26,7 @@
 #include <QPalette>
 #include <QDesktopWidget>
 #include <QApplication>
+#include <QPixmap>
 
 //a client window wraps a WebView (from QGraphicsWebView) object.
 //At the top level, clients that request new frames are granted
@@ -54,6 +55,14 @@ void ContainerTopLevel::setBody(QString newBodyHtml, bool overwrite) {
     }
     if(overwrite) webElement.setInnerXml(newBodyHtml); //remove any existing body as the user wishes to overwrite it.
     else webElement.appendInside(newBodyHtml);
+}
+
+void ContainerTopLevel::setIcon(const char* imgData, size_t length)
+{
+    QPixmap iconData;
+    iconData.loadFromData((const uchar*) imgData, (uint) length);
+    QIcon icon(iconData);
+    w->setWindowIcon(icon);
 }
 
 
