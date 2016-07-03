@@ -20,9 +20,9 @@ int main(int argc, char** argv) {
     session = hipe_open_session(argc>1 ? argv[1] : 0,0,0,"canvas");
     if(!session) exit(1);
 
-    hipe_send(session, HIPE_OPCODE_APPEND_TAG, 0,0, "canvas", "canv");
     hipe_send(session, HIPE_OPCODE_SET_STYLE, 0,0, "margin", "0");
     hipe_send(session, HIPE_OPCODE_SET_STYLE, 0,0, "background-color", "grey");
+    hipe_send(session, HIPE_OPCODE_APPEND_TAG, 0,0, "canvas", "canv");
     hipe_loc canvas = getLoc("canv");
     hipe_send(session, HIPE_OPCODE_SET_STYLE, 0,canvas, "background-color", "white");
     hipe_send(session, HIPE_OPCODE_SET_STYLE, 0,canvas, "border", "2px inset");

@@ -107,8 +107,15 @@ void Container::receiveInstruction(hipe_instruction instruction)
         if(isAllowedAttribute(arg1))
             location.setAttribute(arg1, sanitisePlainText(arg2));
     } else if(instruction.opcode == HIPE_OPCODE_SET_STYLE) {
-        if(isAllowedCSS(arg1) && isAllowedCSS(arg2))
-            location.setStyleProperty(arg1, arg2);
+        if(isAllowedCSS(arg1) && isAllowedCSS(arg2)) {
+            if(!locationSpecified) { //we need to be sure the body has been initialised first.
+                if(webElement.isNull())
+                    setBody("");
+                webElement.setStyleProperty(arg1, arg2);
+            } else {
+                location.setStyleProperty(arg1, arg2);
+            }
+        }
     } else if(instruction.opcode == HIPE_OPCODE_FREE_LOCATION) {
         removeReferenceableElement(instruction.location);
     } else if(instruction.opcode == HIPE_OPCODE_EVENT_REQUEST) {
