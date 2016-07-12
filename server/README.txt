@@ -1,6 +1,12 @@
 Source code for Hipe server process.
 
-Build instructions:
+DEPENDENCIES:
+
+You will need to have installed the development files for Qt and Qt-webkit.
+Currently Qt version 5 is required.
+Qt must be built with STL support included.
+
+BUILD INSTRUCTIONS:
 
 You can either build the Qt project using Qt Creator, or alternatively from the terminal as follows:
 
