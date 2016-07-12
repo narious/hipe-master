@@ -32,7 +32,6 @@
 #include <unistd.h> //for getuid()
 #include <sys/types.h> //for getuid()
 #include <QWebSettings>
-#include <QCommandLineParser>
 #include "connectionmanager.h"
 #include "containermanager.h"
 #include "keylist.h"
@@ -41,16 +40,39 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     a.setApplicationName("hiped");
-    a.setApplicationVersion("v0 alpha. Check README.md for more specific info.");
-    QCommandLineParser clp;
-    clp.setApplicationDescription("Hipe display server.");
-    QCommandLineOption socketFileArg("socket", "Create server socket file with a custom path and filename.", "file path", "");
-    clp.addOption(socketFileArg);
-    QCommandLineOption keyFileArg("keyfile", "Create top-level host key file with a custom path and filename.", "file path", "");
-    clp.addOption(keyFileArg);
-    clp.addHelpOption();
-    clp.addVersionOption();
-    clp.process(a);
+    a.setApplicationVersion("v0 beta. Check README.md for more specific info.");
+
+    //Parse command line options ad-hoc to avoid platform dependencies.
+    //(QCommandLineParser isn't backwards compatible with Qt4.)
+    std::string socketFileArg = ""; //store parameters in these vars if specified by user.
+    std::string keyFileArg = "";
+    for(int i=1; i<argc; i++) {
+        std::string thisArg = argv[i];
+        if(thisArg.compare("--help")==0 || thisArg.compare("-h")==0) { //print help text then exit normally.
+            std::cout << "Usage: " << argv[0] << " [options]\nOptions:\nHipe display server\n\n";
+            std::cout << "--socket (file path)\n\tCreate server socket file with a custom path and filename.\n";
+            std::cout << "--keyfile (file path)\n\tCreate top-level host key file with a custom path and filename.\n";
+            std::cout << "-h, --help\n\tDisplay this help information.\n";
+            return 0;
+        } else if(thisArg.compare("--socket")==0) {
+            //next arg must be present.
+            if(++i == argc) {
+                std::cerr << "Argument not optional. Try '" << argv[0] << " --help' for usage information\n";
+                return 1;
+            }
+            socketFileArg = argv[i];
+        } else if(thisArg.compare("--keyfile")==0) {
+            //next arg must be present.
+            if(++i == argc) {
+                std::cerr << "Argument not optional. Try '" << argv[0] << " --help' for usage information\n";
+                return 1;
+            }
+            keyFileArg = argv[i];
+        } else if(thisArg[0] == '-') {
+            std::cerr << "Unrecognised option: " << thisArg << "\nTry '" << argv[0] << " --help' for usage information\n";
+            return 1;
+        }
+    }
 
     a.setQuitOnLastWindowClosed(false);
     desktop = a.desktop();
@@ -62,8 +84,8 @@ int main(int argc, char *argv[])
     default_runtime_dir(default_path, 200);
 
     std::string keyFile;
-    if(clp.isSet(keyFileArg))
-        keyFile = clp.value(keyFileArg).toStdString();
+    if(keyFileArg.size())
+        keyFile = keyFileArg;
     else
         keyFile = std::string(default_path) + "hipe.hostkey";
 
@@ -72,8 +94,8 @@ int main(int argc, char *argv[])
     ConnectionManager connectionManager(&containerManager);
 
     QString socketFile;
-    if(clp.isSet(socketFileArg))
-        socketFile = clp.value(socketFileArg);
+    if(socketFileArg.size())
+        socketFile = socketFileArg.c_str();
     else
         socketFile = QString(default_path) + "hipe.socket";
 
