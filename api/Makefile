@@ -1,9 +1,10 @@
 CC?=gcc
+AR?=ar
 
 all: api
 api:
 	cd build && $(CC) -c -Wall ../src/*.c
-	ar -rsc build/libhipe.a build/*.o
+	$(AR) -rsc build/libhipe.a build/*.o
 clean:
 	rm -v build/*.o
 	rm -v build/libhipe.a
