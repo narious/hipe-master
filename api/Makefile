@@ -8,8 +8,8 @@ clean:
 	rm -v build/*.o
 	rm -v build/libhipe.a
 install:
-	cp build/libhipe.a /usr/lib
-	cp src/hipe.h src/hipe_instruction.h /usr/include
+	cp build/libhipe.a /usr/local/lib
+	cp src/hipe.h src/hipe_instruction.h /usr/local/include
 testing:
 	(cd test && $(CC) clock.c -o clock -lhipe)
 	(cd test && $(CC) calc.c -o calc -lhipe)

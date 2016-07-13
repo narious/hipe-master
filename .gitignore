@@ -12,4 +12,5 @@ api/test/calc
 api/test/clock
 api/test/jpegviewer
 api/test/quadrant
+api/test/canvas
 README

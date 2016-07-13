@@ -29,7 +29,7 @@ RUNNING THE SERVER:
 The server must be run in an X environment. You can either run ./hiped directly in your
 favourite desktop environment (rootless mode), or you can use the script ./start-hipe-standalone
 *from the current directory* while in a text-only console virtual terminal (this script assumes that the second virtual
-graphics terminal (usually the one accessible with Ctrl+Alt+F8) is free for use)
+graphics terminal (often the one accessible with Ctrl+Alt+F8) is free for use)
 
 
 When the hiped server process starts, there is no graphical interface shown on the screen,

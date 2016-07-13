@@ -12,12 +12,25 @@ $ sudo make install
 
 IMPORTANT:
 
-* The makefile is set up to copy headers into /usr/include/ and the static
-library file (libhipe.a) into /usr/lib/.
+* The makefile is set up to copy headers into /usr/local/include/ and the 
+static library file (libhipe.a) into /usr/local/lib/.
 
-* These paths are correct for Debian-based distributions (including Ubuntu).
-For other distributions, please modify the 'cp' statements in the Makefile accordingly.
+* On GNU/Linux-based systems, these are the conventional installation paths
+for libraries not installed or managed by package management systems.
+However, some OS distributions do not use or provide a /usr/local/ directory
+hierarchy.
 
+* Should you wish to install the API into different directories, such as, for 
+example, /usr/include/ and /usr/lib/, please modify the 'cp' statements in the
+Makefile accordingly.
+
+* UNIX-style systems usually provide a set of three directory hierarchies as
+follows: the primary hierarchy in /, a secondary hierarchy in /usr/, tertiary 
+hierarchy in /usr/local/. Each hierarchy contains a similar UNIX directory
+structure, and the Hipe API can be installed in any one of them (or a different
+location entirely) depending on specific system configuration requirements. 
+/usr/.... or /usr/local/.... are usually the most appropriate for standard
+distributions.
 
 
 To build test application:
