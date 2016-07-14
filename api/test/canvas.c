@@ -68,6 +68,8 @@ int main(int argc, char** argv) {
                 } else if(nowDrawing) {
                     hipe_send(session, HIPE_OPCODE_CANVAS_ACTION, 0,0, "lineTo", xy);
                     hipe_send(session, HIPE_OPCODE_CANVAS_ACTION, 0,0, "stroke", 0);
+                    hipe_send(session, HIPE_OPCODE_CANVAS_ACTION, 0,0, "beginPath", 0);
+                    hipe_send(session, HIPE_OPCODE_CANVAS_ACTION, 0,0, "moveTo", xy);
                 }
 
                 free(xy);
