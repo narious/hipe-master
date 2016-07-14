@@ -41,4 +41,4 @@ HEADERS += \
     containertoplevel.h \
     hipe_instruction.h
 
-QMAKE_CXXFLAGS += -std=c++11
+QMAKE_CXXFLAGS += -std=c++11 -O2

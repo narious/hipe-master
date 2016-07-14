@@ -120,7 +120,11 @@ hipe_session hipe_open_session(const char* host_key, const char* socket_path, co
             perror(keyPath);
             return 0;
         }
-        fgets(key, 200, keyfile);
+        if(!fgets(key, 200, keyfile)) {
+            perror("Hipe: Could not read key from keyfile");
+            perror(keyPath);
+            return 0;
+        }
     }
 
     /*Allocate a socket endpoint file descriptor.*/
