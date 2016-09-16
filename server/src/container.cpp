@@ -70,7 +70,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
         if(arg2.size()) newTagString += " id=\"" + arg2 + "\"";
         newTagString += "></" + arg1 + ">";
         if(!locationSpecified) setBody(newTagString, false);
-        location.appendInside(newTagString);
+        else location.appendInside(newTagString);
     } else if(instruction.opcode == HIPE_OPCODE_SET_TEXT) {
         arg1 = sanitisePlainText(arg1);
         if(!locationSpecified) setBody(arg1);
