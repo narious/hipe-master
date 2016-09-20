@@ -1,7 +1,6 @@
-v0.17 beta -- 14 Jul 2016
+v0.17 beta -- 21 Sep 2016
 
-- Hipe is now relatively feature-complete, but may need additional work to make it more robust and efficient.
-- Hipe is now backwards compatible with being built on systems with Qt4.
+- Added hipetec.hh -- a C++ wrapper to provide OO location objects to C++ developers.
 
 TODO:
 
