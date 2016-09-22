@@ -8,6 +8,7 @@ QT       += core gui
 QT       += webkit
 QT       += webkitwidgets
 QT       += printsupport
+QT       += network
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -27,7 +28,8 @@ SOURCES += main.cpp \
     containerframe.cpp \
     containertoplevel.cpp \
     hipe_instruction.c \
-    common.c
+    common.c \
+    sanitation.cpp
 
 HEADERS += \
     ExpArray.hh \
@@ -39,6 +41,7 @@ HEADERS += \
     container.h \
     containerframe.h \
     containertoplevel.h \
-    hipe_instruction.h
+    hipe_instruction.h \
+    sanitation.h
 
 QMAKE_CXXFLAGS += -std=c++11 -O2

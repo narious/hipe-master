@@ -104,10 +104,7 @@ private:
     KeyList* keyList;
     std::list<FrameData> subFrames; //table of subframes, mapping web element of an iframe to its corresponding child frame object and host-key (if assigned).
 
-    static QString sanitisePlainText(QString input); //convert HTML syntactical characters in input into harmless escaped character entities.
-    static bool isAllowedAttribute(QString input);
-    static bool isAllowedTag(QString input);
-    static bool isAllowedCSS(QString input);
+
 };
 
 #endif // CLIENTCONTAINER_H

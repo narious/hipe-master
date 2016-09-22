@@ -96,9 +96,11 @@ WebWindow::WebWindow(Container* cc)
 
     scene->addItem(webView);
     scene->setActiveWindow(webView);
-    showMaximized();
 
     webView->setFocus();
+
+    //Don't display the window yet, until boilerplate markup is added in initBoilerplate.
+    //This should reduce a little flicker (e.g. white background appears for an instant before being restyled.)
 }
 
 bool WebWindow::wasInitYet()
@@ -115,6 +117,9 @@ QWebElement WebWindow::initBoilerplate(QString html)
     webView->setHtml(html);
     initYet = true;
     QWebElement we = webView->page()->mainFrame()->documentElement();
+
+    showMaximized(); //Now we're ready to show the window on the screen.
+
     return we.lastChild(); //body tag becomes the webElement in the base class.
 }
 

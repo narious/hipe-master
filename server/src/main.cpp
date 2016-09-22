@@ -35,12 +35,15 @@
 #include "connectionmanager.h"
 #include "containermanager.h"
 #include "keylist.h"
+#include "sanitation.h"
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     a.setApplicationName("hiped");
     a.setApplicationVersion("v0 beta. Check README.md for more specific info.");
+
+    Sanitation::init();
 
     //Parse command line options ad-hoc to avoid platform dependencies.
     //(QCommandLineParser isn't backwards compatible with Qt4.)

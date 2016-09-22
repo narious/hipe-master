@@ -19,6 +19,7 @@
 #include "container.h"
 #include "connection.h"
 #include "containerframe.h"
+#include "sanitation.h"
 
 #include <QWebFrame>
 #include <QWebPage>
@@ -63,8 +64,8 @@ void Container::receiveInstruction(hipe_instruction instruction)
         if(!locationSpecified) setBody("",true);
         else location.setInnerXml("");
     } else if(instruction.opcode == HIPE_OPCODE_APPEND_TAG) { //todo -- run thru an 'isTagAllowed()' function to eliminate tags like <script>.
-        arg1 = sanitisePlainText(arg1);
-        arg2 = sanitisePlainText(arg2);
+        arg1 = Sanitation::sanitisePlainText(arg1);
+        arg2 = Sanitation::sanitisePlainText(arg2);
         QString newTagString = "<";
         newTagString += arg1;
         if(arg2.size()) newTagString += " id=\"" + arg2 + "\"";
@@ -72,15 +73,15 @@ void Container::receiveInstruction(hipe_instruction instruction)
         if(!locationSpecified) setBody(newTagString, false);
         else location.appendInside(newTagString);
     } else if(instruction.opcode == HIPE_OPCODE_SET_TEXT) {
-        arg1 = sanitisePlainText(arg1);
+        arg1 = Sanitation::sanitisePlainText(arg1);
         if(!locationSpecified) setBody(arg1);
         else location.setInnerXml(arg1);
     } else if(instruction.opcode == HIPE_OPCODE_APPEND_TEXT) {
-        arg1 = sanitisePlainText(arg1);
+        arg1 = Sanitation::sanitisePlainText(arg1);
         if(!locationSpecified) setBody(arg1, false);
         else location.appendInside(arg1);
     } else if(instruction.opcode == HIPE_OPCODE_ADD_STYLE_RULE) {
-        if(isAllowedCSS(arg1) && isAllowedCSS(arg2))
+        if(Sanitation::isAllowedCSS(arg1) && Sanitation::isAllowedCSS(arg2))
             stylesheet += arg1 + "{" + arg2 + "}\n";
     } else if(instruction.opcode == HIPE_OPCODE_SET_TITLE) {
         setTitle(arg1);
@@ -104,10 +105,10 @@ void Container::receiveInstruction(hipe_instruction instruction)
         client->sendInstruction(HIPE_OPCODE_LOCATION_RETURN, instruction.requestor,
                                 getIndexOfElement(webElement.findFirst(QString("#") + arg1)), "", "");
     } else if(instruction.opcode == HIPE_OPCODE_SET_ATTRIBUTE) {
-        if(isAllowedAttribute(arg1))
-            location.setAttribute(arg1, sanitisePlainText(arg2));
+        if(Sanitation::isAllowedAttribute(arg1))
+            location.setAttribute(arg1, Sanitation::sanitisePlainText(arg2));
     } else if(instruction.opcode == HIPE_OPCODE_SET_STYLE) {
-        if(isAllowedCSS(arg1) && isAllowedCSS(arg2)) {
+        if(Sanitation::isAllowedCSS(arg1) && Sanitation::isAllowedCSS(arg2)) {
             if(!locationSpecified) { //we need to be sure the body has been initialised first.
                 if(webElement.isNull())
                     setBody("");
@@ -275,7 +276,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
 
         //TODO: implement this instruction.
     } else if(instruction.opcode == HIPE_OPCODE_REMOVE_ATTRIBUTE) {
-        if(isAllowedAttribute(arg1))
+        if(Sanitation::isAllowedAttribute(arg1))
             location.removeAttribute(arg1);
     }
 }
@@ -394,210 +395,6 @@ size_t Container::getIndexOfElement(QWebElement location)
         if(!locElement) locElement = addReferenceableElement(location); //if not, add it.
     }
     return locElement;
-}
-
-QString Container::sanitisePlainText(QString input)
-//Processes input string, replaces special HTML characters like < with their equivalent nonfunctional
-//representations, like &lt;. This is used to prevent HTML injection attacks.
-{
-    QString output;
-    for(int i=0; i<input.size(); i++) {
-        if(input[i] == '<')
-            output += "&lt;";
-        else if(input[i] == '>')
-            output += "&gt;";
-        else if(input[i] == '"')
-            output += "&quot;";
-        else if(input[i] == '\'')
-            output += "&#39;";
-        else
-            output += input[i];
-    }
-    return output;
-}
-
-bool Container::isAllowedAttribute(QString input)
-//returns true iff use of the tag attribute is permitted by Hipe.
-//List of attributes obtained from https://www.w3.org/TR/html4/index/attributes.html
-//This is a whitelist of safe attributes that the user can use freely without special instructions.
-{
-    if(input == "abbr") return true;
-    if(input == "accept-charset") return true;
-    if(input == "accesskey") return true;
-    if(input == "align") return true;
-    if(input == "alt") return true;
-    if(input == "border") return true;
-    if(input == "cellpadding") return true;
-    if(input == "cellspacing") return true;
-    if(input == "char") return true;
-    if(input == "charoff") return true;
-    if(input == "checked") return true;
-    if(input == "cols") return true;
-    if(input == "colspan") return true;
-    if(input == "coords") return true;
-    if(input == "dir") return true;
-    if(input == "disabled") return true;
-    if(input == "for") return true;
-    if(input == "frame") return true;
-    if(input == "frameborder") return true;
-    if(input == "headers") return true;
-    if(input == "height") return true;
-    if(input == "id") return true;
-    if(input == "label") return true;
-    if(input == "maxlength") return true;
-    if(input == "multiple") return true;
-    if(input == "name") return true;
-    if(input == "noresize") return true;
-    if(input == "readonly") return true;
-    if(input == "rows") return true;
-    if(input == "rowspan") return true;
-    if(input == "rules") return true;
-    if(input == "scope") return true;
-    if(input == "scrolling") return true;
-    if(input == "selected") return true;
-    if(input == "shape") return true;
-    if(input == "size") return true;
-    if(input == "span") return true;
-    if(input == "summary") return true;
-    if(input == "tabindex") return true;
-    if(input == "title") return true;
-    if(input == "type") return true;
-    if(input == "usemap") return true;
-    if(input == "valign") return true;
-    if(input == "value") return true;
-    if(input == "width") return true;
-
-    return false;
-}
-
-bool Container::isAllowedTag(QString input)
-//List taken from https://www.w3.org/community/webed/wiki/HTML/Elements, with forbidden/nonapplicable tags deleted.
-{
-    if(input == "section") return true;
-    if(input == "nav") return true;
-    if(input == "article") return true;
-    if(input == "aside") return true;
-    if(input == "h1") return true;
-    if(input == "h2") return true;
-    if(input == "h3") return true;
-    if(input == "h4") return true;
-    if(input == "h5") return true;
-    if(input == "h6") return true;
-    if(input == "hgroup") return true;
-    if(input == "header") return true;
-    if(input == "footer") return true;
-    if(input == "address") return true;
-    if(input == "p") return true;
-    if(input == "hr") return true;
-    if(input == "pre") return true;
-    if(input == "blockquote") return true;
-    if(input == "ol") return true;
-    if(input == "ul") return true;
-    if(input == "li") return true;
-    if(input == "dl") return true;
-    if(input == "dt") return true;
-    if(input == "dd") return true;
-    if(input == "figure") return true;
-    if(input == "figcaption") return true;
-    if(input == "div") return true;
-    if(input == "center") return true;
-    if(input == "a") return true;
-    if(input == "abbr") return true;
-    if(input == "b") return true;
-    if(input == "bdo") return true;
-    if(input == "big") return true;
-    if(input == "br") return true;
-    if(input == "cite") return true;
-    if(input == "code") return true;
-    if(input == "dfn") return true;
-    if(input == "em") return true;
-    if(input == "i") return true;
-    if(input == "kbd") return true;
-    if(input == "mark") return true;
-    if(input == "q") return true;
-    if(input == "rp") return true;
-    if(input == "rt") return true;
-    if(input == "ruby") return true;
-    if(input == "s") return true;
-    if(input == "samp") return true;
-    if(input == "small") return true;
-    if(input == "spacer") return true;
-    if(input == "span") return true;
-    if(input == "strong") return true;
-    if(input == "sub") return true;
-    if(input == "sup") return true;
-    if(input == "time") return true;
-    if(input == "tt") return true;
-    if(input == "u") return true;
-    if(input == "var") return true;
-    if(input == "wbr") return true;
-    if(input == "ins") return true;
-    if(input == "del") return true;
-    if(input == "img") return true;
-    if(input == "iframe") return true;
-    if(input == "video") return true;
-    if(input == "audio") return true;
-    if(input == "source") return true;
-    if(input == "track") return true;
-    if(input == "canvas") return true; //will need to make an instruction for manipulating canvas.
-    if(input == "map") return true;
-    if(input == "area") return true;
-    if(input == "svg") return true;
-    if(input == "frame") return true;
-    if(input == "frameset") return true;
-    if(input == "table") return true;
-    if(input == "caption") return true;
-    if(input == "colgroup") return true;
-    if(input == "col") return true;
-    if(input == "tbody") return true;
-    if(input == "thead") return true;
-    if(input == "tfoot") return true;
-    if(input == "tr") return true;
-    if(input == "td") return true;
-    if(input == "th") return true;
-    if(input == "form") return true;
-    if(input == "fieldset") return true;
-    if(input == "legend") return true;
-    if(input == "label") return true;
-    if(input == "input") return true;
-    if(input == "button") return true;
-    if(input == "select") return true;
-    if(input == "datalist") return true;
-    if(input == "optgroup") return true;
-    if(input == "option") return true;
-    if(input == "textarea") return true;
-    if(input == "output") return true;
-    if(input == "progress") return true;
-    if(input == "meter") return true;
-    if(input == "details") return true;
-    if(input == "summary") return true;
-    if(input == "command") return true;
-    if(input == "menu") return true;
-
-    return false;
-}
-
-bool Container::isAllowedCSS(QString input)
-{
-    for(int i=0; i<input.size(); i++) {
-        if(input[i] == '<') return false; //don't let the user break out of the stylesheet to inject html code.
-        if(input[i] == '>') return false;
-        if(input[i] == '{') return false; //the user isn't allowed to fill in a whole stylesheet directly, so has no need of these.
-        if(input[i] == '}') return false;
-        if((input[i] == 'u' || input[i] == 'U') && i+3 < input.size()) { //screen for URLs, which are not allowed to be entered directly.
-            if((input[i+1] == 'r' || input[i+1] == 'R')
-                    && (input[i+1] == 'l' || input[i+1] == 'L')) {
-                i+=3;
-                //we've detected an instance of the string "url".
-                //at this point, we'll reject the input if there is a '(' or whitespace followed by a '('.
-                while(i<input.size()) //skip any whitespace.
-                    if(input[i].isSpace())
-                        i++;
-                if(i<input.size() && input[i] == '(') return false;
-            }
-        }
-    }
-    return true;
 }
 
 
