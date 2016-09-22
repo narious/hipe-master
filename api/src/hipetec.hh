@@ -46,25 +46,33 @@
 
 namespace hipe {
 
+class __internal {
+    protected:
+        hipe_session session=0;
+
+        std::map<hipe_loc, size_t> referenceCounts; //local reference count for each location ID.
+        //keep track of these counts so we can tell hipe to free resources that we no longer have references to.
+        
+        friend class session;
+};
+
+__internal _internal;
+
 class loc;
 
 class session {
 //This class stores static (effectively global) variables that are hidden from users
 //of this library
     private:
-        static hipe_session _session;
-
-        static std::map<hipe_loc, size_t> referenceCounts; //local reference count for each location ID.
-        //keep track of these counts so we can tell hipe to free resources that we no longer have references to.
     protected:
         static void incrementReferenceCount(hipe_loc location) {
         //increments our local reference count for the location
             if(location == 0) return; //the body element is always 0, not requiring allocation.
             try { //try to increment referenceCounts.at(location)
             //the [] operator creates elements if they don't exist, while .at() throws exception.
-                referenceCounts[location] = referenceCounts.at(location) + 1;
+                _internal.referenceCounts[location] = _internal.referenceCounts.at(location) + 1;
             } catch(const std::out_of_range& e) { //throws execption if reference nonexistent.
-                referenceCounts[location] = 1;
+                _internal.referenceCounts[location] = 1;
             }
         }
     
@@ -72,12 +80,12 @@ class session {
         //decrmements local reference count for a particular location, or frees the location
         //if its reference count is zero.
             if(location == 0) return; //the body element is always 0, not requiring allocation.
-            size_t currentCount = referenceCounts[location];
+            size_t currentCount = _internal.referenceCounts[location];
             if(currentCount == 0) {
                 //free this location.
                 hipe_send(session::get_session(), HIPE_OPCODE_FREE_LOCATION, 0, location, 0,0);
             } else {
-                referenceCounts[location] = currentCount-1;
+                _internal.referenceCounts[location] = currentCount-1;
             }
         }
     
@@ -85,25 +93,22 @@ class session {
     public:
         static bool open(const char* host_key, const char* socket_path, const char* key_path, const char* client_name) {
         //open a new hipe session
-            _session = hipe_open_session(host_key, socket_path, key_path, client_name);
-            return (bool) _session; //return true on success.
+            _internal.session = hipe_open_session(host_key, socket_path, key_path, client_name);
+            return (bool) _internal.session; //return true on success.
         }
 
         static void close() {
         //close the hipe session
-            hipe_close_session(_session);
-            _session = 0;
+            hipe_close_session(_internal.session);
+            _internal.session = 0;
         }
 
         static hipe_session get_session() {
-            return _session;
+            return _internal.session;
         }
 
         friend class loc;
 };
-
-hipe_session session::_session=0;
-std::map<hipe_loc, size_t> session::referenceCounts;
 
 
 class loc {
