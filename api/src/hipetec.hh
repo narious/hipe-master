@@ -38,6 +38,12 @@
 //Limitations:
 //for simplicity, hipetec supports and manages a single session only.
 
+//TODO: to avoid multiple definition errors:
+//-convert session into an ordinary class (without static members).
+//-session shall then inherit loc and serve as the 'root' node, from which to obtain other nodes in that session.
+//-hipetec then supports multiple sessions.
+//-the default constructor of loc no longer produces a useable loc object; it must be redefined after creation.
+
 
 #include <hipe.h>
 #include <string>
@@ -112,102 +118,123 @@ class session {
 
 
 class loc {
-private:
-    hipe_loc location;
-    
-    
-    loc(hipe_loc location) {
-    //construct a new element object using its location value
-        this->location = location;
-        session::incrementReferenceCount(location);
-    }
-public:
-    loc() {
-    //create a new reference to the root element.
-        location = 0;
-    }
+///Provides an interface to managed hipe_loc objects.
 
-    loc(const loc& orig) {
-    //copy constructor
-        this->location = orig.location;
-        session::incrementReferenceCount(location);
-    }
-
-    loc& operator= (const loc& orig) {
-    //copy assignment operator
-        session::decrementReferenceCount(location);
-        this->location = orig.location;
-        session::incrementReferenceCount(location);
-    }
+    private:
+        hipe_loc location;
     
-    ~loc() {
-    //destructor. Should decrement the reference count to the hipe_loc allocation, and
-    //send an instruction to free the allocation if the count reaches zero.
-        session::decrementReferenceCount(location);
-    }
     
-    loc firstChild() {
-    //return first child node of this element
-        hipe_send(session::get_session(), HIPE_OPCODE_GET_FIRST_CHILD, 0, location, 0, 0);
-        hipe_instruction instruction;
-        hipe_instruction_init(&instruction);
-        hipe_await_instruction(session::get_session(), &instruction, HIPE_OPCODE_LOCATION_RETURN);
-        return loc(instruction.location);
-    }
+        loc(hipe_loc location); //construct a new element object using its location value
+    public:
+        loc(); //create a new reference to the root element.
+        loc(const loc& orig); //copy constructor
+        loc& operator= (const loc& orig); //copy assignment operator
+        ~loc(); //destructor
     
-    loc lastChild() {
-    //return the last child node of this element.
-        hipe_send(session::get_session(), HIPE_OPCODE_GET_LAST_CHILD, 0, location, 0, 0);
-        hipe_instruction instruction;
-        hipe_instruction_init(&instruction);
-        hipe_await_instruction(session::get_session(), &instruction, HIPE_OPCODE_LOCATION_RETURN);
-        return loc(instruction.location);
-    }
-    
-    loc nextSibling() {
-        hipe_send(session::get_session(), HIPE_OPCODE_GET_NEXT_SIBLING, 0, location, 0, 0);
-        hipe_instruction instruction;
-        hipe_instruction_init(&instruction);
-        hipe_await_instruction(session::get_session(), &instruction, HIPE_OPCODE_LOCATION_RETURN);
-        return loc(instruction.location);
-    }
-    
-    loc prevSibling() {
-        hipe_send(session::get_session(), HIPE_OPCODE_GET_PREV_SIBLING, 0, location, 0, 0);
-        hipe_instruction instruction;
-        hipe_instruction_init(&instruction);
-        hipe_await_instruction(session::get_session(), &instruction, HIPE_OPCODE_LOCATION_RETURN);
-        return loc(instruction.location);
-    }
-    
-    operator hipe_loc() const {
-    //allow casting to a hipe_loc variable for use with hipe API C functions.
-        return location;
-    }
-    
-
-    int send(char opcode, uint64_t requestor, std::string arg1, std::string arg2) {
-    //sends an instruction with this element passed as the location to act on.
+        loc firstChild(); //return first child element of this element
+        loc lastChild(); //return the last child element of this element.
+        loc nextSibling(); //return the element that follows this one at the current level.
+        loc prevSibling(); //return the element that precedes this one at the current level.
         
-        int result;
-        hipe_instruction instruction;
-        hipe_instruction_init(&instruction);
-        instruction.opcode = opcode;
-        instruction.requestor = requestor;
-        instruction.location = location;
-        if(arg1.size()) {
-            instruction.arg1 = (char*) arg1.data();
-            instruction.arg1Length = arg1.size();
+        operator hipe_loc() const { //allow casting to a hipe_loc variable for use with hipe API C functions.
+            return location;
         }
-        if(arg2.size()) {
-            instruction.arg2 = (char*) arg2.data();
-            instruction.arg2Length = arg2.size();
-        }
-        result = hipe_send_instruction(session::get_session(), instruction);
-        return result;
+    
+        int send(char opcode, uint64_t requestor, std::string arg1, std::string arg2);
+        //sends an instruction with this element passed as the location to act on.
+
+};
+
+///loc class implementation
+//////////////
+
+loc::loc(hipe_loc location) {
+//construct a new element object using its location value
+    this->location = location;
+    session::incrementReferenceCount(location);
+}
+
+loc::loc() {
+//create a new reference to the root element.
+    location = 0;
+}
+
+loc::loc(const loc& orig) {
+//copy constructor
+    this->location = orig.location;
+    session::incrementReferenceCount(location);
+}
+
+loc& loc::operator= (const loc& orig) {
+//copy assignment operator
+    session::decrementReferenceCount(location);
+    this->location = orig.location;
+    session::incrementReferenceCount(location);
+}
+
+loc::~loc() {
+//destructor. Should decrement the reference count to the hipe_loc allocation, and
+//send an instruction to free the allocation if the count reaches zero.
+    session::decrementReferenceCount(location);
+}
+
+loc loc::firstChild() {
+//return first child node of this element
+    hipe_send(session::get_session(), HIPE_OPCODE_GET_FIRST_CHILD, 0, location, 0, 0);
+    hipe_instruction instruction;
+    hipe_instruction_init(&instruction);
+    hipe_await_instruction(session::get_session(), &instruction, HIPE_OPCODE_LOCATION_RETURN);
+    return loc(instruction.location);
+}
+    
+loc loc::lastChild() {
+//return the last child node of this element.
+    hipe_send(session::get_session(), HIPE_OPCODE_GET_LAST_CHILD, 0, location, 0, 0);
+    hipe_instruction instruction;
+    hipe_instruction_init(&instruction);
+    hipe_await_instruction(session::get_session(), &instruction, HIPE_OPCODE_LOCATION_RETURN);
+    return loc(instruction.location);
+}
+
+loc loc::nextSibling() {
+    hipe_send(session::get_session(), HIPE_OPCODE_GET_NEXT_SIBLING, 0, location, 0, 0);
+    hipe_instruction instruction;
+    hipe_instruction_init(&instruction);
+    hipe_await_instruction(session::get_session(), &instruction, HIPE_OPCODE_LOCATION_RETURN);
+    return loc(instruction.location);
+}
+    
+loc loc::prevSibling() {
+    hipe_send(session::get_session(), HIPE_OPCODE_GET_PREV_SIBLING, 0, location, 0, 0);
+    hipe_instruction instruction;
+    hipe_instruction_init(&instruction);
+    hipe_await_instruction(session::get_session(), &instruction, HIPE_OPCODE_LOCATION_RETURN);
+    return loc(instruction.location);
+}
+        
+
+int loc::send(char opcode, uint64_t requestor, std::string arg1, std::string arg2) {
+//sends an instruction with this element passed as the location to act on.
+        
+    int result;
+    hipe_instruction instruction;
+    hipe_instruction_init(&instruction);
+    instruction.opcode = opcode;
+    instruction.requestor = requestor;
+    instruction.location = location;
+    if(arg1.size()) {
+        instruction.arg1 = (char*) arg1.data();
+        instruction.arg1Length = arg1.size();
     }
+    if(arg2.size()) {
+        instruction.arg2 = (char*) arg2.data();
+        instruction.arg2Length = arg2.size();
+    }
+    result = hipe_send_instruction(session::get_session(), instruction);
+    return result;
+}
 
-};
 
 
-};
+};//end of hipe:: namespace
+
