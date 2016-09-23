@@ -28,7 +28,9 @@
 class Sanitation
 {
 private:
+    //sets to store whitelists of allowed HTML tags and attributes.
     static std::set<QString> tagWhitelist;
+    static std::set<QString> attrWhitelist;
 public:
     static void init();
     //initialises whitelists and related sanitation data.

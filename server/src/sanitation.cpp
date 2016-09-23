@@ -21,6 +21,7 @@
 //TODO: Lots of opportunity to optimise things here!!!
 
 std::set<QString> Sanitation::tagWhitelist;
+std::set<QString> Sanitation::attrWhitelist;
 
 void Sanitation::init()
 {
@@ -127,6 +128,56 @@ void Sanitation::init()
                         "command",
                         "menu"
                    };
+
+
+    //List of attributes obtained from https://www.w3.org/TR/html4/index/attributes.html
+    //This is a whitelist of safe attributes that the user can use freely without special instructions.
+    attrWhitelist = {   "abbr",
+                        "accept-charset",
+                        "accesskey",
+                        "align",
+                        "alt",
+                        "border",
+                        "cellpadding",
+                        "cellspacing",
+                        "char",
+                        "charoff",
+                        "checked",
+                        "cols",
+                        "colspan",
+                        "coords",
+                        "dir",
+                        "disabled",
+                        "for",
+                        "frame",
+                        "frameborder",
+                        "headers",
+                        "height",
+                        "id",
+                        "label",
+                        "maxlength",
+                        "multiple",
+                        "name",
+                        "noresize",
+                        "readonly",
+                        "rows",
+                        "rowspan",
+                        "rules",
+                        "scope",
+                        "scrolling",
+                        "selected",
+                        "shape",
+                        "size",
+                        "span",
+                        "summary",
+                        "tabindex",
+                        "title",
+                        "type",
+                        "usemap",
+                        "valign",
+                        "value",
+                        "width"
+                    };
 }
 
 QString Sanitation::sanitisePlainText(QString input)
@@ -154,62 +205,16 @@ bool Sanitation::isAllowedAttribute(QString input)
 //List of attributes obtained from https://www.w3.org/TR/html4/index/attributes.html
 //This is a whitelist of safe attributes that the user can use freely without special instructions.
 {
-    //TODO: optimise this!!
-
-
-    if(input == "abbr") return true;
-    if(input == "accept-charset") return true;
-    if(input == "accesskey") return true;
-    if(input == "align") return true;
-    if(input == "alt") return true;
-    if(input == "border") return true;
-    if(input == "cellpadding") return true;
-    if(input == "cellspacing") return true;
-    if(input == "char") return true;
-    if(input == "charoff") return true;
-    if(input == "checked") return true;
-    if(input == "cols") return true;
-    if(input == "colspan") return true;
-    if(input == "coords") return true;
-    if(input == "dir") return true;
-    if(input == "disabled") return true;
-    if(input == "for") return true;
-    if(input == "frame") return true;
-    if(input == "frameborder") return true;
-    if(input == "headers") return true;
-    if(input == "height") return true;
-    if(input == "id") return true;
-    if(input == "label") return true;
-    if(input == "maxlength") return true;
-    if(input == "multiple") return true;
-    if(input == "name") return true;
-    if(input == "noresize") return true;
-    if(input == "readonly") return true;
-    if(input == "rows") return true;
-    if(input == "rowspan") return true;
-    if(input == "rules") return true;
-    if(input == "scope") return true;
-    if(input == "scrolling") return true;
-    if(input == "selected") return true;
-    if(input == "shape") return true;
-    if(input == "size") return true;
-    if(input == "span") return true;
-    if(input == "summary") return true;
-    if(input == "tabindex") return true;
-    if(input == "title") return true;
-    if(input == "type") return true;
-    if(input == "usemap") return true;
-    if(input == "valign") return true;
-    if(input == "value") return true;
-    if(input == "width") return true;
-
+    if(attrWhitelist.find(input) != attrWhitelist.end())
+        return true;
     return false;
 }
 
 bool Sanitation::isAllowedTag(QString input)
 //returns true if the specified HTML tag is an allowed type. (e.g. "button" tags are allowed, "script" tags are not).
 {
-    if(tagWhitelist.find(input) != tagWhitelist.end()) return true;
+    if(tagWhitelist.find(input) != tagWhitelist.end())
+        return true;
     return false;
 }
 
