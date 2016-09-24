@@ -13,4 +13,5 @@ api/test/clock
 api/test/jpegviewer
 api/test/quadrant
 api/test/canvas
+*.swp
 README

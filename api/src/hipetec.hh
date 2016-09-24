@@ -35,16 +35,6 @@
 //of the normal Hipe API.
 
 
-//Limitations:
-//for simplicity, hipetec supports and manages a single session only.
-
-//TODO: to avoid multiple definition errors:
-//-convert session into an ordinary class (without static members).
-//-session shall then inherit loc and serve as the 'root' node, from which to obtain other nodes in that session.
-//-hipetec then supports multiple sessions.
-//-the default constructor of loc no longer produces a useable loc object; it must be redefined after creation.
-
-
 #include <hipe.h>
 #include <string>
 #include <map>
@@ -52,81 +42,18 @@
 
 namespace hipe {
 
-class __internal {
-    protected:
-        hipe_session session=0;
-
-        std::map<hipe_loc, size_t> referenceCounts; //local reference count for each location ID.
-        //keep track of these counts so we can tell hipe to free resources that we no longer have references to.
-        
-        friend class session;
-};
-
-__internal _internal;
-
-class loc;
-
-class session {
-//This class stores static (effectively global) variables that are hidden from users
-//of this library
-    private:
-    protected:
-        static void incrementReferenceCount(hipe_loc location) {
-        //increments our local reference count for the location
-            if(location == 0) return; //the body element is always 0, not requiring allocation.
-            try { //try to increment referenceCounts.at(location)
-            //the [] operator creates elements if they don't exist, while .at() throws exception.
-                _internal.referenceCounts[location] = _internal.referenceCounts.at(location) + 1;
-            } catch(const std::out_of_range& e) { //throws execption if reference nonexistent.
-                _internal.referenceCounts[location] = 1;
-            }
-        }
-    
-        static void decrementReferenceCount(hipe_loc location) {
-        //decrmements local reference count for a particular location, or frees the location
-        //if its reference count is zero.
-            if(location == 0) return; //the body element is always 0, not requiring allocation.
-            size_t currentCount = _internal.referenceCounts[location];
-            if(currentCount == 0) {
-                //free this location.
-                hipe_send(session::get_session(), HIPE_OPCODE_FREE_LOCATION, 0, location, 0,0);
-            } else {
-                _internal.referenceCounts[location] = currentCount-1;
-            }
-        }
-    
-
-    public:
-        static bool open(const char* host_key, const char* socket_path, const char* key_path, const char* client_name) {
-        //open a new hipe session
-            _internal.session = hipe_open_session(host_key, socket_path, key_path, client_name);
-            return (bool) _internal.session; //return true on success.
-        }
-
-        static void close() {
-        //close the hipe session
-            hipe_close_session(_internal.session);
-            _internal.session = 0;
-        }
-
-        static hipe_session get_session() {
-            return _internal.session;
-        }
-
-        friend class loc;
-};
-
+class session;
 
 class loc {
 ///Provides an interface to managed hipe_loc objects.
 
-    private:
+    protected:
         hipe_loc location;
+        session* _session; 
     
-    
-        loc(hipe_loc location); //construct a new element object using its location value
+        loc(hipe_loc location, session* s); //construct a new element object using its location value
     public:
-        loc(); //create a new reference to the root element.
+        loc(); //create a new null instance to be reassigned later.
         loc(const loc& orig); //copy constructor
         loc& operator= (const loc& orig); //copy assignment operator
         ~loc(); //destructor
@@ -136,82 +63,169 @@ class loc {
         loc nextSibling(); //return the element that follows this one at the current level.
         loc prevSibling(); //return the element that precedes this one at the current level.
         
-        operator hipe_loc() const { //allow casting to a hipe_loc variable for use with hipe API C functions.
-            return location;
-        }
+        operator hipe_loc() const; //allow casting to a hipe_loc variable for use with hipe API C functions.
     
         int send(char opcode, uint64_t requestor, std::string arg1, std::string arg2);
         //sends an instruction with this element passed as the location to act on.
 
 };
 
+
+class session : public loc {
+//This class holds session information, and is also the root loc object,
+//representing the <body> tag of the application's output.
+    private:
+        hipe_session hipeSession=0;
+
+        std::map<hipe_loc, size_t> referenceCounts; //local reference count for each location ID.
+        //keep track of these counts so we can tell hipe to free resources that we no longer have references to.
+    protected:
+        void incrementReferenceCount(hipe_loc location);
+        //increments our local reference count for the location
+    
+        void decrementReferenceCount(hipe_loc location);
+        //decrmements local reference count for a particular location, or frees the location
+        //if its reference count is zero.
+
+    public:
+        session();
+
+        bool open(const char* host_key, const char* socket_path, const char* key_path, const char* client_name);
+        //open a new hipe session
+
+        void close(); //close the hipe session
+
+        operator hipe_session() const; //cast to the underlying hipe_session handle
+
+        friend class loc;
+};
+
+
+///session class implementation
+//////////////
+
+session::session() : loc(0,this) {
+}
+
+void session::incrementReferenceCount(hipe_loc location) {
+//increments our local reference count for the location
+    if(location == 0) return; //the body element is always 0, not requiring allocation.
+    try { //try to increment referenceCounts.at(location)
+    //the [] operator creates elements if they don't exist, while .at() throws exception.
+        referenceCounts[location] = referenceCounts.at(location) + 1;
+    } catch(const std::out_of_range& e) { //throws execption if reference nonexistent.
+        referenceCounts[location] = 1;
+    }
+}
+
+void session::decrementReferenceCount(hipe_loc location) {
+//decrmements local reference count for a particular location, or frees the location
+//if its reference count is zero.
+    if(location == 0) return; //the body element is always 0, not requiring allocation.
+    size_t currentCount = referenceCounts[location];
+    if(currentCount == 0) {
+        //free this location.
+        hipe_send((hipe_session) *this, HIPE_OPCODE_FREE_LOCATION, 0, location, 0,0);
+    } else {
+        referenceCounts[location] = currentCount-1;
+    }
+}
+
+bool session::open(const char* host_key, const char* socket_path, const char* key_path, const char* client_name) {
+//open a new hipe session
+    hipeSession = hipe_open_session(host_key, socket_path, key_path, client_name);
+    return (bool) hipeSession; //return true on success.
+}
+
+void session::close() {
+//close the hipe session
+    hipe_close_session(hipeSession);
+    hipeSession = 0;
+}
+
+session::operator hipe_session() const {
+    return hipeSession;
+}
+
+
 ///loc class implementation
 //////////////
 
-loc::loc(hipe_loc location) {
+loc::loc(hipe_loc location, session* s) {
 //construct a new element object using its location value
     this->location = location;
-    session::incrementReferenceCount(location);
+    this->_session = s;
+    if(_session)
+        _session->incrementReferenceCount(location);
 }
 
 loc::loc() {
-//create a new reference to the root element.
+//create a new loc instance set to null.
     location = 0;
+    _session = 0;
 }
 
 loc::loc(const loc& orig) {
 //copy constructor
     this->location = orig.location;
-    session::incrementReferenceCount(location);
+    _session = orig._session;
+    if(_session)
+        _session->incrementReferenceCount(location);
 }
 
 loc& loc::operator= (const loc& orig) {
 //copy assignment operator
-    session::decrementReferenceCount(location);
+    if(_session)
+        _session->decrementReferenceCount(location);
     this->location = orig.location;
-    session::incrementReferenceCount(location);
+    _session = orig._session;
+    if(_session)
+        _session->incrementReferenceCount(location);
 }
 
 loc::~loc() {
 //destructor. Should decrement the reference count to the hipe_loc allocation, and
 //send an instruction to free the allocation if the count reaches zero.
-    session::decrementReferenceCount(location);
+    _session->decrementReferenceCount(location);
 }
 
 loc loc::firstChild() {
 //return first child node of this element
-    hipe_send(session::get_session(), HIPE_OPCODE_GET_FIRST_CHILD, 0, location, 0, 0);
+    hipe_send(*_session, HIPE_OPCODE_GET_FIRST_CHILD, 0, location, 0, 0);
     hipe_instruction instruction;
     hipe_instruction_init(&instruction);
-    hipe_await_instruction(session::get_session(), &instruction, HIPE_OPCODE_LOCATION_RETURN);
-    return loc(instruction.location);
+    hipe_await_instruction(*_session, &instruction, HIPE_OPCODE_LOCATION_RETURN);
+    return loc(instruction.location, _session);
 }
     
 loc loc::lastChild() {
 //return the last child node of this element.
-    hipe_send(session::get_session(), HIPE_OPCODE_GET_LAST_CHILD, 0, location, 0, 0);
+    hipe_send(*_session, HIPE_OPCODE_GET_LAST_CHILD, 0, location, 0, 0);
     hipe_instruction instruction;
     hipe_instruction_init(&instruction);
-    hipe_await_instruction(session::get_session(), &instruction, HIPE_OPCODE_LOCATION_RETURN);
-    return loc(instruction.location);
+    hipe_await_instruction(*_session, &instruction, HIPE_OPCODE_LOCATION_RETURN);
+    return loc(instruction.location, _session);
 }
 
 loc loc::nextSibling() {
-    hipe_send(session::get_session(), HIPE_OPCODE_GET_NEXT_SIBLING, 0, location, 0, 0);
+    hipe_send(*_session, HIPE_OPCODE_GET_NEXT_SIBLING, 0, location, 0, 0);
     hipe_instruction instruction;
     hipe_instruction_init(&instruction);
-    hipe_await_instruction(session::get_session(), &instruction, HIPE_OPCODE_LOCATION_RETURN);
-    return loc(instruction.location);
+    hipe_await_instruction(*_session, &instruction, HIPE_OPCODE_LOCATION_RETURN);
+    return loc(instruction.location, _session);
 }
     
 loc loc::prevSibling() {
-    hipe_send(session::get_session(), HIPE_OPCODE_GET_PREV_SIBLING, 0, location, 0, 0);
+    hipe_send(*_session, HIPE_OPCODE_GET_PREV_SIBLING, 0, location, 0, 0);
     hipe_instruction instruction;
     hipe_instruction_init(&instruction);
-    hipe_await_instruction(session::get_session(), &instruction, HIPE_OPCODE_LOCATION_RETURN);
-    return loc(instruction.location);
+    hipe_await_instruction(*_session, &instruction, HIPE_OPCODE_LOCATION_RETURN);
+    return loc(instruction.location, _session);
 }
         
+loc::operator hipe_loc() const { //allow casting to a hipe_loc variable for use with hipe API C functions.
+    return location;
+}
 
 int loc::send(char opcode, uint64_t requestor, std::string arg1, std::string arg2) {
 //sends an instruction with this element passed as the location to act on.
@@ -230,7 +244,7 @@ int loc::send(char opcode, uint64_t requestor, std::string arg1, std::string arg
         instruction.arg2 = (char*) arg2.data();
         instruction.arg2Length = arg2.size();
     }
-    result = hipe_send_instruction(session::get_session(), instruction);
+    result = hipe_send_instruction(*_session, instruction);
     return result;
 }
 

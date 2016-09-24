@@ -1,10 +1,6 @@
-v0.18 beta -- 22 Sep 2016
+v0.19 beta -- 24 Sep 2016
 
-- Completed hipetec.hh -- a C++ wrapper to provide OO location objects to C++ developers.
-- Added partial optimisation of user input sanitisation.
-- display of new top-level containers is now postponed until initial styling
-  has been specified and the first content has been appended to the body.
-  This avoids 'restyling flicker' when the container is first displayed.
+- The hipetec API interface (for C++ users) has been restructured to be more useable. The limitation of only allowing a single session has been removed from hipetec.
 
 TODO:
 
