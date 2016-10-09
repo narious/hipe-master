@@ -334,8 +334,10 @@ short hipe_await_instruction(hipe_session session, hipe_instruction* instruction
                 instruction_ret->next = 0;
                 free(found_in_queue);               /*shallow clear. Any args now exist in instruction_ret only.*/
                 return 1;
-            } else
+            } else {
                 pre_newest = session->oldestInstruction;
+                if(!pre_newest->next) continue; /*we've only read one instruction and it isn't a match.*/
+            }
         }
 
 

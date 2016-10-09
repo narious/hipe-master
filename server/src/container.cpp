@@ -136,7 +136,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
             client->sendInstruction(HIPE_OPCODE_POSITION_RETURN, instruction.requestor, instruction.location,
                                     QString::number(geom.x()).toStdString(), QString::number(geom.y()).toStdString());
         } else { //get size
-            client->sendInstruction(HIPE_OPCODE_POSITION_RETURN, instruction.requestor, instruction.location,
+            client->sendInstruction(HIPE_OPCODE_SIZE_RETURN, instruction.requestor, instruction.location,
                                     QString::number(geom.width()).toStdString(), QString::number(geom.height()).toStdString());
         }
     } else if(instruction.opcode == HIPE_OPCODE_GET_ATTRIBUTE) {
