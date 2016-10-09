@@ -131,13 +131,16 @@ void Container::receiveInstruction(hipe_instruction instruction)
     } else if(instruction.opcode == HIPE_OPCODE_EVENT_CANCEL) {
         location.removeAttribute(QString("on") + arg1);
     } else if(instruction.opcode == HIPE_OPCODE_GET_GEOMETRY) {
-        QRect geom = location.geometry();
+        QString left = location.evaluateJavaScript("this.offsetLeft;").toString();
+        QString top = location.evaluateJavaScript("this.offsetTop;").toString();
         if(arg1.at(0) != '1') { //get position
             client->sendInstruction(HIPE_OPCODE_POSITION_RETURN, instruction.requestor, instruction.location,
-                                    QString::number(geom.x()).toStdString(), QString::number(geom.y()).toStdString());
+                                    left.toStdString(), top.toStdString());
         } else { //get size
+            QString width = location.evaluateJavaScript("this.offsetWidth;").toString();
+            QString height = location.evaluateJavaScript("this.offsetHeight;").toString();
             client->sendInstruction(HIPE_OPCODE_SIZE_RETURN, instruction.requestor, instruction.location,
-                                    QString::number(geom.width()).toStdString(), QString::number(geom.height()).toStdString());
+                                    width.toStdString(), height.toStdString());
         }
     } else if(instruction.opcode == HIPE_OPCODE_GET_ATTRIBUTE) {
         client->sendInstruction(HIPE_OPCODE_ATTRIBUTE_RETURN, instruction.requestor, instruction.location,
