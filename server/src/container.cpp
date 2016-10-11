@@ -63,15 +63,25 @@ void Container::receiveInstruction(hipe_instruction instruction)
     if(instruction.opcode == HIPE_OPCODE_CLEAR) {
         if(!locationSpecified) setBody("",true);
         else location.setInnerXml("");
-    } else if(instruction.opcode == HIPE_OPCODE_APPEND_TAG) { //todo -- run thru an 'isTagAllowed()' function to eliminate tags like <script>.
+    } else if(instruction.opcode == HIPE_OPCODE_APPEND_TAG) {
         arg1 = Sanitation::sanitisePlainText(arg1);
         arg2 = Sanitation::sanitisePlainText(arg2);
-        QString newTagString = "<";
-        newTagString += arg1;
-        if(arg2.size()) newTagString += " id=\"" + arg2 + "\"";
-        newTagString += "></" + arg1 + ">";
-        if(!locationSpecified) setBody(newTagString, false);
-        else location.appendInside(newTagString);
+        if(Sanitation::isAllowedTag(arg1)) { //eliminate forbidden tags.
+            QString newTagString = "<";
+            newTagString += arg1;
+            if(arg2.size()) {
+                newTagString += " id=\"" + arg2 + "\"";
+            } else if(arg1 == "iframe" || arg1 == "canvas") { //these tags don't function properly without an ID. Make a random one.
+                std::string randomID = keyList->generateContainerKey();
+                keyList->claimKey(randomID); //burn through a contaner key in order to get a random string out of it.
+                newTagString += " id=\"";
+                newTagString += randomID.c_str();
+                newTagString += "\"";
+            }
+            newTagString += "></" + arg1 + ">";
+            if(!locationSpecified) setBody(newTagString, false);
+            else location.appendInside(newTagString);
+        }
     } else if(instruction.opcode == HIPE_OPCODE_SET_TEXT) {
         arg1 = Sanitation::sanitisePlainText(arg1);
         if(!locationSpecified) setBody(arg1);
@@ -164,7 +174,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
         stylesheet += arg1 + "{background-image:url(\"" + dataURI + "\");}\n";
     } else if(instruction.opcode == HIPE_OPCODE_GET_FRAME_KEY) {
         //Check if the location is already represented in the frame table.
-        QString frameID = location.attribute("id"); //Need this for matching the frame. (Webkit seems to supply IDs automatically when none are provided by the user.)
+        QString frameID = location.attribute("id"); //Need this for matching the frame.
         bool found = false;
         QString hostKey = "";
         for(FrameData& fd : subFrames) {
