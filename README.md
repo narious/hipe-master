@@ -7,10 +7,11 @@ HIPE: Hypertext Pipe
 VERSION INFORMATION
 -------------------
 
-v0.19 beta -- 13 Oct 2016
+v0.20 beta -- 14 Oct 2016
 
 
-- The hipetec API interface (for C++ users) has been restructured to be more useable. The limitation of only allowing a single session has been removed from hipetec.
+- A facility for inter-client communication has been added, with the new HIPE_OPCODE_MESSAGE instruction.
+- Client API now sends client PID to server, to support future applications.
 - Fixed bug: canvases didn't work unless they were created with ids.
 
 TODO:

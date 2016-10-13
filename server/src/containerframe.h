@@ -31,6 +31,8 @@ public:
     ContainerFrame(Connection* client, QString clientName, QWebFrame* frame, Container* parent); //object is not created until an iframe is actually assigned to a client.
     ~ContainerFrame();
 
+    Container* getParent();
+
     void setBody(QString newBodyHtml, bool overwrite=true);
 protected:
     void setTitle(QString newTitle);

@@ -73,6 +73,15 @@ public:
     void receiveSubFrameEvent(short evtType, QWebFrame* sender, std::string detail);
     //called by a sub-frame (ContainerFrame object) of this container to indicate that
     //the frame has been modified in a way that should be reported to the framing client.
+
+    void receiveMessage(int64_t requestor, std::string arg1, std::string arg2, QWebFrame* sender);
+    //called by another container object to transmit a HIPE_OPCODE_MESSAGE instruction
+    //from a direct parent/child frame's client to this container's client.
+    //sender should be used only if sender is a child of the recipient. If it's the parent, this should be indicated
+    //by passing a nullptr.
+
+    virtual Container* getParent()=0; //returns the parent container, or nullptr if it's a top level container.
+
 protected:
     Connection* client;
     QWebElement webElement;

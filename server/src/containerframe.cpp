@@ -36,6 +36,11 @@ ContainerFrame::~ContainerFrame()
     parent->receiveSubFrameEvent(HIPE_FRAME_EVENT_CLIENT_DISCONNECTED, frame, "");
 }
 
+Container* ContainerFrame::getParent()
+{
+    return parent;
+}
+
 void ContainerFrame::setBody(QString newBodyHtml, bool overwrite)
 {
     if(!initYet) {

@@ -44,6 +44,11 @@ ContainerTopLevel::~ContainerTopLevel() {
     delete w;
 }
 
+Container* ContainerTopLevel::getParent()
+{
+    return nullptr; //a top level container has no parent.
+}
+
 void ContainerTopLevel::setTitle(QString newTitle) {
     w->setWindowTitle(newTitle);
 }

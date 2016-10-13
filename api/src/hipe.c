@@ -151,7 +151,8 @@ hipe_session hipe_open_session(const char* host_key, const char* socket_path, co
     session->connection_fd = fd;
     hipe_instruction rq;
     rq.opcode = HIPE_OPCODE_REQUEST_CONTAINER;
-    rq.location = rq.requestor = 0;
+    rq.location = 0;
+    rq.requestor = getpid();
     rq.arg1 = key;
     rq.arg1Length = strlen(key);
     rq.arg2 = (char*) clientName;

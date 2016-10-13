@@ -215,6 +215,14 @@ extern "C" {
 /* Removes (unsets) the attribute specified in arg1. arg2 is unused.
  */
 
+#define HIPE_OPCODE_MESSAGE            43
+/* Sends an arbitrary message to another Hipe client with a direct parent/child relationship.
+ * Or receives a message from another client.
+ * Location: * 0 (or body element) means the message is being passed to/from the direct parent (which manages the client frame)
+ *           * a frame element means message is being passed to/from that child frame's client.
+ * arg1, arg2, requestor: passed through to other client unmodified. User-defined message data can be passed through here.
+ */
+
 /*--------------*/
 
 #define HIPE_FRAME_EVENT_CLIENT_CONNECTED    1 //arg2 is client name

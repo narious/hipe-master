@@ -291,6 +291,25 @@ void Container::receiveInstruction(hipe_instruction instruction)
     } else if(instruction.opcode == HIPE_OPCODE_REMOVE_ATTRIBUTE) {
         if(Sanitation::isAllowedAttribute(arg1))
             location.removeAttribute(arg1);
+    } else if(instruction.opcode == HIPE_OPCODE_MESSAGE) {
+        //Determine whether we need to send the message to the parent frame or a child frame.
+        Container* target = nullptr;
+        QWebFrame* sourceframe = nullptr;
+        if(locationSpecified) {
+            //find the relevant child frame client
+            for(FrameData& fd : subFrames) {
+                if(fd.we == location) { //found
+                    target = globalContainerManager->findContainer(fd.wf); //find the corresponding container.
+                    break;
+                }
+            }
+        } else { //send to parent element
+            target = getParent();
+            sourceframe = webElement.webFrame();
+        }
+        if(target) { //send the instruction to the destination.
+            target->receiveMessage(requestor, std::string(instruction.arg1,instruction.arg1Length), std::string(instruction.arg2, instruction.arg2Length), sourceframe);
+        }
     }
 }
 
@@ -338,6 +357,23 @@ void Container::receiveSubFrameEvent(short evtType, QWebFrame* sender, std::stri
             break;
         }
     }
+}
+
+void Container::receiveMessage(int64_t requestor, std::string arg1, std::string arg2, QWebFrame* sender) {
+//If the sender is the parent of this frame, a nullptr should be passed as sender.
+//If the sender is a child frame, we'll resolve the child frame's location from the perspective of this frame.
+
+    size_t location = 0;
+
+    //if it came from the parent we send a 0 for location. Otherwise we need to identify the child frame it came from.
+    if(sender) //need to resolve location of child frame that sent this.
+        for(FrameData& sf : subFrames) {
+            if(sf.wf == sender) { //found it.
+                location = getIndexOfElement(sf.we);
+            }
+        }
+
+    client->sendInstruction(HIPE_OPCODE_MESSAGE, requestor, location, arg1, arg2);
 }
 
 

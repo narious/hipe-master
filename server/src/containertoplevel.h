@@ -66,6 +66,7 @@ public:
     explicit ContainerTopLevel(Connection*, QString clientName);
     ~ContainerTopLevel();
 
+    Container* getParent();
 private:
     WebWindow* w;
 protected:
