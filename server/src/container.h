@@ -82,7 +82,7 @@ public:
     //This can also be used to transmit events across frame boundaries (the parent will see the event as originating
     //from the client frame element.
 
-    void keyEventOnChildFrame(QWebFrame* origin, bool keyup, QString keycode);
+    void keyEventOnChildFrame(QWebFrame* origin, bool keyUp, QString keycode);
     //if keyup is false, it was a keydown event.
     //This function is called from a child container instructing this container that a keyup/keydown event has
     //occurred on the body element of this frame (or has propagated from a child frame of *that* frame).

@@ -14,6 +14,8 @@ v0.21 beta -- 15 Oct 2016
 
 TODO:
 
+- Propagated keyup/keydown events are sent to ancestor clients with requestor value 0.
+  This should be fixed to reflect the requestor's chosen passthrough value.
 - Add security: sanitise canvas operations to prevent arbitrary code causing performance instability.
 
 

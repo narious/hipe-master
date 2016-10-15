@@ -395,7 +395,7 @@ void Container::receiveMessage(char opcode, int64_t requestor, std::string arg1,
         getParent()->receiveMessage(opcode, requestor, arg1, arg2, webElement.webFrame(), true);
 }
 
-void Container::keyEventOnChildFrame(QWebFrame* origin, bool keyup, QString keycode) {
+void Container::keyEventOnChildFrame(QWebFrame* origin, bool keyUp, QString keycode) {
 //if keyup is false, it was a keydown event.
 //This function is called from a child container instructing this container that a keyup/keydown event has
 //occurred on the body element of this frame (or has propagated from a child frame of *that* frame).
@@ -415,13 +415,13 @@ void Container::keyEventOnChildFrame(QWebFrame* origin, bool keyup, QString keyc
     }
 
     //Determine if an onkeydown/onkeyup attribute is attached to this element. Fire off an event if so.
-    if(keyup && childFrame.hasAttribute("onkeyup"))
+    if(keyUp && childFrame.hasAttribute("onkeyup"))
         client->sendInstruction(HIPE_OPCODE_EVENT, 0 /*fixme: how can we find out the requestor?*/, location, "keyup", keycode.toStdString());
-    else if(!keyup && childFrame.hasAttribute("onkeydown"))
+    else if(!keyUp && childFrame.hasAttribute("onkeydown"))
         client->sendInstruction(HIPE_OPCODE_EVENT, 0 /*fixme: how can we find out the requestor?*/, location, "keydown", keycode.toStdString());
 
     if(getParent()) { //propagate this up to *our* parent and so on, in case they need this keyboard event.
-        getParent()->keyEventOnChildFrame(webElement.webFrame(), keyup, keycode);
+        getParent()->keyEventOnChildFrame(webElement.webFrame(), keyUp, keycode);
     }
 
 }
@@ -438,15 +438,15 @@ void Container::_receiveKeyEventOnBody(bool keyUp, QString keycode)
 //the event and propagate it up the client tree regardless of whether the user has asked to be notified of it.
 {
     if(keyUp && reportKeyupOnBody)
-        receiveGuiEvent(0, keyUpOnBodyRequestor, "keyup", keycode);
+        _receiveGuiEvent(0, keyUpOnBodyRequestor, "keyup", keycode);
     else if(!keyUp && reportKeydownOnBody)
-        receiveGuiEvent(0, keyDownOnBodyRequestor, "keyup", keycode);
+        _receiveGuiEvent(0, keyDownOnBodyRequestor, "keydown", keycode);
 
     // the whole point of this function is that we'll now notify the parent of the event.
     // if this frame has a onkeydown or onkeyup attribute specified in the parent, we'll fire off an event on that iframe.
     // Regardless, we then propagate to *that* element's parent as well.
     if(getParent()) { //propagate this up to *our* parent and so on, in case they need this keyboard event.
-        getParent()->keyEventOnChildFrame(webElement.webFrame(), keyup, keycode);
+        getParent()->keyEventOnChildFrame(webElement.webFrame(), keyUp, keycode);
     }
 
 }
