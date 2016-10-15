@@ -138,6 +138,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
         QString locStr = QString::number(instruction.location);
         QString reqStr = QString::number(requestor);
         QString evtDetailArgs;
+        arg1 = arg1.toLower(); //sanitise against user overriding event attributes with uppercase equivalents.
         if(arg1 == "mousemove" || arg1 == "mousedown" || arg1 == "mouseup")
             evtDetailArgs = "'' + event.which + ',' + event.pageX + ',' + event.pageY";
         else
@@ -441,9 +442,13 @@ void Container::_receiveKeyEventOnBody(bool keyUp, QString keycode)
     else if(!keyUp && reportKeydownOnBody)
         receiveGuiEvent(0, keyDownOnBodyRequestor, "keyup", keycode);
 
-    ///TODO!!!!!!!!!!!!!!!! the whole point of this function is that we'll now notify the parent of the event.
-    /// if this frame has a onkeydown or onkeyup attribute specified in the parent, we'll fire off an event on that iframe.
-    /// Regardless, we then propagate to *that* element's parent as well.
+    // the whole point of this function is that we'll now notify the parent of the event.
+    // if this frame has a onkeydown or onkeyup attribute specified in the parent, we'll fire off an event on that iframe.
+    // Regardless, we then propagate to *that* element's parent as well.
+    if(getParent()) { //propagate this up to *our* parent and so on, in case they need this keyboard event.
+        getParent()->keyEventOnChildFrame(webElement.webFrame(), keyup, keycode);
+    }
+
 }
 
 void Container::frameCleared() {
