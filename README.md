@@ -7,12 +7,10 @@ HIPE: Hypertext Pipe
 VERSION INFORMATION
 -------------------
 
-v0.20 beta -- 14 Oct 2016
+v0.21 beta -- 15 Oct 2016
 
 
-- A facility for inter-client communication has been added, with the new HIPE_OPCODE_MESSAGE instruction.
-- Client API now sends client PID to server, to support future applications.
-- Fixed bug: canvases didn't work unless they were created with ids.
+- keyup and keydown events can now propagate from child frames to their respective parent framing managers.
 
 TODO:
 

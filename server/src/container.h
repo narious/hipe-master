@@ -74,11 +74,21 @@ public:
     //called by a sub-frame (ContainerFrame object) of this container to indicate that
     //the frame has been modified in a way that should be reported to the framing client.
 
-    void receiveMessage(int64_t requestor, std::string arg1, std::string arg2, QWebFrame* sender);
-    //called by another container object to transmit a HIPE_OPCODE_MESSAGE instruction
+    void receiveMessage(char opcode, int64_t requestor, std::string arg1, std::string arg2, QWebFrame* sender, bool propagateToParent=false);
+    //called by another container object to transmit an instruction (e.g. HIPE_OPCODE_MESSAGE)
     //from a direct parent/child frame's client to this container's client.
     //sender should be used only if sender is a child of the recipient. If it's the parent, this should be indicated
     //by passing a nullptr.
+    //This can also be used to transmit events across frame boundaries (the parent will see the event as originating
+    //from the client frame element.
+
+    void keyEventOnChildFrame(QWebFrame* origin, bool keyup, QString keycode);
+    //if keyup is false, it was a keydown event.
+    //This function is called from a child container instructing this container that a keyup/keydown event has
+    //occurred on the body element of this frame (or has propagated from a child frame of *that* frame).
+    //The event should be propagated up to the top level so the framing manager can intercept global keyboard shortcuts.
+    //It should also trigger a simulated event on the frame to this client, if this client has bound onkeydown/onkeyup
+    //attributes to this frame.
 
     virtual Container* getParent()=0; //returns the parent container, or nullptr if it's a top level container.
 
@@ -90,8 +100,12 @@ protected:
 signals:
     void receiveGuiEvent(quint64 location, quint64 requestor, QString event, QString detail);
     //signal called from within the QWebView object (via Javascript), each time a user interaction takes place.
+
+    void receiveKeyEventOnBody(bool keyUp, QString keycode);
+    //signal called when a keyup (or else keydown) event happens on the body element.
 protected slots:
     void _receiveGuiEvent(quint64 location, quint64 requestor, QString event, QString detail);
+    void _receiveKeyEventOnBody(bool keyUp, QString keycode);
     void frameCleared();
     void frameDestroyed(); //conneected to the QWebFrame's destroyed() signal.
 public slots:
@@ -108,7 +122,11 @@ private:
     size_t findReferenceableElement(QWebElement);
     size_t getIndexOfElement(QWebElement); //finds corresponding index, or adds it if it has not been allocated an index yet.
 
-
+    //flags to handle keyup/down events on body as a special case (since this event needs to propagate to the framing manager for special window manipulation keys)
+    bool reportKeydownOnBody=false; //has the client requested keydown events on the body element?
+    bool reportKeyupOnBody=false; //has the client requested keyup events on the body element?
+    uint64_t keyDownOnBodyRequestor=0; //corresponding requestors if the client requests these key events.
+    uint64_t keyUpOnBodyRequestor=0;
 
     KeyList* keyList;
     std::list<FrameData> subFrames; //table of subframes, mapping web element of an iframe to its corresponding child frame object and host-key (if assigned).

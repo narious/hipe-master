@@ -41,10 +41,12 @@ Container* ContainerFrame::getParent()
     return parent;
 }
 
+//location.setAttribute(QString("on") + arg1, QString("c.receiveGuiEvent(") + locStr + "," + reqStr + ",'" + arg1 + "'," + evtDetailArgs + ")");
+
 void ContainerFrame::setBody(QString newBodyHtml, bool overwrite)
 {
     if(!initYet) {
-        frame->setHtml(QString("<html><head><style>") + stylesheet + "</style><script>var canvascontext;</script></head><body></body></html>");
+        frame->setHtml(QString("<html><head><style>") + stylesheet + "</style><script>var canvascontext;</script></head><body onkeydown=\"c.receiveKeyEventOnBody(false, event.which);\" onkeyup=\"c.receiveKeyEventOnBody(true, event.which);\"></body></html>");
         webElement = frame->documentElement().lastChild();
         initYet = true;
     }

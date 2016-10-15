@@ -42,6 +42,11 @@ Container::Container(Connection* bridge, QString clientName) : QObject()
     connect(this, SIGNAL(receiveGuiEvent(quint64,quint64,QString,QString)),
             this, SLOT(_receiveGuiEvent(quint64,quint64,QString,QString)));
 
+    connect(this, SIGNAL(receiveKeyEventOnBody(bool,QString)),
+            this, SLOT(_receiveKeyEventOnBody(bool,QString)));
+    //keyup/keydown events on the body element are treated as a special case,
+    //since they might need to be propagated to a parent tag.
+
     globalContainerManager->registerContainer(this);
 }
 
@@ -137,7 +142,14 @@ void Container::receiveInstruction(hipe_instruction instruction)
             evtDetailArgs = "'' + event.which + ',' + event.pageX + ',' + event.pageY";
         else
             evtDetailArgs = "event.which";
-        location.setAttribute(QString("on") + arg1, QString("c.receiveGuiEvent(") + locStr + "," + reqStr + ",'" + arg1 + "'," + evtDetailArgs + ")");
+        if(arg1 == "keydown" && !locationSpecified) { //keydown on body element is a special case.
+            reportKeydownOnBody=true;
+            keyDownOnBodyRequestor=instruction.requestor;
+        } else if(arg2 == "keydown" && !locationSpecified) { //keyup on body element is a special case.
+            reportKeyupOnBody=true;
+            keyUpOnBodyRequestor=instruction.requestor;
+        } else
+            location.setAttribute(QString("on") + arg1, QString("c.receiveGuiEvent(") + locStr + "," + reqStr + ",'" + arg1 + "'," + evtDetailArgs + ")");
     } else if(instruction.opcode == HIPE_OPCODE_EVENT_CANCEL) {
         location.removeAttribute(QString("on") + arg1);
     } else if(instruction.opcode == HIPE_OPCODE_GET_GEOMETRY) {
@@ -308,7 +320,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
             sourceframe = webElement.webFrame();
         }
         if(target) { //send the instruction to the destination.
-            target->receiveMessage(requestor, std::string(instruction.arg1,instruction.arg1Length), std::string(instruction.arg2, instruction.arg2Length), sourceframe);
+            target->receiveMessage(HIPE_OPCODE_MESSAGE, requestor, std::string(instruction.arg1,instruction.arg1Length), std::string(instruction.arg2, instruction.arg2Length), sourceframe);
         }
     }
 }
@@ -359,9 +371,10 @@ void Container::receiveSubFrameEvent(short evtType, QWebFrame* sender, std::stri
     }
 }
 
-void Container::receiveMessage(int64_t requestor, std::string arg1, std::string arg2, QWebFrame* sender) {
+void Container::receiveMessage(char opcode, int64_t requestor, std::string arg1, std::string arg2, QWebFrame* sender, bool propagateToParent) {
 //If the sender is the parent of this frame, a nullptr should be passed as sender.
 //If the sender is a child frame, we'll resolve the child frame's location from the perspective of this frame.
+//If propagateToParent is set, all parents of this container will see this message as originating from their relevant child frame.
 
     size_t location = 0;
 
@@ -370,16 +383,67 @@ void Container::receiveMessage(int64_t requestor, std::string arg1, std::string 
         for(FrameData& sf : subFrames) {
             if(sf.wf == sender) { //found it.
                 location = getIndexOfElement(sf.we);
+                break;
             }
         }
 
-    client->sendInstruction(HIPE_OPCODE_MESSAGE, requestor, location, arg1, arg2);
+    client->sendInstruction(opcode, requestor, location, arg1, arg2);
+
+    //propagate to parent (and grandparent, etc.) if flag specified.
+    if(propagateToParent && getParent())
+        getParent()->receiveMessage(opcode, requestor, arg1, arg2, webElement.webFrame(), true);
+}
+
+void Container::keyEventOnChildFrame(QWebFrame* origin, bool keyup, QString keycode) {
+//if keyup is false, it was a keydown event.
+//This function is called from a child container instructing this container that a keyup/keydown event has
+//occurred on the body element of this frame (or has propagated from a child frame of *that* frame).
+//The event should be propagated up to the top level so the framing manager can intercept global keyboard shortcuts.
+//It should also trigger a simulated event on the frame to this client, if this client has bound onkeydown/onkeyup
+//attributes to this frame.
+
+    size_t location=0;
+    QWebElement childFrame;
+
+    for(FrameData& sf : subFrames) {
+        if(sf.wf == origin) { //found it.
+            location = getIndexOfElement(sf.we);
+            childFrame = sf.we;
+            break;
+        }
+    }
+
+    //Determine if an onkeydown/onkeyup attribute is attached to this element. Fire off an event if so.
+    if(keyup && childFrame.hasAttribute("onkeyup"))
+        client->sendInstruction(HIPE_OPCODE_EVENT, 0 /*fixme: how can we find out the requestor?*/, location, "keyup", keycode.toStdString());
+    else if(!keyup && childFrame.hasAttribute("onkeydown"))
+        client->sendInstruction(HIPE_OPCODE_EVENT, 0 /*fixme: how can we find out the requestor?*/, location, "keydown", keycode.toStdString());
+
+    if(getParent()) { //propagate this up to *our* parent and so on, in case they need this keyboard event.
+        getParent()->keyEventOnChildFrame(webElement.webFrame(), keyup, keycode);
+    }
+
 }
 
 
 void Container::_receiveGuiEvent(quint64 location, quint64 requestor, QString event, QString detail)
 {
     client->sendInstruction(HIPE_OPCODE_EVENT, requestor, location, event.toStdString(), detail.toStdString());
+}
+
+void Container::_receiveKeyEventOnBody(bool keyUp, QString keycode)
+//keyup and keydown events are treated as a special case when they happen on the body element.
+//receiveGuiEvent is not called directly, instead this slot is ALWAYS called, since we want to receive
+//the event and propagate it up the client tree regardless of whether the user has asked to be notified of it.
+{
+    if(keyUp && reportKeyupOnBody)
+        receiveGuiEvent(0, keyUpOnBodyRequestor, "keyup", keycode);
+    else if(!keyUp && reportKeydownOnBody)
+        receiveGuiEvent(0, keyDownOnBodyRequestor, "keyup", keycode);
+
+    ///TODO!!!!!!!!!!!!!!!! the whole point of this function is that we'll now notify the parent of the event.
+    /// if this frame has a onkeydown or onkeyup attribute specified in the parent, we'll fire off an event on that iframe.
+    /// Regardless, we then propagate to *that* element's parent as well.
 }
 
 void Container::frameCleared() {
