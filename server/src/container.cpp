@@ -207,7 +207,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
             for(QWebFrame* frame : frames) {
                 if(frame->frameName() == frameID) {
                     found = true; //match found.
-                    subFrames.push_back({location, frame, hostKey, requestor, "", ""}); //add new entry to the table.
+                    subFrames.push_back({location, frame, hostKey, requestor, "", "", 0}); //add new entry to the table.
                     break;
                 }
             }
@@ -335,7 +335,7 @@ void Container::containerClosed()
     client->deleteLater();
 }
 
-Container* Container::requestNew(std::string key, std::string clientName, Connection* c) {
+Container* Container::requestNew(std::string key, std::string clientName, uint64_t pid, Connection* c) {
     if(keyList->claimKey(key)) {
         //find the relevant frame in the subFrames list.
         for(FrameData& fd : subFrames) {
@@ -343,6 +343,7 @@ Container* Container::requestNew(std::string key, std::string clientName, Connec
                 fd.hostkey = ""; //now claimed, not reusable.
                 fd.clientName = clientName;
                 fd.title = clientName;
+                fd.pid = pid;
                 receiveSubFrameEvent(HIPE_FRAME_EVENT_CLIENT_CONNECTED, fd.wf, clientName);
                 return (Container*) new ContainerFrame(c, QString(clientName.c_str()), fd.wf, this);
             }

@@ -37,7 +37,7 @@ public:
 
     ~ContainerManager();
 
-    Container* requestNew(std::string key, std::string clientName, Connection* c);
+    Container* requestNew(std::string key, std::string clientName, uint64_t pid, Connection* c);
 
     //self-registration functions for containers to call when they are created.
     void registerContainer(Container*);

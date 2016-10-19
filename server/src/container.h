@@ -43,6 +43,7 @@ public:
     uint64_t requestor; //to be attached when sending back child frame events.
     std::string clientName;
     std::string title;
+    pid_t pid; //client process ID. pid_t defined in <types.h>
 
     bool operator==(const FrameData& other);
 };
@@ -65,7 +66,7 @@ public:
 
     void containerClosed();
 
-    Container* requestNew(std::string key, std::string clientName, Connection* c);
+    Container* requestNew(std::string key, std::string clientName, uint64_t pid, Connection* c);
     //request a new sub-frame that is managed by this container. Returns nullptr if the
     //key is not held by this container, else creates a new ContainerFrame object and
     //returns its pointer.

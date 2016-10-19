@@ -73,9 +73,10 @@ void Connection::sendInstruction(hipe_instruction& instruction)
 void Connection::publishInstruction()
 {
     if(currentInstruction.output.opcode == HIPE_OPCODE_REQUEST_CONTAINER) {
-        container = containerManager->requestNew(std::string(currentInstruction.output.arg1, currentInstruction.output.arg1Length), std::string(currentInstruction.output.arg2, currentInstruction.output.arg2Length), this);
+        //requestor contains the claimed pid of the connecting process.
+        container = containerManager->requestNew(std::string(currentInstruction.output.arg1, currentInstruction.output.arg1Length), std::string(currentInstruction.output.arg2, currentInstruction.output.arg2Length), currentInstruction.output.requestor, this);
         //send the result of the container request (arg1 represents approved/denied)
-        sendInstruction(HIPE_OPCODE_CONTAINER_GRANT, 0,0, (container ? "1":"0"),"0");
+        sendInstruction(HIPE_OPCODE_CONTAINER_GRANT, 0,0, (container ? "1":"0"),"0"); //new client awaits this confirmation that its key has been approved.
     } else if(container) { //allow other instructions only if a container request has already been granted.
         //send the instruction to the container.
         hipe_instruction instruction;

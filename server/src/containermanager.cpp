@@ -37,7 +37,7 @@ ContainerManager::~ContainerManager()
     delete topLevelKeyList;
 }
 
-Container* ContainerManager::requestNew(std::string key, std::string clientName, Connection* c)
+Container* ContainerManager::requestNew(std::string key, std::string clientName, uint64_t pid, Connection* c)
 //returns nullptr if request denied.
 {
     if(topLevelKeyList->claimKey(key)) {
@@ -47,7 +47,7 @@ Container* ContainerManager::requestNew(std::string key, std::string clientName,
         return container;
     } else { //not top-level. Traverse each container in case the key refers to a sub-frame.
         for(Container* container : extantContainers) {
-            Container* newContainer = container->requestNew(key, clientName, c);
+            Container* newContainer = container->requestNew(key, clientName, pid, c);
             if(newContainer)
                 return newContainer;
         }
