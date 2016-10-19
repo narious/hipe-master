@@ -299,8 +299,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
         //TODO sanitise arg1 and arg2 against javascript injections.
         //Don't allow parentheses, semicolons, etc.
     } else if(instruction.opcode == HIPE_OPCODE_SET_ICON) {
-
-        //TODO: implement this instruction.
+        setIcon(instruction.arg2, instruction.arg2Length);
     } else if(instruction.opcode == HIPE_OPCODE_REMOVE_ATTRIBUTE) {
         if(Sanitation::isAllowedAttribute(arg1))
             location.removeAttribute(arg1);
@@ -353,6 +352,7 @@ Container* Container::requestNew(std::string key, std::string clientName, uint64
 }
 
 void Container::receiveSubFrameEvent(short evtType, QWebFrame* sender, std::string detail)
+//called from a sub-frame when an event affecting that subframe takes place.
 {
     std::string evtTypeString = " "; evtTypeString[0] = (char) evtType;
 
