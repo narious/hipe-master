@@ -6,6 +6,7 @@ server/*.o
 server/moc_*.cpp
 server/Makefile
 server/src/hiped.pro.user
+server/src/hiped.pro.user.*
 api/build/*.o
 api/build/*.a
 api/test/calc

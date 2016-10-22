@@ -229,6 +229,8 @@ extern "C" {
 #define HIPE_FRAME_EVENT_CLIENT_DISCONNECTED 2
 #define HIPE_FRAME_EVENT_TITLE_CHANGED       3 //arg2 is new title
 #define HIPE_FRAME_EVENT_ICON_CHANGED        4 //arg2 is binary PNG image data.
+#define HIPE_FRAME_EVENT_COLOR_CHANGED       5 //arg2 is the new foreground color
+#define HIPE_FRAME_EVENT_BACKGROUND_CHANGED  6 //arg2 is the new background color
 
 
 typedef uint64_t hipe_loc;

@@ -45,6 +45,8 @@ public:
     std::string title;
     pid_t pid; //client process ID. pid_t defined in <types.h>
 
+    std::string fg, bg; //foreground and background colours as CSS values.
+
     bool operator==(const FrameData& other);
 };
 

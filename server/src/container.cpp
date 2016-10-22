@@ -128,6 +128,19 @@ void Container::receiveInstruction(hipe_instruction instruction)
                 if(webElement.isNull())
                     setBody("");
                 webElement.setStyleProperty(arg1, arg2);
+
+                if(getParent()) { //since a parent frame exists, we should possibly notify the parent of a new colour scheme.
+                    QString fg, bg;
+                    while(!bg.size()) //poll repeatedly until we get a non-null response, if required (frame might not have rendered yet).
+                        bg = webElement.styleProperty("background-color", QWebElement::ComputedStyle);
+                    while(!fg.size())
+                        fg = webElement.styleProperty("color", QWebElement::ComputedStyle);
+
+                    //check if foreground or background colours are defined by this client. If so, notify the parent, and the
+                    //parent will update its own metadata for this frame, to determine whether to send the relevant event.
+                    getParent()->receiveSubFrameEvent(HIPE_FRAME_EVENT_BACKGROUND_CHANGED, webElement.webFrame(), bg.toStdString());
+                    getParent()->receiveSubFrameEvent(HIPE_FRAME_EVENT_COLOR_CHANGED, webElement.webFrame(), fg.toStdString());
+                }
             } else {
                 location.setStyleProperty(arg1, arg2);
             }
@@ -207,7 +220,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
             for(QWebFrame* frame : frames) {
                 if(frame->frameName() == frameID) {
                     found = true; //match found.
-                    subFrames.push_back({location, frame, hostKey, requestor, "", "", 0}); //add new entry to the table.
+                    subFrames.push_back({location, frame, hostKey, requestor, "", "", 0, "", ""}); //add new entry to the table.
                     break;
                 }
             }
@@ -361,6 +374,17 @@ void Container::receiveSubFrameEvent(short evtType, QWebFrame* sender, std::stri
         if(sf.wf == sender) { //found it.
             if(evtType == HIPE_FRAME_EVENT_TITLE_CHANGED)
                 sf.title = detail;
+            else if(evtType == HIPE_FRAME_EVENT_BACKGROUND_CHANGED) {
+                if(detail.compare(sf.bg) != 0) { //check frame metadata in sf, if background has not changed, return without sending event.
+                    sf.bg = detail;
+                } else
+                    return; //no change to background colour.
+            } else if(evtType == HIPE_FRAME_EVENT_COLOR_CHANGED) { //foreground colour
+                if(detail.compare(sf.fg) != 0) { //similarly as for background colour
+                    sf.fg = detail;
+                } else
+                    return; //no change to foreground colour.
+            }
 
             client->sendInstruction(HIPE_OPCODE_FRAME_EVENT, sf.requestor, findReferenceableElement(sf.we),
                                     evtTypeString, detail);
