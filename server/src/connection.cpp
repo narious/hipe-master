@@ -43,9 +43,6 @@ Connection::~Connection()
 
 void Connection::sendInstruction(char opcode, int64_t requestor, int64_t location, std::string arg1, std::string arg2)
 {
-    //encode the instruction.
-    instruction_encoder outgoingInstruction;
-    instruction_encoder_init (&outgoingInstruction);
     hipe_instruction instruction;
     instruction.opcode = opcode;
     instruction.requestor = requestor;
@@ -54,10 +51,8 @@ void Connection::sendInstruction(char opcode, int64_t requestor, int64_t locatio
     instruction.arg1Length = arg1.size();
     instruction.arg2 = (char*) arg2.data();
     instruction.arg2Length = arg2.size();
-    instruction_encoder_encodeinstruction(&outgoingInstruction, instruction);
 
-    con->write((const char*)outgoingInstruction.encoded_output, outgoingInstruction.encoded_length);
-    instruction_encoder_clear(&outgoingInstruction);
+    sendInstruction(instruction);
 }
 
 void Connection::sendInstruction(hipe_instruction& instruction)
