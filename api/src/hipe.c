@@ -1,4 +1,4 @@
-/*  Copyright (c) 2015 Daniel Kos, General Development Systems
+/*  Copyright (c) 2016 Daniel Kos, General Development Systems
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -33,6 +33,14 @@
 #include <sys/un.h> /*for struct sockaddr_un*/
 
 #define READ_BUFFER_SIZE 128 /*this choice is arbitrary.*/
+/* Defines the size (in bytes) of the read buffer into which instruction data is read in from the display server.
+ * Data read in a single read operation may correspond to one or more instructions, or even a fragment of a single
+ * large instruction. A larger value of READ_BUFFER_SIZE will allow more data to be read in a single read operation,
+ * but there is no guarantee that the hiped display server process will often send large chunks of data at once.
+ * A smaller value of READ_BUFFER_SIZE will require more consecutive read operations to read in the same data, but
+ * will process incoming data with greater regularity when there is a large stream of data incoming.
+ */
+
 #define MAX_READS 50 /*the maximum number of consecutive read operations that can be completed without a return.*/
 
 struct _hipe_session { /*all session-specific state variables go here!*/
@@ -229,8 +237,8 @@ short hipe_next_instruction(hipe_session session, hipe_instruction* instruction_
 
 int readFromServer(hipe_session session, int blocking)
 /*If blocking is set, the function will not return until at least a partial instruction has been read.
- *This function processes zero or more complete instructions before it returns. It calls the publish
- *function to process each instruction after it has read it.
+ *This function processes zero or more complete instructions before it returns. It then adds these
+ *to the session's incoming instruction queue.
  *
  * Returns the number of completed instructions read into the session queue (if any), or -1 on error.
  */

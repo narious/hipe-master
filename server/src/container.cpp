@@ -1,4 +1,4 @@
-/*  Copyright (c) 2015 Daniel Kos, General Development Systems
+/*  Copyright (c) 2016 Daniel Kos, General Development Systems
 
     This file is part of Hipe.
 
@@ -25,12 +25,6 @@
 #include <QWebPage>
 #include <QPrinter>
 #include <stdio.h>
-
-//INCOMING REQUESTS FROM CLIENTTHREAD (must come from there)
-// - requestor: arbitrary pointer to the entity on the client end that requires the action.
-// - target: a pointer to the GUI markup element we wish to manipulate.
-// - action: enumerated opcode. e.g. ACT_MAKEWIDGET.
-// - arg1, arg2: optional string arguments
 
 
 Container::Container(Connection* bridge, QString clientName) : QObject()

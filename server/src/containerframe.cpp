@@ -1,4 +1,4 @@
-/*  Copyright (c) 2015 Daniel Kos, General Development Systems
+/*  Copyright (c) 2016 Daniel Kos, General Development Systems
 
     This file is part of Hipe.
 
@@ -19,8 +19,8 @@
 #include "containerframe.h"
 #include <QWebPage>
 
-//clientframe is an alternative version of ClientWindow, that exists within an iframe
-//of another
+//ContainerFrame is an alternative version of ContainerTopLevel, that exists within an iframe
+//of another.
 
 ContainerFrame::ContainerFrame(Connection* bridge, QString clientName, QWebFrame* frame, Container* parent) : Container(bridge, clientName) {
     initYet = false;
@@ -40,8 +40,6 @@ Container* ContainerFrame::getParent()
 {
     return parent;
 }
-
-//location.setAttribute(QString("on") + arg1, QString("c.receiveGuiEvent(") + locStr + "," + reqStr + ",'" + arg1 + "'," + evtDetailArgs + ")");
 
 void ContainerFrame::setBody(QString newBodyHtml, bool overwrite)
 {
