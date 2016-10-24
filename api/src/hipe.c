@@ -322,7 +322,7 @@ short hipe_await_instruction(hipe_session session, hipe_instruction* instruction
     while(1) { /* we will either return the desired instruction eventually, or return an error condition, such as disconnection. */
         while(current) { /* when we run out of instructions to examine, we'll have to leave this loop to get more */
             /* examine current instruction */
-            if(current->opcode == opcode) { //INVALID READ OF SIZE 1
+            if(current->opcode == opcode) {
                 /* we've found the element we're looking for. Splice it out of the queue and return it. */
                 *instruction_ret = *current; /*return a shallow copy to use existing allocations. We'll delete the original */
 
@@ -345,7 +345,7 @@ short hipe_await_instruction(hipe_session session, hipe_instruction* instruction
 
             /* traverse to next in queue */
             previous = current;
-            current = current->next; //INVALID READ
+            current = current->next;
         }
 
         /* need to fetch more instructions */
