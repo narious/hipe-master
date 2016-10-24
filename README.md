@@ -7,15 +7,17 @@ HIPE: Hypertext Pipe
 VERSION INFORMATION
 -------------------
 
-v0.21 beta -- 15 Oct 2016
+v0.22 beta -- 25 Oct 2016
 
 
-- keyup and keydown events can now propagate from child frames to their respective parent framing managers.
+- Partial rewrite and code cleanup of API functions
+- Major bug fix in API. Instruction queue processing has been fixed. Existing hipe applications should be recompiled to the new API.
+- Display server now has the ability to communicate changes to a client process's colour scheme to the framing manager. This allows
+  framing managers to complement the colours of client applications.
+
 
 TODO:
 
-- Propagated keyup/keydown events are sent to ancestor clients with requestor value 0.
-  This should be fixed to reflect the requestor's chosen passthrough value.
 - Add security: sanitise canvas operations to prevent arbitrary code causing performance instability.
 
 

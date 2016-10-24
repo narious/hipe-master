@@ -55,8 +55,8 @@ struct _hipe_session { /*all session-specific state variables go here!*/
     hipe_instruction* newestInstruction;
 };
 
-int readFromServer(hipe_session session, int blocking);
-/*non-blocking read from server. Receives the number of characters available in the connection's
+int read_to_queue(hipe_session session, int blocking);
+/*blocking or nonblocking read from server. Receives the number of characters available in the connection's
   input buffer, and begins assembling them into an instruction.
 */
 
@@ -215,9 +215,9 @@ short hipe_next_instruction(hipe_session session, hipe_instruction* instruction_
 
     hipe_instruction_clear(instruction_ret); /*clear any previous instruction so that the user doesn't have to.*/
    
-    while(!session->newestInstruction) {
+    while(!session->oldestInstruction) {
     /*Only read something new from server if the queue is empty.*/
-        result = readFromServer(session, blocking);
+        result = read_to_queue(session, blocking);
         if(!blocking && result == 0) return 0; 
         else if(result == -1) { /* Not connected to server */
             instruction_ret->opcode = HIPE_OPCODE_SERVER_DENIED;
@@ -226,16 +226,18 @@ short hipe_next_instruction(hipe_session session, hipe_instruction* instruction_
     }
 
     /*pull next instruction from queue and update queue.*/
-    *instruction_ret = *(session->newestInstruction); /*shallow copy*/
-    free(session->newestInstruction);                 /*shallow clear. Any args now exist in instruction_ret only.*/
-    session->newestInstruction = instruction_ret->next;
+    *instruction_ret = *(session->oldestInstruction); /*shallow copy*/
+    if(session->oldestInstruction == session->newestInstruction)
+        session->newestInstruction = 0; /* if this was the only waiting instruction, reflect the now empty state of queue */
+    free(session->oldestInstruction);                 /*shallow clear. Any args now exist in instruction_ret only.*/
+    session->oldestInstruction = instruction_ret->next;
     instruction_ret->next = 0;
 
     return 1; /*success*/
 }
 
 
-int readFromServer(hipe_session session, int blocking)
+int read_to_queue(hipe_session session, int blocking)
 /*If blocking is set, the function will not return until at least a partial instruction has been read.
  *This function processes zero or more complete instructions before it returns. It then adds these
  *to the session's incoming instruction queue.
@@ -313,58 +315,50 @@ short hipe_close_session(hipe_session session)
 
 short hipe_await_instruction(hipe_session session, hipe_instruction* instruction_ret, short opcode)
 {
-    hipe_instruction* pre_newest; //what's the newest instruction before we start getting new instructions?
-    hipe_instruction* found_in_queue; //the address of the desired instruction, once we find it.
-    int fetched_instructions;
+    hipe_instruction* current=session->oldestInstruction; /* the last instruction we have examined in the queue, or are about to examine. */
+    hipe_instruction* previous=0; /* the instruction that points to current. */
+    int fetched_instructions=0;
 
-    pre_newest = session->newestInstruction; //this will be null if we begin with an empty queue.
+    while(1) { /* we will either return the desired instruction eventually, or return an error condition, such as disconnection. */
+        while(current) { /* when we run out of instructions to examine, we'll have to leave this loop to get more */
+            /* examine current instruction */
+            if(current->opcode == opcode) { //INVALID READ OF SIZE 1
+                /* we've found the element we're looking for. Splice it out of the queue and return it. */
+                *instruction_ret = *current; /*return a shallow copy to use existing allocations. We'll delete the original */
 
-    hipe_instruction_clear(instruction_ret); /*clear any previous instruction so that the user doesn't have to.*/
+                if(previous)
+                    previous->next = current->next;
+                else /* current is at start of queue */
+                    session->oldestInstruction = current->next;
 
-    while(1) { /*while we haven't received our desired instruction yet...*/
-        fetched_instructions = 0;
+                if(current == session->newestInstruction) {
+                    session->newestInstruction = previous;
+                    if(previous)
+                        session->newestInstruction->next = 0;
+                }
+
+                free(current);
+                instruction_ret->next = 0;
+
+                return 1; /* success */
+            }
+
+            /* traverse to next in queue */
+            previous = current;
+            current = current->next; //INVALID READ
+        }
+
+        /* need to fetch more instructions */
         while(fetched_instructions == 0) {
-            fetched_instructions = readFromServer(session, 1);
+            fetched_instructions = read_to_queue(session, 1);
             if(fetched_instructions < 0) /*bad. handle error.*/
                 return -1;
         }
 
-        /* Handle special case: If we began with an empty queue so there was no 'pre_newest' yet.
-         * We can't just assign pre_newest to the new oldest queue element: that might actually
-         * be our awaited instruction rather than an instruction preceding it.
-         */
-        if(!pre_newest) {
-            if(session->oldestInstruction->opcode == opcode) { /*found it!*/
-                found_in_queue = session->oldestInstruction;
-                session->oldestInstruction = found_in_queue->next; //remove it from the queue.
-                if((session->newestInstruction = found_in_queue)) session->newestInstruction = 0;
-
-                *instruction_ret = *found_in_queue; /*shallow copy*/
-                instruction_ret->next = 0;
-                free(found_in_queue);               /*shallow clear. Any args now exist in instruction_ret only.*/
-                return 1;
-            } else {
-                pre_newest = session->oldestInstruction;
-                if(!pre_newest->next) continue; /*we've only read one instruction and it isn't a match.*/
-            }
-        }
-
-
-        int i;
-        for(i=0; i<fetched_instructions; i++) { /*check all the newly-fetched instructions for required opcode.*/
-            if(pre_newest->next->opcode == opcode) { /*found it!*/
-                found_in_queue = pre_newest->next;
-                pre_newest->next = pre_newest->next->next; /*remove it from the queue.*/
-                if(session->newestInstruction == found_in_queue) session->newestInstruction = pre_newest;
-
-                *instruction_ret = *found_in_queue; /*shallow copy*/
-                instruction_ret->next = 0;
-                free(found_in_queue);               /*shallow clear. Any args now exist in instruction_ret only.*/
-                return 1;
-            } else {
-                pre_newest = pre_newest->next;
-            }
-        }
+        if(previous)
+            current = previous->next;
+        else
+            current = session->oldestInstruction;
     }
 }
 
