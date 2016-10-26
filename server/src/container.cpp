@@ -26,6 +26,7 @@
 #include <QPrinter>
 #include <stdio.h>
 
+std::string Container::globalStyleRules="";
 
 Container::Container(Connection* bridge, QString clientName) : QObject()
 {
@@ -42,6 +43,9 @@ Container::Container(Connection* bridge, QString clientName) : QObject()
     //since they might need to be propagated to a parent tag.
 
     globalContainerManager->registerContainer(this);
+
+    stylesheet = globalStyleRules.c_str(); //initialise our stylesheet rules to any global rules that have been loaded in from a CSS file.
+    stylesheet += " ";
 }
 
 Container::~Container()

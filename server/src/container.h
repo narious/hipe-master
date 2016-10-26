@@ -25,6 +25,7 @@
 #include <stack>
 #include <list>
 #include <map>
+#include <string>
 #include "ExpArray.hh"
 #include "common.h"
 #include "keylist.h"
@@ -56,6 +57,7 @@ class Container : public QObject
     Q_OBJECT
 public:
     friend class ContainerManager;
+    static std::string globalStyleRules;
 
     Container(Connection* client, QString clientName);
     ~Container();

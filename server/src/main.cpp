@@ -28,6 +28,7 @@
 #include <QApplication>
 #include <string>
 #include <iostream>
+#include <fstream>
 #include <sstream> //for std::stringstream
 #include <unistd.h> //for getuid()
 #include <sys/types.h> //for getuid()
@@ -36,6 +37,7 @@
 #include "containermanager.h"
 #include "keylist.h"
 #include "sanitation.h"
+#include "container.h"
 
 int main(int argc, char *argv[])
 {
@@ -49,12 +51,14 @@ int main(int argc, char *argv[])
     //(QCommandLineParser isn't backwards compatible with Qt4.)
     std::string socketFileArg = ""; //store parameters in these vars if specified by user.
     std::string keyFileArg = "";
+    std::string stylesheetArg = ""; //filename of a CSS file.
     for(int i=1; i<argc; i++) {
         std::string thisArg = argv[i];
         if(thisArg.compare("--help")==0 || thisArg.compare("-h")==0) { //print help text then exit normally.
             std::cout << "Usage: " << argv[0] << " [options]\nOptions:\nHipe display server\n\n";
             std::cout << "--socket (file path)\n\tCreate server socket file with a custom path and filename.\n";
             std::cout << "--keyfile (file path)\n\tCreate top-level host key file with a custom path and filename.\n";
+            std::cout << "--stylesheet (file path)\n\tLoad a CSS file to provide default global styling to all clients.\n";
             std::cout << "-h, --help\n\tDisplay this help information.\n";
             return 0;
         } else if(thisArg.compare("--socket")==0) {
@@ -71,6 +75,13 @@ int main(int argc, char *argv[])
                 return 1;
             }
             keyFileArg = argv[i];
+        } else if(thisArg.compare("--stylesheet")==0) {
+            //next arg must be present.
+            if(++i == argc) {
+                std::cerr << "Argument not optional. Try '" << argv[0] << " --help' for usage information\n";
+                return 1;
+            }
+            stylesheetArg = argv[i];
         } else if(thisArg[0] == '-') {
             std::cerr << "Unrecognised option: " << thisArg << "\nTry '" << argv[0] << " --help' for usage information\n";
             return 1;
@@ -79,6 +90,18 @@ int main(int argc, char *argv[])
 
     a.setQuitOnLastWindowClosed(false);
     desktop = a.desktop();
+
+    if(stylesheetArg.size()) { //load the stylesheet into a string
+        std::ifstream cssFile(stylesheetArg);
+        if(!cssFile.is_open()) {
+            std::cout << "hiped: Could not open stylesheet file.\n";
+            return 1;
+        }
+        std::stringstream buffer;
+        buffer << cssFile.rdbuf();
+        cssFile.close();
+        Container::globalStyleRules = buffer.str();
+    }
 
     std::stringstream userid; userid << getuid();
     uid = userid.str(); //uid defined in containermanager.h as a convenient global variable.
