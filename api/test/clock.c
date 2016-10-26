@@ -73,8 +73,11 @@ int main(int argc, char** argv)
         if(hipe_send(session, HIPE_OPCODE_SET_TEXT, 0, small_digits, formattedSS, 0) == -1)
             exit(0); //instruction not sent -- disconnected from server.
         
-        if(hipe_next_instruction(session, &instruction, 0))
+        if(hipe_next_instruction(session, &instruction, 0)) {
             printf("Instruction/event received\n");
+            if(instruction.opcode == HIPE_OPCODE_FRAME_CLOSE)  //close button clicked.
+                return 0;
+        }
 
         usleep(500000);
     }

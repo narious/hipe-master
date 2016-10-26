@@ -263,6 +263,8 @@ int main(int argc, char** argv) {
                 hipe_send(session, HIPE_OPCODE_TOGGLE_CLASS, 0, f[i], "maximised",0);
                 hipe_send(session, HIPE_OPCODE_TOGGLE_CLASS, 0, fInfo[i], "maximised",0);
             }
+        } else if(hi.opcode == HIPE_OPCODE_FRAME_CLOSE) { //close button clicked.
+            return 0;
         }
     }
 }

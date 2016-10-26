@@ -156,8 +156,8 @@ extern "C" {
 /* Sent by a client that manages a subframe to indicate a request for the client occupying that
  * frame to terminate.
  * Location: the frame element
- * arg1: null string - convey a user's request to close that client (e.g. user clicks close button).
- *       non-null - tells hipe server to terminate client connection forcibly.
+ * arg1: non-null string - convey a user's request to close that client (e.g. user clicks close button).
+ *       null - tells hipe server to terminate client connection forcibly.
  */
 
 #define HIPE_OPCODE_TOGGLE_CLASS       32

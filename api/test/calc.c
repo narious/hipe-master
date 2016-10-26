@@ -281,6 +281,8 @@ int main(int argc, char** argv)
             }
         } else if(hi.opcode == HIPE_OPCODE_SERVER_DENIED) {
             return 0;
+        } else if(hi.opcode == HIPE_OPCODE_FRAME_CLOSE) { //close button clicked.
+            return 0;
         }
     }
     return 0;

@@ -75,6 +75,8 @@ int main(int argc, char** argv) {
                 free(xy);
 
             }
+        } else if(hi.opcode == HIPE_OPCODE_FRAME_CLOSE) { //close button clicked.
+            return 0;
         }
     }
 }

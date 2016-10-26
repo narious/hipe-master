@@ -235,9 +235,9 @@ void Container::receiveInstruction(hipe_instruction instruction)
                 Container* target = globalContainerManager->findContainer(fd.wf); //find the corresponding container.
                 if(target) {
                     if(!arg1.size() || arg1[0] == '\0')
-                        target->containerClosed(); //soft close request.
+                        delete target->client; //hard disconnection -- if this causes issues with Qt we might try target->client->deleteLater().
                     else
-                        delete target->client; //hard disconnection
+                        target->containerClosed(); //soft close request.
                 }
                 break;
             }
@@ -338,11 +338,12 @@ void Container::receiveInstruction(hipe_instruction instruction)
 
 void Container::containerClosed()
 //Called when the container is requested to be closed by the user.
-//We need to disconnect the connection to the client and free all the associated resources of this instance.
-//TODO: we need to provide an alternative mechanism of sending an event to the client so the client
-//can handle the close event instead (e.g. by asking for confirmation).
+//(We need to disconnect the connection to the client and free all the associated resources of this instance.)
+//This function sends a message to the client to request disconnection at the client's end.
+//The client needs to check for this message and deal with it.
 {
-    client->deleteLater();
+    //client->deleteLater();
+    client->sendInstruction(HIPE_OPCODE_FRAME_CLOSE, 0, 0, "", "");
 }
 
 Container* Container::requestNew(std::string key, std::string clientName, uint64_t pid, Connection* c) {
