@@ -57,6 +57,7 @@ class loc {
     public:
         loc(); //create a new null instance to be reassigned later.
         loc(const loc& orig); //copy constructor
+        loc(const hipe_loc& location); //create an instance that can be used for comparison only.
         loc& operator= (const loc& orig); //copy assignment operator
         ~loc(); //destructor
     
@@ -66,6 +67,7 @@ class loc {
         loc prevSibling(); //return the element that precedes this one at the current level.
         
         operator hipe_loc() const; //allow casting to a hipe_loc variable for use with hipe API C functions.
+        bool operator== (hipe_loc); //allow comparison with hipe_loc location handle.
     
         int send(char opcode, uint64_t requestor, std::string arg1, std::string arg2);
         //sends an instruction with this element passed as the location to act on.
@@ -167,6 +169,13 @@ inline loc::loc() {
     _session = 0;
 }
 
+inline loc::loc(const hipe_loc& location) {
+//creates a loc instance that can be used for comparison purposes only.
+//This allows a C hipe API location to be passed as a key to a map of hipe::loc elements.
+    this->location = location;
+    _session = 0;
+}
+
 inline loc::loc(const loc& orig) {
 //copy constructor
     this->location = orig.location;
@@ -188,7 +197,8 @@ inline loc& loc::operator= (const loc& orig) {
 inline loc::~loc() {
 //destructor. Should decrement the reference count to the hipe_loc allocation, and
 //send an instruction to free the allocation if the count reaches zero.
-    _session->decrementReferenceCount(location);
+    if(_session)
+        _session->decrementReferenceCount(location);
 }
 
 inline loc loc::firstChild() {
@@ -250,6 +260,9 @@ inline int loc::send(char opcode, uint64_t requestor, std::string arg1, std::str
     return result;
 }
 
+inline bool loc::operator== (hipe_loc other) {
+    return location == other;
+}
 
 
 };//end of hipe:: namespace
