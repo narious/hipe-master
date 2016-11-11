@@ -18,8 +18,9 @@
 
 #include "containertoplevel.h"
 #include "connection.h"
-#include <QGraphicsView>
-#include <QGraphicsWebView>
+//#include <QGraphicsView>
+//#include <QGraphicsWebView>
+#include <QWebView>
 #include <QWebFrame>
 #include <QSizePolicy>
 #include <QWebElement>
@@ -80,7 +81,7 @@ WebWindow::WebWindow(Container* cc)
     move(0,0); //in the absense of a window manager, this is a 'root' window that fills the screen.
     resize(desktop->screenGeometry().width(), desktop->screenGeometry().height());
 
-    QGraphicsView* gv;
+/*    QGraphicsView* gv;
     setCentralWidget(gv = new QGraphicsView);
     //clientWindow owns gv now and will delete it automatically.
 
@@ -89,8 +90,9 @@ WebWindow::WebWindow(Container* cc)
     gv->setScene(scene);
     gv->setBackgroundBrush(QBrush(Qt::red, Qt::FDiagPattern));
     //the red diagonal stripe pattern should never be seen. Indicates geometry is wrong.
-
+*/
     webView = new WebView();
+    setCentralWidget(webView);
 
     //Disable network access and link navigation:
     webView->page()->settings()->setAttribute(QWebSettings::LocalContentCanAccessFileUrls, false);
@@ -99,8 +101,8 @@ WebWindow::WebWindow(Container* cc)
     webView->page()->networkAccessManager()->setNetworkAccessible(QNetworkAccessManager::NotAccessible);
     webView->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
 
-    scene->addItem(webView);
-    scene->setActiveWindow(webView);
+//    scene->addItem(webView);
+//    scene->setActiveWindow(webView);
 
     webView->setFocus();
 
@@ -130,7 +132,7 @@ QWebElement WebWindow::initBoilerplate(QString html)
 
 void WebWindow::resizeEvent(QResizeEvent*) {
     webView->resize(centralWidget()->size());
-    scene->setSceneRect(scene->itemsBoundingRect()); //crop the scene to the webView.
+//    scene->setSceneRect(scene->itemsBoundingRect()); //crop the scene to the webView.
 }
 
 void WebWindow::closeEvent(QCloseEvent* event)
@@ -140,8 +142,9 @@ void WebWindow::closeEvent(QCloseEvent* event)
 }
 
 
-WebView::WebView() : QGraphicsWebView()
+WebView::WebView() : /*QGraphicsWebView()*/ QWebView()
 {
-    setRenderHint(QPainter::Antialiasing);
+/*    setRenderHint(QPainter::Antialiasing);
     setAutoFillBackground(true);
+                                                    */
 }
