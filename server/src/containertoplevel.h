@@ -20,8 +20,6 @@
 #define CLIENTWINDOW_H
 
 #include <QMainWindow>
-//#include <QGraphicsWebView>
-//#include <QGraphicsScene>
 #include <QWebView>
 #include <QWebElement>
 #include <QCloseEvent>
@@ -29,12 +27,12 @@
 class Client;
 
 
-class WebView : public /*QGraphicsWebView*/ QWebView {
+class WebView : public QWebView {
     Q_OBJECT
 public:
     WebView();
 protected:
-    //void contextMenuEvent(QGraphicsSceneContextMenuEvent*) {;} //reimplement to disable the default context menu
+    void contextMenuEvent(QContextMenuEvent*) {;} //reimplement to disable the default context menu
 };
 
 class WebWindow : public QMainWindow {
@@ -45,7 +43,6 @@ public:
     bool wasInitYet();
     QWebElement initBoilerplate(QString html);
 
-//    QGraphicsScene* scene;
     WebView* webView;
     QPalette pal;
 

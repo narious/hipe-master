@@ -18,8 +18,6 @@
 
 #include "containertoplevel.h"
 #include "connection.h"
-//#include <QGraphicsView>
-//#include <QGraphicsWebView>
 #include <QWebView>
 #include <QWebFrame>
 #include <QSizePolicy>
@@ -81,16 +79,6 @@ WebWindow::WebWindow(Container* cc)
     move(0,0); //in the absense of a window manager, this is a 'root' window that fills the screen.
     resize(desktop->screenGeometry().width(), desktop->screenGeometry().height());
 
-/*    QGraphicsView* gv;
-    setCentralWidget(gv = new QGraphicsView);
-    //clientWindow owns gv now and will delete it automatically.
-
-    gv->setFrameShape(QFrame::NoFrame);
-    scene = new QGraphicsScene(gv);
-    gv->setScene(scene);
-    gv->setBackgroundBrush(QBrush(Qt::red, Qt::FDiagPattern));
-    //the red diagonal stripe pattern should never be seen. Indicates geometry is wrong.
-*/
     webView = new WebView();
     setCentralWidget(webView);
 
@@ -100,9 +88,6 @@ WebWindow::WebWindow(Container* cc)
 
     webView->page()->networkAccessManager()->setNetworkAccessible(QNetworkAccessManager::NotAccessible);
     webView->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
-
-//    scene->addItem(webView);
-//    scene->setActiveWindow(webView);
 
     webView->setFocus();
 
@@ -122,17 +107,16 @@ QWebElement WebWindow::initBoilerplate(QString html)
 //RETURNS: the <body> element in the HTML boilerplate, where content can now be placed.
 {
     webView->setHtml(html);
+    showMaximized(); //Now we're ready to show the window on the screen.
+
     initYet = true;
     QWebElement we = webView->page()->mainFrame()->documentElement();
-
-    showMaximized(); //Now we're ready to show the window on the screen.
 
     return we.lastChild(); //body tag becomes the webElement in the base class.
 }
 
 void WebWindow::resizeEvent(QResizeEvent*) {
     webView->resize(centralWidget()->size());
-//    scene->setSceneRect(scene->itemsBoundingRect()); //crop the scene to the webView.
 }
 
 void WebWindow::closeEvent(QCloseEvent* event)
@@ -142,9 +126,7 @@ void WebWindow::closeEvent(QCloseEvent* event)
 }
 
 
-WebView::WebView() : /*QGraphicsWebView()*/ QWebView()
+WebView::WebView() : QWebView()
 {
-/*    setRenderHint(QPainter::Antialiasing);
-    setAutoFillBackground(true);
-                                                    */
+
 }
