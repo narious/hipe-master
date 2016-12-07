@@ -180,12 +180,23 @@ void Sanitation::init()
                     };
 }
 
-QString Sanitation::sanitisePlainText(QString input)
+QString Sanitation::sanitisePlainText(QString input, bool convertLayout)
 //Processes input string, replaces special HTML characters like < with their equivalent nonfunctional
 //representations, like &lt;. This is used to prevent HTML injection attacks.
+//And a bonus feature (if convertLayout set): '\n' and '\r' will be replaced by <br/> and <p/> respectively. This makes inserting
+//line breaks in Hipe a lot less painful - just put actual line feeds (CRs for parags) in any text to be appended.
+//Tabs can also be entered using '\t' -- they are replaced with the appropriate HTML character entity.
 {
     QString output;
     for(int i=0; i<input.size(); i++) {
+        if(convertLayout) {
+            if(input[i] == '\n')
+                output += "<br/>";
+            else if(input[i] == '\r')
+                output += "<p></p>"; //I'd use <p/>, but webkit doesn't parse it right when adding one element at a time.
+            else if(input[i] == '\t')
+                output += "&emsp;";  //tab
+        }
         if(input[i] == '<')
             output += "&lt;";
         else if(input[i] == '>')

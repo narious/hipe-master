@@ -86,11 +86,11 @@ void Container::receiveInstruction(hipe_instruction instruction)
             else location.appendInside(newTagString);
         }
     } else if(instruction.opcode == HIPE_OPCODE_SET_TEXT) {
-        arg1 = Sanitation::sanitisePlainText(arg1);
+        arg1 = Sanitation::sanitisePlainText(arg1, (bool)(arg2=="1"));
         if(!locationSpecified) setBody(arg1);
         else location.setInnerXml(arg1);
     } else if(instruction.opcode == HIPE_OPCODE_APPEND_TEXT) {
-        arg1 = Sanitation::sanitisePlainText(arg1);
+        arg1 = Sanitation::sanitisePlainText(arg1, (bool)(arg2=="1"));
         if(!locationSpecified) setBody(arg1, false);
         else location.appendInside(arg1);
     } else if(instruction.opcode == HIPE_OPCODE_ADD_STYLE_RULE) {

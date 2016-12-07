@@ -36,7 +36,7 @@ public:
     //initialises whitelists and related sanitation data.
     //Call this before using any of the sanitisation functions in this class.
 
-    static QString sanitisePlainText(QString input); //convert HTML syntactical characters in input into harmless escaped character entities.
+    static QString sanitisePlainText(QString input, bool convertLayout=false); //convert HTML syntactical characters in input into harmless escaped character entities.
     static bool isAllowedAttribute(QString input);
     static bool isAllowedTag(QString input);
     static bool isAllowedCSS(QString input);
