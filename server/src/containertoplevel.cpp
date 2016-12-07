@@ -80,6 +80,7 @@ WebWindow::WebWindow(Container* cc)
     resize(desktop->screenGeometry().width(), desktop->screenGeometry().height());
 
     webView = new WebView();
+    webView->setRenderHint(QPainter::Antialiasing);
     setCentralWidget(webView);
 
     //Disable network access and link navigation:
