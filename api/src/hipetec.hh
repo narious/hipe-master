@@ -69,7 +69,7 @@ class loc {
         operator hipe_loc() const; //allow casting to a hipe_loc variable for use with hipe API C functions.
         bool operator== (hipe_loc); //allow comparison with hipe_loc location handle.
     
-        int send(char opcode, uint64_t requestor, std::string arg1, std::string arg2);
+        int send(char opcode, uint64_t requestor, std::string arg1="", std::string arg2="");
         //sends an instruction with this element passed as the location to act on.
 
 };
