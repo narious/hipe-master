@@ -124,32 +124,31 @@ hipe_session hipe_open_session(const char* host_key, const char* socket_path, co
         FILE* keyfile;
         keyfile = fopen(keyPath, "r");
         if(!keyfile) { /*could not open keyfile*/
-            perror("Hipe: Could not open keyfile");
-            perror(keyPath);
+            fprintf(stderr, "Hipe: Could not open keyfile: %s\n", keyPath);
+            perror("Hipe");
             return 0;
         }
         if(!fgets(key, 200, keyfile)) {
-            perror("Hipe: Could not read key from keyfile");
-            perror(keyPath);
+            fprintf(stderr, "Hipe: Could not read key from keyfile: %s\n", keyPath);
+            perror("Hipe");
             return 0;
         }
     }
 
     /*Allocate a socket endpoint file descriptor.*/
     if ((fd = socket(AF_UNIX, SOCK_STREAM, 0)) == -1) {
-        perror("socket");
+        perror("Hipe: socket");
         return 0; /*null pointer*/
     }
 
-    printf("Trying to connect...\n");
     struct sockaddr_un remote;
     remote.sun_family = AF_UNIX;
     strcpy(remote.sun_path, sockPath);
     int len = strlen(remote.sun_path) + sizeof(remote.sun_family);
     if (connect(fd, (struct sockaddr *)&remote, len) == -1) {
         close(fd);
-        perror("Hipe: Could not connect to socket");
-        perror(sockPath);
+        fprintf(stderr, "Hipe: Could not connect to socket: %s\n", sockPath);
+        perror("Hipe");
         return 0; /*null pointer*/
     }
 
@@ -174,16 +173,16 @@ hipe_session hipe_open_session(const char* host_key, const char* socket_path, co
     int result;
     result = hipe_await_instruction(session, &incoming, HIPE_OPCODE_CONTAINER_GRANT);
     if(result<0) {
-        printf("Something wrong; bad connection.\n");
+        fprintf(stderr, "Hipe: Bad connection.\n");
         hipe_close_session(session);
         exit(0);
     }
     if(incoming.arg1[0] != '1') {
-        printf("Container request denied.\n");
+        fprintf(stderr, "Hipe: Container request denied.\n");
         hipe_close_session(session);
         return 0; /*null pointer*/
     } else {
-        printf("Container request granted!\n");
+        //fprintf(stderr, "Hipe: Container request granted!\n"); /*uncomment for extra verbosity*/
     }
     hipe_instruction_clear(&incoming);
 
