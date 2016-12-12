@@ -54,6 +54,7 @@ class loc {
         session* _session; 
     
         loc(hipe_loc location, session* s); //construct a new element object using its location value
+        //This function is protected because exposing it may lead to incorrect reference count management.
     public:
         loc(); //create a new null instance to be reassigned later.
         loc(const loc& orig); //copy constructor
@@ -67,7 +68,9 @@ class loc {
         loc prevSibling(); //return the element that precedes this one at the current level.
         
         operator hipe_loc() const; //allow casting to a hipe_loc variable for use with hipe API C functions.
-        bool operator== (hipe_loc); //allow comparison with hipe_loc location handle.
+        bool operator== (hipe_loc) const; //allow comparison with hipe_loc location handle.
+        operator bool() const; //check if the loc object is well-defined.
+        bool operator< (const loc& other) const;
     
         int send(char opcode, uint64_t requestor, std::string arg1="", std::string arg2="");
         //sends an instruction with this element passed as the location to act on.
@@ -260,8 +263,19 @@ inline int loc::send(char opcode, uint64_t requestor, std::string arg1, std::str
     return result;
 }
 
-inline bool loc::operator== (hipe_loc other) {
+inline bool loc::operator== (hipe_loc other) const {
     return location == other;
+}
+
+inline loc::operator bool() const {
+//bool cast evaluates to true if the loc object is valid. A 'null' loc will evaluate to false.
+    return (_session == 0); //note, location==0 would be valid as that's the root element.
+}
+
+inline bool loc::operator< (const loc& other) const {
+//needed by C++ STL library for using loc as key in maps, etc.
+//Note that it's valid to compare one loc with a defined session against another loc without a well-defined session instance.
+    return (location < other.location);
 }
 
 
