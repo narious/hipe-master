@@ -58,8 +58,9 @@ class loc {
     public:
         loc(); //create a new null instance to be reassigned later.
         loc(const loc& orig); //copy constructor
-        loc(const hipe_loc& location); //create an instance that can be used for comparison only.
+        loc(const hipe_loc& location); //create an instance that can be used for comparison only (no session or reference count info).
         loc& operator= (const loc& orig); //copy assignment operator
+        loc& operator= (const hipe_loc& location); //assign a location that can be used for comparison only (no session or reference info).
         ~loc(); //destructor
     
         loc firstChild(); //return first child element of this element
@@ -69,8 +70,10 @@ class loc {
         
         operator hipe_loc() const; //allow casting to a hipe_loc variable for use with hipe API C functions.
         bool operator== (hipe_loc) const; //allow comparison with hipe_loc location handle.
-        operator bool() const; //check if the loc object is well-defined.
+        bool operator== (const loc& loc) const; //allow comparison with another loc object.
+        bool operator!= (const loc& loc) const; //allow comparison with another loc object.
         bool operator< (const loc& other) const;
+        operator bool() const; //check if the loc object is well-defined.
     
         int send(char opcode, uint64_t requestor, std::string arg1="", std::string arg2="");
         //sends an instruction with this element passed as the location to act on.
@@ -195,6 +198,14 @@ inline loc& loc::operator= (const loc& orig) {
     _session = orig._session;
     if(_session)
         _session->incrementReferenceCount(location);
+    return *this;
+}
+
+inline loc& loc::operator= (const hipe_loc& location) {
+    this->~loc(); //free what was.
+    _session=0;
+    this->location = location;
+    return *this;
 }
 
 inline loc::~loc() {
@@ -267,9 +278,17 @@ inline bool loc::operator== (hipe_loc other) const {
     return location == other;
 }
 
+inline bool loc::operator== (const loc& other) const {
+    return location == other.location;
+}
+
+inline bool loc::operator!= (const loc& other) const {
+    return location == other.location;
+}
+
 inline loc::operator bool() const {
 //bool cast evaluates to true if the loc object is valid. A 'null' loc will evaluate to false.
-    return (_session == 0); //note, location==0 would be valid as that's the root element.
+    return (_session != 0); //note, location==0 would be valid as that's the root element.
 }
 
 inline bool loc::operator< (const loc& other) const {
