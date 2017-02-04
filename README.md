@@ -7,14 +7,10 @@ HIPE: Hypertext Pipe
 VERSION INFORMATION
 -------------------
 
-v0.22 beta -- 7 Dec 2016
+v0.23 beta -- 4 Feb 2017
 
-
-- Partial rewrite and code cleanup of API functions
-- Major bug fix in API. Instruction queue processing has been fixed. Existing hipe applications should be recompiled to the new API.
-- Display server now has the ability to communicate changes to a client process's colour scheme to the framing manager. This allows
-  framing managers to complement the colours of client applications.
-- arg1 and arg2 now optional in hipetec (C++) API
+- Fixed a bug in the assignment operator (C++ Hipe extension).
+- Renamed <hipetec> header (C++ extensions) to <hipe> for simplicity.
 
 
 TODO:

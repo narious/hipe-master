@@ -11,7 +11,7 @@ clean:
 install:
 	cp build/libhipe.a /usr/local/lib
 	cp src/hipe.h src/hipe_instruction.h /usr/local/include
-	cp src/hipetec.hh /usr/local/include/hipetec
+	cp src/hipe.hpp /usr/local/include/hipe
 testing:
 	(cd test && $(CC) clock.c -o clock -lhipe)
 	(cd test && $(CC) calc.c -o calc -lhipe)

@@ -1,4 +1,4 @@
-/*  Copyright (c) 2016 Daniel Kos, General Development Systems
+/*  Copyright (c) 2017 Daniel Kos, General Development Systems
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -192,6 +192,7 @@ inline loc::loc(const loc& orig) {
 
 inline loc& loc::operator= (const loc& orig) {
 //copy assignment operator
+    if(&orig == this) return *this; //guard against self-assignment.
     if(_session)
         _session->decrementReferenceCount(location);
     this->location = orig.location;
