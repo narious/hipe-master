@@ -180,8 +180,10 @@ void Container::receiveInstruction(hipe_instruction instruction)
                                     width.toStdString(), height.toStdString());
         }
     } else if(instruction.opcode == HIPE_OPCODE_GET_ATTRIBUTE) {
+        QString attrVal = (arg1=="value") ? location.evaluateJavaScript("this.value;").toString()
+                                          : location.attribute(arg1);
         client->sendInstruction(HIPE_OPCODE_ATTRIBUTE_RETURN, instruction.requestor, instruction.location,
-                                arg1.toStdString(), location.attribute(arg1).toStdString());
+                                arg1.toStdString(), attrVal.toStdString());
     } else if(instruction.opcode == HIPE_OPCODE_SET_SRC) {
         QString dataURI = QString("data:") + arg1 + ";base64,";
 
