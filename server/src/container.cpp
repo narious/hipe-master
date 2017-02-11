@@ -164,6 +164,9 @@ void Container::receiveInstruction(hipe_instruction instruction)
             location.setAttribute(QString("on") + arg1, QString("c.receiveGuiEvent(") + locStr + "," + reqStr + ",'" + arg1 + "'," + evtDetailArgs + ")");
     } else if(instruction.opcode == HIPE_OPCODE_EVENT_CANCEL) {
         location.removeAttribute(QString("on") + arg1);
+        if(arg2 == "1") { //reply requested. Send back an EVENT_CANCEL instruction to tell the client it can clean up event listeners for this event now.
+            client->sendInstruction(HIPE_OPCODE_EVENT_CANCEL, instruction.requestor, instruction.location, arg1.toStdString(), arg2.toStdString());
+        }
     } else if(instruction.opcode == HIPE_OPCODE_GET_GEOMETRY) {
         QString left = location.evaluateJavaScript("this.offsetLeft;").toString();
         QString top = location.evaluateJavaScript("this.offsetTop;").toString();

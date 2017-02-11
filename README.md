@@ -7,10 +7,9 @@ HIPE: Hypertext Pipe
 VERSION INFORMATION
 -------------------
 
-v0.23 beta -- 4 Feb 2017
+v0.24 beta -- 11 Feb 2017
 
-- Fixed a bug in the assignment operator (C++ Hipe extension).
-- Renamed <hipetec> header (C++ extensions) to <hipe> for simplicity.
+- EVENT_CANCEL instruction now sends an optional acknowledgement back to the client.
 
 
 TODO:

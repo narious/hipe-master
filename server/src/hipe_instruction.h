@@ -66,7 +66,10 @@ extern "C" {
  * */
 
 #define HIPE_OPCODE_EVENT_CANCEL       8
-/* Sent by the client to cancel notification of further events of type 'arg1' on location 'location'.*/
+/* Sent by the client to cancel notification of further events of type 'arg1' on location 'location'.
+ * if arg2=="1", the server will reply with the same instruction to acknowledge that the event has been
+ * cancelled. This may be useful to a client that needs to know when it is safe to clean up event listeners.
+ * */
 
 #define HIPE_OPCODE_EVENT_REQUEST      9
 /*Sent by the client to request notification of event 'arg1' on location 'location'.
