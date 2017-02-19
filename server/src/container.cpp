@@ -118,8 +118,13 @@ void Container::receiveInstruction(hipe_instruction instruction)
         client->sendInstruction(HIPE_OPCODE_LOCATION_RETURN, instruction.requestor,
                                 getIndexOfElement(webElement.findFirst(QString("#") + arg1)), "", "");
     } else if(instruction.opcode == HIPE_OPCODE_SET_ATTRIBUTE) {
-        if(Sanitation::isAllowedAttribute(arg1))
-            location.setAttribute(arg1, Sanitation::sanitisePlainText(arg2));
+        if(Sanitation::isAllowedAttribute(arg1)) {
+            if(arg1=="value") { //workaround for updating input boxes after creation
+                location.evaluateJavaScript("this.value='" + Sanitation::sanitisePlainText(arg2) + "';");
+            } else {
+                location.setAttribute(arg1, Sanitation::sanitisePlainText(arg2));
+            }
+        }
     } else if(instruction.opcode == HIPE_OPCODE_SET_STYLE) {
         if(Sanitation::isAllowedCSS(arg1) && Sanitation::isAllowedCSS(arg2)) {
             if(!locationSpecified) { //we need to be sure the body has been initialised first.
