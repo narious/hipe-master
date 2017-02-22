@@ -185,8 +185,15 @@ void Container::receiveInstruction(hipe_instruction instruction)
                                     width.toStdString(), height.toStdString());
         }
     } else if(instruction.opcode == HIPE_OPCODE_GET_ATTRIBUTE) {
-        QString attrVal = (arg1=="value") ? location.evaluateJavaScript("this.value;").toString()
-                                          : location.attribute(arg1);
+        QString attrVal;
+        if(arg1 == "value") {
+            attrVal = location.evaluateJavaScript("this.value;").toString();
+        } else if(arg1 == "checked") { //special case for checkboxes and radiobuttons -- the element might be set or unset, without a value. Return the value "checked" if checked.
+            bool checkedState = location.evaluateJavaScript("this.checked;").toBool();
+            attrVal = checkedState ? "checked" : "";
+        } else {
+            attrVal = location.attribute(arg1);
+        }
         client->sendInstruction(HIPE_OPCODE_ATTRIBUTE_RETURN, instruction.requestor, instruction.location,
                                 arg1.toStdString(), attrVal.toStdString());
     } else if(instruction.opcode == HIPE_OPCODE_SET_SRC) {
