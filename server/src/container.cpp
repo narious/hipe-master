@@ -155,7 +155,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
         QString reqStr = QString::number(requestor);
         QString evtDetailArgs;
         arg1 = arg1.toLower(); //sanitise against user overriding event attributes with uppercase equivalents.
-        if(arg1 == "mousemove" || arg1 == "mousedown" || arg1 == "mouseup")
+        if(arg1 == "mousemove" || arg1 == "mousedown" || arg1 == "mouseup" || arg1 == "mouseenter" || arg1 == "mouseleave" || arg1 == "mouseover" || arg1 == "mouseout")
             evtDetailArgs = "'' + event.which + ',' + event.pageX + ',' + event.pageY";
         else
             evtDetailArgs = "event.which";

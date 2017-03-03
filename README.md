@@ -7,13 +7,16 @@ HIPE: Hypertext Pipe
 VERSION INFORMATION
 -------------------
 
-v0.24 beta -- 11 Feb 2017
+v0.25 beta -- 03 Mar 2017
 
 - EVENT_CANCEL instruction now sends an optional acknowledgement back to the client.
 
 
 TODO:
 
+- Fix bug: A lot of HIPE_OPCODE_GET_GEOMETRY requests in quick succession (alternated with other instructions)
+  can cause the client to hang on the call to hipe_await_instruction() for a reply that doesn't eventuate.
+  This also causes the CPU to go to 100%, suggesting the blocking syscalls aren't blocking appropriately.
 - Add security: sanitise canvas operations to prevent arbitrary code causing performance instability.
 
 
