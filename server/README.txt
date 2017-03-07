@@ -3,7 +3,8 @@ Source code for Hipe server process.
 DEPENDENCIES:
 
 You will need to have installed the development files for Qt and Qt-webkit.
-Building Hipe has been tested with Qt versions 4 and 5.
+Building Hipe has been tested with Qt versions 4 and 5 on AMD64 systems,
+and with Qt version 4 on Raspberry Pi.
 Qt must be built with STL support included.
 
 BUILD INSTRUCTIONS:
@@ -19,17 +20,23 @@ Then clean up the object files with:
 
 $ make clean
 
-
 Now the hiped executable is ready to run.
 
+INSTALLING
+
+Once the build is complete, simply copy the hiped executable file into /usr/local/bin/, or an alternative directory 
+of your choice.
 
 
 RUNNING THE SERVER:
 
-The server must be run in an X environment. You can either run ./hiped directly in your
-favourite desktop environment (rootless mode), or you can use the script ./start-hipe-standalone
-*from the current directory* while in a text-only console virtual terminal (this script assumes that the second virtual
-graphics terminal (often the one accessible with Ctrl+Alt+F8) is free for use)
+The default build requires that hiped be run within an X environment.
+
+You can either run ./hiped directly from within your favourite desktop environment 
+(rootless mode), or you can try the rudimentary script provided: run ./start-hipe-standalone 
+*from the current directory* while in a text-only console virtual terminal (this script 
+assumes that the second virtual graphics terminal (often the one accessible with Ctrl+Alt+F8) 
+is free for use).
 
 
 When the hiped server process starts, there is no graphical interface shown on the screen,

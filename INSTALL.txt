@@ -1,6 +1,7 @@
-The server process is a Qt application. To build the server, follow the instructions
-in the ./server directory.
+The server process is a Qt application. To build the server, follow the 
+instructions in the ./server directory.
 
-The API is an ordinary C library with minimal dependencies. To build and install the
-API, see the instructions in the ./api/ directory. You may need to edit the makefile
-if your distribution doesn't follow typical Debian-style filesystem layout.
+The API is an ordinary C library with minimal dependencies. To build and 
+install the API, see the instructions in the ./api/ directory. You may need 
+to edit the makefile if your distribution doesn't follow typical Debian-style 
+filesystem layout.
