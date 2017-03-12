@@ -10,6 +10,7 @@ server/src/hiped.pro.user.*
 api/build/*.o
 api/build/*.a
 api/test/calc
+api/test/calc.c~
 api/test/clock
 api/test/jpegviewer
 api/test/quadrant

@@ -222,7 +222,9 @@ inline loc loc::firstChild() {
     hipe_instruction instruction;
     hipe_instruction_init(&instruction);
     hipe_await_instruction(*_session, &instruction, HIPE_OPCODE_LOCATION_RETURN);
-    return loc(instruction.location, _session);
+    hipe_loc location = instruction.location;
+    hipe_instruction_clear(&instruction);
+    return loc(location, _session);
 }
     
 inline loc loc::lastChild() {
@@ -231,7 +233,9 @@ inline loc loc::lastChild() {
     hipe_instruction instruction;
     hipe_instruction_init(&instruction);
     hipe_await_instruction(*_session, &instruction, HIPE_OPCODE_LOCATION_RETURN);
-    return loc(instruction.location, _session);
+    hipe_loc location = instruction.location;
+    hipe_instruction_clear(&instruction);
+    return loc(location, _session);
 }
 
 inline loc loc::nextSibling() {
@@ -239,7 +243,9 @@ inline loc loc::nextSibling() {
     hipe_instruction instruction;
     hipe_instruction_init(&instruction);
     hipe_await_instruction(*_session, &instruction, HIPE_OPCODE_LOCATION_RETURN);
-    return loc(instruction.location, _session);
+    hipe_loc location = instruction.location;
+    hipe_instruction_clear(&instruction);
+    return loc(location, _session);
 }
     
 inline loc loc::prevSibling() {
@@ -247,7 +253,9 @@ inline loc loc::prevSibling() {
     hipe_instruction instruction;
     hipe_instruction_init(&instruction);
     hipe_await_instruction(*_session, &instruction, HIPE_OPCODE_LOCATION_RETURN);
-    return loc(instruction.location, _session);
+    hipe_loc location = instruction.location;
+    hipe_instruction_clear(&instruction);
+    return loc(location, _session);
 }
         
 inline loc::operator hipe_loc() const { //allow casting to a hipe_loc variable for use with hipe API C functions.
