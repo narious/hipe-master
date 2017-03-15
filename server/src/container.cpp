@@ -156,7 +156,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
         QString evtDetailArgs;
         arg1 = arg1.toLower(); //sanitise against user overriding event attributes with uppercase equivalents.
         if(arg1 == "mousemove" || arg1 == "mousedown" || arg1 == "mouseup" || arg1 == "mouseenter" || arg1 == "mouseleave" || arg1 == "mouseover" || arg1 == "mouseout")
-            evtDetailArgs = "'' + event.which + ',' + event.pageX + ',' + event.pageY";
+            evtDetailArgs = "'' + event.which + ',' + event.pageX + ',' + event.pageY + ',' + (event.pageX-this.offsetLeft) + ',' + (event.pageY-this.offsetTop)";
         else
             evtDetailArgs = "event.which";
         if(arg1 == "keydown" && !locationSpecified) { //keydown on body element is a special case.
