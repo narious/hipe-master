@@ -175,7 +175,7 @@ hipe_session hipe_open_session(const char* host_key, const char* socket_path, co
     if(result<0) {
         fprintf(stderr, "Hipe: Bad connection.\n");
         hipe_close_session(session);
-        exit(0);
+        return 0;
     }
     if(incoming.arg1[0] != '1') {
         fprintf(stderr, "Hipe: Container request denied.\n");
