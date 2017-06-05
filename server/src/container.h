@@ -80,7 +80,7 @@ public:
     //the frame has been modified in a way that should be reported to the framing client.
 
     void receiveMessage(char opcode, int64_t requestor, std::string arg1, std::string arg2, QWebFrame* sender, bool propagateToParent=false);
-    //called by another container object to transmit an instruction (e.g. HIPE_OPCODE_MESSAGE)
+    //called by another container object to transmit an instruction (e.g. HIPE_OP_MESSAGE)
     //from a direct parent/child frame's client to this container's client.
     //sender should be used only if sender is a child of the recipient. If it's the parent, this should be indicated
     //by passing a nullptr.

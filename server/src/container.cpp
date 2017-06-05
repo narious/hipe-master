@@ -63,10 +63,10 @@ void Container::receiveInstruction(hipe_instruction instruction)
                                              : webElement;
 
 
-    if(instruction.opcode == HIPE_OPCODE_CLEAR) {
+    if(instruction.opcode == HIPE_OP_CLEAR) {
         if(!locationSpecified) setBody("",true);
         else location.setInnerXml("");
-    } else if(instruction.opcode == HIPE_OPCODE_APPEND_TAG) {
+    } else if(instruction.opcode == HIPE_OP_APPEND_TAG) {
         arg1 = Sanitation::sanitisePlainText(arg1);
         arg2 = Sanitation::sanitisePlainText(arg2);
         if(Sanitation::isAllowedTag(arg1)) { //eliminate forbidden tags.
@@ -85,39 +85,39 @@ void Container::receiveInstruction(hipe_instruction instruction)
             if(!locationSpecified) setBody(newTagString, false);
             else location.appendInside(newTagString);
         }
-    } else if(instruction.opcode == HIPE_OPCODE_SET_TEXT) {
+    } else if(instruction.opcode == HIPE_OP_SET_TEXT) {
         arg1 = Sanitation::sanitisePlainText(arg1, (bool)(arg2=="1"));
         if(!locationSpecified) setBody(arg1);
         else location.setInnerXml(arg1);
-    } else if(instruction.opcode == HIPE_OPCODE_APPEND_TEXT) {
+    } else if(instruction.opcode == HIPE_OP_APPEND_TEXT) {
         arg1 = Sanitation::sanitisePlainText(arg1, (bool)(arg2=="1"));
         if(!locationSpecified) setBody(arg1, false);
         else location.appendInside(arg1);
-    } else if(instruction.opcode == HIPE_OPCODE_ADD_STYLE_RULE) {
+    } else if(instruction.opcode == HIPE_OP_ADD_STYLE_RULE) {
         if(Sanitation::isAllowedCSS(arg1) && Sanitation::isAllowedCSS(arg2))
             stylesheet += arg1 + "{" + arg2 + "}\n";
-    } else if(instruction.opcode == HIPE_OPCODE_SET_TITLE) {
+    } else if(instruction.opcode == HIPE_OP_SET_TITLE) {
         setTitle(arg1);
-    } else if(instruction.opcode == HIPE_OPCODE_GET_FIRST_CHILD) {
+    } else if(instruction.opcode == HIPE_OP_GET_FIRST_CHILD) {
         //answer the location request.
-        client->sendInstruction(HIPE_OPCODE_LOCATION_RETURN, instruction.requestor,
+        client->sendInstruction(HIPE_OP_LOCATION_RETURN, instruction.requestor,
                                 getIndexOfElement(location.firstChild()), "", "");
-    } else if(instruction.opcode == HIPE_OPCODE_GET_LAST_CHILD) {
+    } else if(instruction.opcode == HIPE_OP_GET_LAST_CHILD) {
         //answer the location request.
-        client->sendInstruction(HIPE_OPCODE_LOCATION_RETURN, instruction.requestor,
+        client->sendInstruction(HIPE_OP_LOCATION_RETURN, instruction.requestor,
                                 getIndexOfElement(location.lastChild()), "", "");
-    } else if(instruction.opcode == HIPE_OPCODE_GET_NEXT_SIBLING) {
+    } else if(instruction.opcode == HIPE_OP_GET_NEXT_SIBLING) {
         //answer the location request.
-        client->sendInstruction(HIPE_OPCODE_LOCATION_RETURN, instruction.requestor,
+        client->sendInstruction(HIPE_OP_LOCATION_RETURN, instruction.requestor,
                                 getIndexOfElement(location.nextSibling()), "", "");
-    } else if(instruction.opcode == HIPE_OPCODE_GET_PREV_SIBLING) {
+    } else if(instruction.opcode == HIPE_OP_GET_PREV_SIBLING) {
         //answer the location request.
-        client->sendInstruction(HIPE_OPCODE_LOCATION_RETURN, instruction.requestor,
+        client->sendInstruction(HIPE_OP_LOCATION_RETURN, instruction.requestor,
                                 getIndexOfElement(location.previousSibling()), "", "");
-    } else if(instruction.opcode == HIPE_OPCODE_GET_BY_ID) {
-        client->sendInstruction(HIPE_OPCODE_LOCATION_RETURN, instruction.requestor,
+    } else if(instruction.opcode == HIPE_OP_GET_BY_ID) {
+        client->sendInstruction(HIPE_OP_LOCATION_RETURN, instruction.requestor,
                                 getIndexOfElement(webElement.findFirst(QString("#") + arg1)), "", "");
-    } else if(instruction.opcode == HIPE_OPCODE_SET_ATTRIBUTE) {
+    } else if(instruction.opcode == HIPE_OP_SET_ATTRIBUTE) {
         if(Sanitation::isAllowedAttribute(arg1)) {
             if(arg1=="value") { //workaround for updating input boxes after creation
                 location.evaluateJavaScript("this.value='" + Sanitation::sanitisePlainText(arg2) + "';");
@@ -125,7 +125,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
                 location.setAttribute(arg1, Sanitation::sanitisePlainText(arg2));
             }
         }
-    } else if(instruction.opcode == HIPE_OPCODE_SET_STYLE) {
+    } else if(instruction.opcode == HIPE_OP_SET_STYLE) {
         if(Sanitation::isAllowedCSS(arg1) && Sanitation::isAllowedCSS(arg2)) {
             if(!locationSpecified) { //we need to be sure the body has been initialised first.
                 if(webElement.isNull())
@@ -148,9 +148,9 @@ void Container::receiveInstruction(hipe_instruction instruction)
                 location.setStyleProperty(arg1, arg2);
             }
         }
-    } else if(instruction.opcode == HIPE_OPCODE_FREE_LOCATION) {
+    } else if(instruction.opcode == HIPE_OP_FREE_LOCATION) {
         removeReferenceableElement(instruction.location);
-    } else if(instruction.opcode == HIPE_OPCODE_EVENT_REQUEST) {
+    } else if(instruction.opcode == HIPE_OP_EVENT_REQUEST) {
         QString locStr = QString::number(instruction.location);
         QString reqStr = QString::number(requestor);
         QString evtDetailArgs;
@@ -167,24 +167,24 @@ void Container::receiveInstruction(hipe_instruction instruction)
             keyUpOnBodyRequestor=instruction.requestor;
         } else
             location.setAttribute(QString("on") + arg1, QString("c.receiveGuiEvent(") + locStr + "," + reqStr + ",'" + arg1 + "'," + evtDetailArgs + ")");
-    } else if(instruction.opcode == HIPE_OPCODE_EVENT_CANCEL) {
+    } else if(instruction.opcode == HIPE_OP_EVENT_CANCEL) {
         location.removeAttribute(QString("on") + arg1);
         if(arg2 == "1") { //reply requested. Send back an EVENT_CANCEL instruction to tell the client it can clean up event listeners for this event now.
-            client->sendInstruction(HIPE_OPCODE_EVENT_CANCEL, instruction.requestor, instruction.location, arg1.toStdString(), arg2.toStdString());
+            client->sendInstruction(HIPE_OP_EVENT_CANCEL, instruction.requestor, instruction.location, arg1.toStdString(), arg2.toStdString());
         }
-    } else if(instruction.opcode == HIPE_OPCODE_GET_GEOMETRY) {
+    } else if(instruction.opcode == HIPE_OP_GET_GEOMETRY) {
         QString left = location.evaluateJavaScript("this.offsetLeft;").toString();
         QString top = location.evaluateJavaScript("this.offsetTop;").toString();
         if(arg1.at(0) != '1') { //get position
-            client->sendInstruction(HIPE_OPCODE_POSITION_RETURN, instruction.requestor, instruction.location,
+            client->sendInstruction(HIPE_OP_POSITION_RETURN, instruction.requestor, instruction.location,
                                     left.toStdString(), top.toStdString());
         } else { //get size
             QString width = location.evaluateJavaScript("this.offsetWidth;").toString();
             QString height = location.evaluateJavaScript("this.offsetHeight;").toString();
-            client->sendInstruction(HIPE_OPCODE_SIZE_RETURN, instruction.requestor, instruction.location,
+            client->sendInstruction(HIPE_OP_SIZE_RETURN, instruction.requestor, instruction.location,
                                     width.toStdString(), height.toStdString());
         }
-    } else if(instruction.opcode == HIPE_OPCODE_GET_ATTRIBUTE) {
+    } else if(instruction.opcode == HIPE_OP_GET_ATTRIBUTE) {
         QString attrVal;
         if(arg1 == "value") {
             attrVal = location.evaluateJavaScript("this.value;").toString();
@@ -194,26 +194,26 @@ void Container::receiveInstruction(hipe_instruction instruction)
         } else {
             attrVal = location.attribute(arg1);
         }
-        client->sendInstruction(HIPE_OPCODE_ATTRIBUTE_RETURN, instruction.requestor, instruction.location,
+        client->sendInstruction(HIPE_OP_ATTRIBUTE_RETURN, instruction.requestor, instruction.location,
                                 arg1.toStdString(), attrVal.toStdString());
-    } else if(instruction.opcode == HIPE_OPCODE_SET_SRC) {
+    } else if(instruction.opcode == HIPE_OP_SET_SRC) {
         QString dataURI = QString("data:") + arg1 + ";base64,";
 
         QByteArray b64Data = QByteArray(instruction.arg2, instruction.arg2Length).toBase64();
 
         dataURI += QString::fromLocal8Bit(b64Data);
         location.setAttribute("src", dataURI);
-    } else if(instruction.opcode == HIPE_OPCODE_SET_BACKGROUND_SRC) {
+    } else if(instruction.opcode == HIPE_OP_SET_BACKGROUND_SRC) {
         QString dataURI = QString("data:") + arg1 + ";base64,";
         QByteArray b64Data = QByteArray(instruction.arg2, instruction.arg2Length).toBase64();
         dataURI += QString::fromLocal8Bit(b64Data);
         location.setStyleProperty("background-image", QString("url(\"") + dataURI + "\")");
-    } else if(instruction.opcode == HIPE_OPCODE_ADD_STYLE_RULE_SRC) {
+    } else if(instruction.opcode == HIPE_OP_ADD_STYLE_RULE_SRC) {
         QString dataURI = QString("data:image/png;base64,");
         QByteArray b64Data = QByteArray(instruction.arg2, instruction.arg2Length).toBase64();
         dataURI += QString::fromLocal8Bit(b64Data);
         stylesheet += arg1 + "{background-image:url(\"" + dataURI + "\");}\n";
-    } else if(instruction.opcode == HIPE_OPCODE_GET_FRAME_KEY) {
+    } else if(instruction.opcode == HIPE_OP_GET_FRAME_KEY) {
         //Check if the location is already represented in the frame table.
         QString frameID = location.attribute("id"); //Need this for matching the frame.
         bool found = false;
@@ -244,8 +244,8 @@ void Container::receiveInstruction(hipe_instruction instruction)
         else location.removeAttribute("id");
 
         //return the host key to the client if element was found, else return blank string.
-        client->sendInstruction(HIPE_OPCODE_KEY_RETURN, instruction.requestor, instruction.location, found ? hostKey.toStdString() : "", "");
-    } else if(instruction.opcode == HIPE_OPCODE_FRAME_CLOSE) {
+        client->sendInstruction(HIPE_OP_KEY_RETURN, instruction.requestor, instruction.location, found ? hostKey.toStdString() : "", "");
+    } else if(instruction.opcode == HIPE_OP_FRAME_CLOSE) {
         //find the relevant client
         for(FrameData& fd : subFrames) {
             if(fd.we == location) { //found
@@ -259,11 +259,11 @@ void Container::receiveInstruction(hipe_instruction instruction)
                 break;
             }
         }
-    } else if(instruction.opcode == HIPE_OPCODE_TOGGLE_CLASS) {
+    } else if(instruction.opcode == HIPE_OP_TOGGLE_CLASS) {
         location.toggleClass(arg1);
-    } else if(instruction.opcode == HIPE_OPCODE_SET_FOCUS) {
+    } else if(instruction.opcode == HIPE_OP_SET_FOCUS) {
         location.setFocus();
-    } else if(instruction.opcode == HIPE_OPCODE_TAKE_SNAPSHOT) {
+    } else if(instruction.opcode == HIPE_OP_TAKE_SNAPSHOT) {
         if(arg1.toLower() == "pdf") { //vector screenshot.
             QPrinter pdfGen(QPrinter::ScreenResolution);
             pdfGen.setOutputFormat(QPrinter::PdfFormat);
@@ -296,7 +296,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
             //send the file and/or error state to the client.
             hipe_instruction payload;
             hipe_instruction_init(&payload);
-            payload.opcode = HIPE_OPCODE_FILE_RETURN;
+            payload.opcode = HIPE_OP_FILE_RETURN;
             payload.requestor = instruction.requestor;
             payload.location = instruction.location;
             if(success) {
@@ -313,25 +313,25 @@ void Container::receiveInstruction(hipe_instruction instruction)
             free(fData);
             remove(snapshotFile.toStdString().c_str()); //delete the temporary file.
         }
-    } else if(instruction.opcode == HIPE_OPCODE_USE_CANVAS) {
+    } else if(instruction.opcode == HIPE_OP_USE_CANVAS) {
         webElement.evaluateJavaScript(QString("canvascontext=document.getElementById(\"")
                                       + location.attribute("id") + "\").getContext(\"" + arg1 + "\");");
         //TODO: sanitise arg1 against e.g. quotation marks.
         //Don't allow parentheses or semicolons.
-    } else if(instruction.opcode == HIPE_OPCODE_CANVAS_ACTION) {
+    } else if(instruction.opcode == HIPE_OP_CANVAS_ACTION) {
         webElement.evaluateJavaScript(QString("canvascontext.") + arg1 + "(" + arg2 + ");");
         //TODO sanitise arg1 and arg2 against javascript injections.
         //Don't allow parentheses or semicolons.
-    } else if(instruction.opcode == HIPE_OPCODE_CANVAS_SET_PROPERTY) {
+    } else if(instruction.opcode == HIPE_OP_CANVAS_SET_PROPERTY) {
         webElement.evaluateJavaScript(QString("canvascontext.") + arg1 + "=" + arg2 + ";");
         //TODO sanitise arg1 and arg2 against javascript injections.
         //Don't allow parentheses, semicolons, etc.
-    } else if(instruction.opcode == HIPE_OPCODE_SET_ICON) {
+    } else if(instruction.opcode == HIPE_OP_SET_ICON) {
         setIcon(instruction.arg2, instruction.arg2Length);
-    } else if(instruction.opcode == HIPE_OPCODE_REMOVE_ATTRIBUTE) {
+    } else if(instruction.opcode == HIPE_OP_REMOVE_ATTRIBUTE) {
         if(Sanitation::isAllowedAttribute(arg1))
             location.removeAttribute(arg1);
-    } else if(instruction.opcode == HIPE_OPCODE_MESSAGE) {
+    } else if(instruction.opcode == HIPE_OP_MESSAGE) {
         //Determine whether we need to send the message to the parent frame or a child frame.
         Container* target = nullptr;
         QWebFrame* sourceframe = nullptr;
@@ -348,7 +348,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
             sourceframe = webElement.webFrame();
         }
         if(target) { //send the instruction to the destination.
-            target->receiveMessage(HIPE_OPCODE_MESSAGE, requestor, std::string(instruction.arg1,instruction.arg1Length), std::string(instruction.arg2, instruction.arg2Length), sourceframe);
+            target->receiveMessage(HIPE_OP_MESSAGE, requestor, std::string(instruction.arg1,instruction.arg1Length), std::string(instruction.arg2, instruction.arg2Length), sourceframe);
         }
     }
 }
@@ -360,7 +360,7 @@ void Container::containerClosed()
 //The client needs to check for this message and deal with it.
 {
     //client->deleteLater();
-    client->sendInstruction(HIPE_OPCODE_FRAME_CLOSE, 0, 0, "", "");
+    client->sendInstruction(HIPE_OP_FRAME_CLOSE, 0, 0, "", "");
 }
 
 Container* Container::requestNew(std::string key, std::string clientName, uint64_t pid, Connection* c) {
@@ -402,7 +402,7 @@ void Container::receiveSubFrameEvent(short evtType, QWebFrame* sender, std::stri
                     return; //no change to foreground colour.
             }
 
-            client->sendInstruction(HIPE_OPCODE_FRAME_EVENT, sf.requestor, findReferenceableElement(sf.we),
+            client->sendInstruction(HIPE_OP_FRAME_EVENT, sf.requestor, findReferenceableElement(sf.we),
                                     evtTypeString, detail);
 
             if(evtType == HIPE_FRAME_EVENT_CLIENT_DISCONNECTED)
@@ -457,9 +457,9 @@ void Container::keyEventOnChildFrame(QWebFrame* origin, bool keyUp, QString keyc
 
     //Determine if an onkeydown/onkeyup attribute is attached to this element. Fire off an event if so.
     if(keyUp && childFrame.hasAttribute("onkeyup"))
-        client->sendInstruction(HIPE_OPCODE_EVENT, 0 /*fixme: how can we find out the requestor?*/, location, "keyup", keycode.toStdString());
+        client->sendInstruction(HIPE_OP_EVENT, 0 /*fixme: how can we find out the requestor?*/, location, "keyup", keycode.toStdString());
     else if(!keyUp && childFrame.hasAttribute("onkeydown"))
-        client->sendInstruction(HIPE_OPCODE_EVENT, 0 /*fixme: how can we find out the requestor?*/, location, "keydown", keycode.toStdString());
+        client->sendInstruction(HIPE_OP_EVENT, 0 /*fixme: how can we find out the requestor?*/, location, "keydown", keycode.toStdString());
 
     if(getParent()) { //propagate this up to *our* parent and so on, in case they need this keyboard event.
         getParent()->keyEventOnChildFrame(webElement.webFrame(), keyUp, keycode);
@@ -470,7 +470,7 @@ void Container::keyEventOnChildFrame(QWebFrame* origin, bool keyUp, QString keyc
 
 void Container::_receiveGuiEvent(quint64 location, quint64 requestor, QString event, QString detail)
 {
-    client->sendInstruction(HIPE_OPCODE_EVENT, requestor, location, event.toStdString(), detail.toStdString());
+    client->sendInstruction(HIPE_OP_EVENT, requestor, location, event.toStdString(), detail.toStdString());
 }
 
 void Container::_receiveKeyEventOnBody(bool keyUp, QString keycode)

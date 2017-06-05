@@ -32,7 +32,7 @@ hipe_instruction structures and ensuring memory is managed correctly.
 ANATOMY OF AN INSTRUCTION
 
 
-opcode: one of several predefined constants (prefixed HIPE_OPCODE_) to specify the
+opcode: one of several predefined constants (prefixed HIPE_OP_) to specify the
 nature of the instruction
 
 requestor: A 64 bit integer value by which the user can make a request and then
@@ -48,7 +48,7 @@ a particular location reference, you can manipulate and obtain the contents of
 tags after they have been rendered to the screen. location is just an integer handle,
 so a variable storing it needs no special memory management considerations, however
 when a location handle is no longer required the server should be informed
-(send a HIPE_OPCODE_FREE_LOCATION instruction) so that the location reference can be
+(send a HIPE_OP_FREE_LOCATION instruction) so that the location reference can be
 freed for reuse by the server.
 
 arg1, arg2: string arguments relevant to a particular instruction.

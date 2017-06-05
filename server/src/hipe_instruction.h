@@ -33,121 +33,121 @@ extern "C" {
 #include <sys/types.h>
 #include <stdint.h>
 
-#define HIPE_OPCODE_CLEAR              1
+#define HIPE_OP_CLEAR              1
 /*clear the contents of the tag given by location (removing all child elements), or clear body if location==0.*/
 
-#define HIPE_OPCODE_SET_TEXT           2
+#define HIPE_OP_SET_TEXT           2
 /* set a tag's contents to a string of plain text given in arg1, overwriting previous contents.
  * if location==0 this applies to the entire body tag.
  */
 
-#define HIPE_OPCODE_APPEND_TEXT        3
+#define HIPE_OP_APPEND_TEXT        3
 /* append plain text inside the tag given by location, or inside body if location==0.
  * arg1 is the text content to append. HTML-style special character entities may be used.
  */
 
-#define HIPE_OPCODE_APPEND_TAG         4
+#define HIPE_OP_APPEND_TAG         4
 /* append a tag element inside the tag given by location, or inside body if location==0.
  * arg1 is the tag type, arg2 is an optional identifier for the tag */
 
-#define HIPE_OPCODE_ATTRIBUTE_RETURN   5
+#define HIPE_OP_ATTRIBUTE_RETURN   5
 /* arg1 is the name of the attribute and arg2 is the retrieved value */
 
-#define HIPE_OPCODE_CONTAINER_GRANT    6
+#define HIPE_OP_CONTAINER_GRANT    6
 /* Server response to container request. Arg1 is "0" if the container request was denied, or "1" if
  * a new container has been granted. */
 
-#define HIPE_OPCODE_EVENT              7
+#define HIPE_OP_EVENT              7
 /* Sent by the server to the client whenever a requested event occurs.
  * 'arg1' is the type of event, and 'location' is the tag for which events of 'arg1' were requested.
- * 'requestor' returns the same client-supplied value as was used for HIPE_OPCODE_EVENT_REQUEST.
+ * 'requestor' returns the same client-supplied value as was used for HIPE_OP_EVENT_REQUEST.
  * 'arg2' provides event-specific detail about the event -- e.g. for "click" events it returns the
  * number of clicks registered.
  * */
 
-#define HIPE_OPCODE_EVENT_CANCEL       8
+#define HIPE_OP_EVENT_CANCEL       8
 /* Sent by the client to cancel notification of further events of type 'arg1' on location 'location'.
  * if arg2=="1", the server will reply with the same instruction to acknowledge that the event has been
  * cancelled. This may be useful to a client that needs to know when it is safe to clean up event listeners.
  * */
 
-#define HIPE_OPCODE_EVENT_REQUEST      9
+#define HIPE_OP_EVENT_REQUEST      9
 /*Sent by the client to request notification of event 'arg1' on location 'location'.
  * */
 
-#define HIPE_OPCODE_FREE_LOCATION      10
+#define HIPE_OP_FREE_LOCATION      10
 /* Sent by the client to the server to de-allocate a location index that is no longer required.*/
 
-#define HIPE_OPCODE_GET_ATTRIBUTE      11
+#define HIPE_OP_GET_ATTRIBUTE      11
 /* arg1 is the name of the attribute*/
 
-#define HIPE_OPCODE_GET_BY_ID          12
+#define HIPE_OP_GET_BY_ID          12
 /* Request a location index for the HTML tag with id attribute == arg1*/
 
-#define HIPE_OPCODE_GET_FIRST_CHILD    13
+#define HIPE_OP_GET_FIRST_CHILD    13
 
-#define HIPE_OPCODE_GET_GEOMETRY       14
+#define HIPE_OP_GET_GEOMETRY       14
 /* arg1 == 0 requests x,y position, arg1 == 1 requests size. */
 
-#define HIPE_OPCODE_GET_LAST_CHILD     15
-#define HIPE_OPCODE_GET_NEXT_SIBLING   16
-#define HIPE_OPCODE_GET_PREV_SIBLING   17
+#define HIPE_OP_GET_LAST_CHILD     15
+#define HIPE_OP_GET_NEXT_SIBLING   16
+#define HIPE_OP_GET_PREV_SIBLING   17
 /* Sent by client to request a location index relative to the supplied location*/
 
-#define HIPE_OPCODE_LOCATION_RETURN    18
+#define HIPE_OP_LOCATION_RETURN    18
 /* Sent from server to client in immediate response to a 'get child' request.
  * Args are undefined (0), requestor is copied from the request, location is the requested location.*/
 
-#define HIPE_OPCODE_POSITION_RETURN    19
+#define HIPE_OP_POSITION_RETURN    19
 /* arg1 is x position and arg2 is y position relative to containing frame. */
 
-#define HIPE_OPCODE_REQUEST_CONTAINER  20
+#define HIPE_OP_REQUEST_CONTAINER  20
 /* this must be the first instruction received. arg1 is the key and arg2 is a short client name.*/
 
-#define HIPE_OPCODE_SERVER_DENIED      21
+#define HIPE_OP_SERVER_DENIED      21
 /* Sent by the server when a request is received but cannot be acted on due to some critical violation.
  * Usually this means that the client has not followed protocol, e.g. is trying to send instructions
  * even though a container request was previously denied. Or, the session has been terminated at the
  * server end. */
 
-#define HIPE_OPCODE_SET_ATTRIBUTE      22
+#define HIPE_OP_SET_ATTRIBUTE      22
 /* arg1 is the property and arg2 is the new value */
 
-#define HIPE_OPCODE_SET_STYLE          23
+#define HIPE_OP_SET_STYLE          23
 /* arg1 is the property and arg2 is the new value */
 
-#define HIPE_OPCODE_ADD_STYLE_RULE     24 //to replace SET_STYLESHEET
+#define HIPE_OP_ADD_STYLE_RULE     24 //to replace SET_STYLESHEET
 /* Used to apply CSS style rules before other content is displayed.
  * arg1 is the CSS descriptor of element(s) that the rule will apply to, and
  * arg2 is the styling to apply, e.g. "border:0; width:100%;"
  */
 
-#define HIPE_OPCODE_SET_SRC            25
+#define HIPE_OP_SET_SRC            25
 /* arg1 is the mime type of the source file to be applied to the element, e.g. "image/jpeg"
  * arg2 is the binary contents of the media file itself.
  */
 
-#define HIPE_OPCODE_SET_TITLE          26
+#define HIPE_OP_SET_TITLE          26
 /* arg1 overwrites the container's title with a new one.*/
 
-#define HIPE_OPCODE_SIZE_RETURN        27
+#define HIPE_OP_SIZE_RETURN        27
 /* arg1 is width and arg2 is height. */
 
-#define HIPE_OPCODE_GET_FRAME_KEY      28
+#define HIPE_OP_GET_FRAME_KEY      28
 /* Sent by client to request the hostkey for connecting to a particular iframe
  * location is the handle corresponding to the particular iframe.
  */
 
-#define HIPE_OPCODE_KEY_RETURN         29
+#define HIPE_OP_KEY_RETURN         29
 /* Sent by the server in response to a GET_FRAME_KEY request.
  * arg1 is the returned host key and location is the frame on which the request was made.
  */
 
-#define HIPE_OPCODE_FRAME_EVENT        30
+#define HIPE_OP_FRAME_EVENT        30
 /* Sent by the server to indicate an event affecting a direct sub-frame of this one,
  * such as a client connecting to the sub-frame, or the title having been changed by
  * the client.
- * Frame events are sent automatically once HIPE_OPCODE_GET_FRAME_KEY has been requested for that frame.
+ * Frame events are sent automatically once HIPE_OP_GET_FRAME_KEY has been requested for that frame.
  * The framing client doesn't specify which events should be received.
  * requestor is the requestor value that was originally passed last time GET_FRAME_KEY was called.
  * location is the iframe element.
@@ -155,7 +155,7 @@ extern "C" {
  * arg2 is event detail (if applicable).
  */
 
-#define HIPE_OPCODE_FRAME_CLOSE        31
+#define HIPE_OP_FRAME_CLOSE        31
 /* Sent by a client that manages a subframe to indicate a request for the client occupying that
  * frame to terminate.
  * Location: the frame element
@@ -163,62 +163,62 @@ extern "C" {
  *       null - tells hipe server to terminate client connection forcibly.
  */
 
-#define HIPE_OPCODE_TOGGLE_CLASS       32
+#define HIPE_OP_TOGGLE_CLASS       32
 /* Applies or removes a CSS class to/from an element.
  * arg1: the class name to apply/remove.
  */
 
-#define HIPE_OPCODE_SET_FOCUS          33
+#define HIPE_OP_SET_FOCUS          33
 /* Keyboard-focuses the element at location */
 
-#define HIPE_OPCODE_SET_BACKGROUND_SRC 34
+#define HIPE_OP_SET_BACKGROUND_SRC 34
 /* Applies a background image to the element at location.
  * arg1 is the mime type of the background image,
  * arg2 is the binary contents of the media file itself.
  */
 
-#define HIPE_OPCODE_TAKE_SNAPSHOT      35
+#define HIPE_OP_TAKE_SNAPSHOT      35
 /* Takes a screenshot of the client frame.
  * arg1 is the file format. ("pdf" for vector screenshots, or "png" for raster screenshots.)
  */
 
-#define HIPE_OPCODE_FILE_RETURN        36
+#define HIPE_OP_FILE_RETURN        36
 /* Sent to the client when the client requests a file (e.g. a snapshot of the frame contents).
  * requestor carries the value of the instruction that requested the file.
  */
 
-#define HIPE_OPCODE_ADD_STYLE_RULE_SRC 37
+#define HIPE_OP_ADD_STYLE_RULE_SRC 37
 /* Sets background image data for a particular CSS style rule.
  * arg1 is the CSS designator and arg2 is the image file data, which should be PNG format.
  */
 
-#define HIPE_OPCODE_USE_CANVAS         38
+#define HIPE_OP_USE_CANVAS         38
 /* Sets a canvas object at location to be the active canvas for drawing.
  * arg1 is the canvas drawing context to be used (e.g. "2d").
  */
 
-#define HIPE_OPCODE_CANVAS_ACTION      39
-/* Carries out a drawing method on the canvas object selected with HIPE_OPCODE_USE_CANVAS.
+#define HIPE_OP_CANVAS_ACTION      39
+/* Carries out a drawing method on the canvas object selected with HIPE_OP_USE_CANVAS.
  * arg1 is the method to use (e.g. "fillRect") and arg2 is a string of comma-separated
  * parameters (e.g "0,0,150,75").
  */
 
-#define HIPE_OPCODE_CANVAS_SET_PROPERTY 40
+#define HIPE_OP_CANVAS_SET_PROPERTY 40
 /* Sets a property on the current canvas context.
  * arg1 is the property, arg2 is the desired value.
  */
 
-#define HIPE_OPCODE_SET_ICON           41
+#define HIPE_OP_SET_ICON           41
 /* Sets the client application's icon, which will be passed to the client's
  * parent environment for the purpose of helping the user identify this application.
  * arg2 is the image file in PNG format. arg1 is unused/reserved for future use.
  */
 
-#define HIPE_OPCODE_REMOVE_ATTRIBUTE   42
+#define HIPE_OP_REMOVE_ATTRIBUTE   42
 /* Removes (unsets) the attribute specified in arg1. arg2 is unused.
  */
 
-#define HIPE_OPCODE_MESSAGE            43
+#define HIPE_OP_MESSAGE            43
 /* Sends an arbitrary message to another Hipe client with a direct parent/child relationship.
  * Or receives a message from another client.
  * Location: * 0 (or body element) means the message is being passed to/from the direct parent (which manages the client frame)

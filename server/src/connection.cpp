@@ -67,11 +67,11 @@ void Connection::sendInstruction(hipe_instruction& instruction)
 
 void Connection::publishInstruction()
 {
-    if(currentInstruction.output.opcode == HIPE_OPCODE_REQUEST_CONTAINER) {
+    if(currentInstruction.output.opcode == HIPE_OP_REQUEST_CONTAINER) {
         //requestor contains the claimed pid of the connecting process.
         container = containerManager->requestNew(std::string(currentInstruction.output.arg1, currentInstruction.output.arg1Length), std::string(currentInstruction.output.arg2, currentInstruction.output.arg2Length), currentInstruction.output.requestor, this);
         //send the result of the container request (arg1 represents approved/denied)
-        sendInstruction(HIPE_OPCODE_CONTAINER_GRANT, 0,0, (container ? "1":"0"),"0"); //new client awaits this confirmation that its key has been approved.
+        sendInstruction(HIPE_OP_CONTAINER_GRANT, 0,0, (container ? "1":"0"),"0"); //new client awaits this confirmation that its key has been approved.
     } else if(container) { //allow other instructions only if a container request has already been granted.
         //send the instruction to the container.
         hipe_instruction instruction;
@@ -79,7 +79,7 @@ void Connection::publishInstruction()
         container->receiveInstruction(instruction);
     } else {
         //error. Access was not granted, so no other instructions are permitted.
-        sendInstruction(HIPE_OPCODE_SERVER_DENIED, 0,0, "",""); //access denied.
+        sendInstruction(HIPE_OP_SERVER_DENIED, 0,0, "",""); //access denied.
     }
 }
 

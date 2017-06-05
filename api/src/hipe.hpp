@@ -135,7 +135,7 @@ inline void session::decrementReferenceCount(hipe_loc location) {
     size_t currentCount = referenceCounts[location];
     if(currentCount == 0) {
         //free this location.
-        hipe_send((hipe_session) *this, HIPE_OPCODE_FREE_LOCATION, 0, location, 0,0);
+        hipe_send((hipe_session) *this, HIPE_OP_FREE_LOCATION, 0, location, 0,0);
     } else {
         referenceCounts[location] = currentCount-1;
     }
@@ -218,10 +218,10 @@ inline loc::~loc() {
 
 inline loc loc::firstChild() {
 //return first child node of this element
-    hipe_send(*_session, HIPE_OPCODE_GET_FIRST_CHILD, 0, location, 0, 0);
+    hipe_send(*_session, HIPE_OP_GET_FIRST_CHILD, 0, location, 0, 0);
     hipe_instruction instruction;
     hipe_instruction_init(&instruction);
-    hipe_await_instruction(*_session, &instruction, HIPE_OPCODE_LOCATION_RETURN);
+    hipe_await_instruction(*_session, &instruction, HIPE_OP_LOCATION_RETURN);
     hipe_loc location = instruction.location;
     hipe_instruction_clear(&instruction);
     return loc(location, _session);
@@ -229,30 +229,30 @@ inline loc loc::firstChild() {
     
 inline loc loc::lastChild() {
 //return the last child node of this element.
-    hipe_send(*_session, HIPE_OPCODE_GET_LAST_CHILD, 0, location, 0, 0);
+    hipe_send(*_session, HIPE_OP_GET_LAST_CHILD, 0, location, 0, 0);
     hipe_instruction instruction;
     hipe_instruction_init(&instruction);
-    hipe_await_instruction(*_session, &instruction, HIPE_OPCODE_LOCATION_RETURN);
+    hipe_await_instruction(*_session, &instruction, HIPE_OP_LOCATION_RETURN);
     hipe_loc location = instruction.location;
     hipe_instruction_clear(&instruction);
     return loc(location, _session);
 }
 
 inline loc loc::nextSibling() {
-    hipe_send(*_session, HIPE_OPCODE_GET_NEXT_SIBLING, 0, location, 0, 0);
+    hipe_send(*_session, HIPE_OP_GET_NEXT_SIBLING, 0, location, 0, 0);
     hipe_instruction instruction;
     hipe_instruction_init(&instruction);
-    hipe_await_instruction(*_session, &instruction, HIPE_OPCODE_LOCATION_RETURN);
+    hipe_await_instruction(*_session, &instruction, HIPE_OP_LOCATION_RETURN);
     hipe_loc location = instruction.location;
     hipe_instruction_clear(&instruction);
     return loc(location, _session);
 }
     
 inline loc loc::prevSibling() {
-    hipe_send(*_session, HIPE_OPCODE_GET_PREV_SIBLING, 0, location, 0, 0);
+    hipe_send(*_session, HIPE_OP_GET_PREV_SIBLING, 0, location, 0, 0);
     hipe_instruction instruction;
     hipe_instruction_init(&instruction);
-    hipe_await_instruction(*_session, &instruction, HIPE_OPCODE_LOCATION_RETURN);
+    hipe_await_instruction(*_session, &instruction, HIPE_OP_LOCATION_RETURN);
     hipe_loc location = instruction.location;
     hipe_instruction_clear(&instruction);
     return loc(location, _session);

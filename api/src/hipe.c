@@ -157,7 +157,7 @@ hipe_session hipe_open_session(const char* host_key, const char* socket_path, co
     hipe_session_init(session);
     session->connection_fd = fd;
     hipe_instruction rq;
-    rq.opcode = HIPE_OPCODE_REQUEST_CONTAINER;
+    rq.opcode = HIPE_OP_REQUEST_CONTAINER;
     rq.location = 0;
     rq.requestor = getpid();
     rq.arg1 = key;
@@ -171,7 +171,7 @@ hipe_session hipe_open_session(const char* host_key, const char* socket_path, co
     hipe_instruction incoming;
     hipe_instruction_init(&incoming);
     int result;
-    result = hipe_await_instruction(session, &incoming, HIPE_OPCODE_CONTAINER_GRANT);
+    result = hipe_await_instruction(session, &incoming, HIPE_OP_CONTAINER_GRANT);
     if(result<0) {
         fprintf(stderr, "Hipe: Bad connection.\n");
         hipe_close_session(session);
@@ -219,7 +219,7 @@ short hipe_next_instruction(hipe_session session, hipe_instruction* instruction_
         result = read_to_queue(session, blocking);
         if(!blocking && result == 0) return 0; 
         else if(result == -1) { /* Not connected to server */
-            instruction_ret->opcode = HIPE_OPCODE_SERVER_DENIED;
+            instruction_ret->opcode = HIPE_OP_SERVER_DENIED;
             return -1;
         }
     }
@@ -278,7 +278,7 @@ int read_to_queue(hipe_session session, int blocking)
             instruction_decoder_feed(&session->incomingInstruction, c);
             if(instruction_decoder_iscomplete(&session->incomingInstruction)) {
 
-                if(session->incomingInstruction.output.opcode == HIPE_OPCODE_SERVER_DENIED) {
+                if(session->incomingInstruction.output.opcode == HIPE_OP_SERVER_DENIED) {
                 /*Access to the server has been denied. Critical. Disconnect*/
                     hipe_disconnect(session);
                     if(completedInstructions) return completedInstructions;
