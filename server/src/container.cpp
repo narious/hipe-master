@@ -96,6 +96,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
     } else if(instruction.opcode == HIPE_OP_ADD_STYLE_RULE) {
         if(Sanitation::isAllowedCSS(arg1) && Sanitation::isAllowedCSS(arg2))
             stylesheet += arg1 + "{" + arg2 + "}\n";
+        applyStylesheet();
     } else if(instruction.opcode == HIPE_OP_SET_TITLE) {
         setTitle(arg1);
     } else if(instruction.opcode == HIPE_OP_GET_FIRST_CHILD) {
@@ -212,7 +213,9 @@ void Container::receiveInstruction(hipe_instruction instruction)
         QString dataURI = QString("data:image/png;base64,");
         QByteArray b64Data = QByteArray(instruction.arg2, instruction.arg2Length).toBase64();
         dataURI += QString::fromLocal8Bit(b64Data);
-        stylesheet += arg1 + "{background-image:url(\"" + dataURI + "\");}\n";
+        if(Sanitation::isAllowedCSS(arg1))
+            stylesheet += arg1 + "{background-image:url(\"" + dataURI + "\");}\n";
+        applyStylesheet();
     } else if(instruction.opcode == HIPE_OP_GET_FRAME_KEY) {
         //Check if the location is already represented in the frame table.
         QString frameID = location.attribute("id"); //Need this for matching the frame.

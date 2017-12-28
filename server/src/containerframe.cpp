@@ -45,6 +45,7 @@ void ContainerFrame::setBody(QString newBodyHtml, bool overwrite)
 {
     if(!initYet) {
         frame->setHtml(QString("<html><head><style>") + stylesheet + "</style><script>var canvascontext;</script></head><body onkeydown=\"c.receiveKeyEventOnBody(false, event.which);\" onkeyup=\"c.receiveKeyEventOnBody(true, event.which);\"></body></html>");
+        stylesheet = ""; //clear already-applied stylesheet data.
         webElement = frame->documentElement().lastChild();
         initYet = true;
 
@@ -60,6 +61,14 @@ void ContainerFrame::setBody(QString newBodyHtml, bool overwrite)
     }
     if(overwrite) webElement.setInnerXml(newBodyHtml);
     else webElement.appendInside(newBodyHtml);
+}
+
+void ContainerFrame::applyStylesheet() {
+    if(!initYet) return; //no-op. Styles will be applied in the <head> when setBody is called.
+
+    //appending new style rules after </head> is not supposed to be valid, but we might get away with it.
+    webElement.appendInside(QString("<style>") + stylesheet + "</style>");
+    stylesheet = ""; //clear after application.
 }
 
 void ContainerFrame::setTitle(QString newTitle)

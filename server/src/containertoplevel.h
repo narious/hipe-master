@@ -71,6 +71,7 @@ private:
 protected:
     void setTitle(QString newTitle);
     void setBody(QString newBodyHtml, bool overwrite=true);
+    void applyStylesheet();
     void setIcon(const char* imgData, size_t length);
 };
 

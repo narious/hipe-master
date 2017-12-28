@@ -67,6 +67,9 @@ public:
     virtual void setTitle(QString newTitle)=0;
     virtual void setIcon(const char* imgData, size_t length)=0;
     virtual void setBody(QString newBodyHtml, bool overwrite=true)=0;
+    virtual void applyStylesheet()=0; //apply stylesheet after changes. If <body> was not opened yet (!initYet)
+    //then this is a no-op as styling gets applied when setBody is called. Otherwise, this call causes a <style>
+    //tag to be appended inside the <body> tag; which is not strictly valid practice but should do the trick.
 
     void containerClosed();
 
@@ -102,6 +105,7 @@ protected:
     QWebElement webElement;
     QWebFrame* frame;
     QString stylesheet; //build up the stylesheet before we apply it.
+
 signals:
     void receiveGuiEvent(quint64 location, quint64 requestor, QString event, QString detail);
     //signal called from within the QWebView object (via Javascript), each time a user interaction takes place.
