@@ -7,11 +7,11 @@ HIPE: Hypertext Pipe
 VERSION INFORMATION
 -------------------
 
-v0.26 beta -- 05 Jun 2017
+v0.27 beta -- 28 Dec 2017
 
-- HIPE_OPCODE_ prefixed operation codes have been replaced with shorter HIPE_OP_ macro constants. Behaviour
-  is identical to how it was before; the macro definitions have simply been shortened to make them easier to
-  type when writing source code.
+- A workaround has been added to allow HIPE_OP_ADD_STYLE_RULE instructions to be respected after initial
+  body content has been added to the screen. Not all style rules added in this scenario appear to be respected
+  by the webkit backend, however.
 
 
 TODO:
