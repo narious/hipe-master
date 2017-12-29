@@ -29,18 +29,21 @@ void hipe_instruction_init(hipe_instruction* obj)
     obj->opcode = 0;
     obj->location = 0;
     obj->requestor = 0;
-    obj->arg1 = 0;
-    obj->arg2 = 0;
-    obj->arg1Length = 0;
-    obj->arg2Length = 0;
+    int i;
+    for(i=0; i<HIPE_NARGS; i++) {
+        obj->arg[i] = NULL;
+        obj->arg_length[i] = 0; //zero length means the argument is unspecified.
+    }
     obj->next = 0;
 }
 
 
 void hipe_instruction_clear(hipe_instruction* obj)
 {
-    if(obj->arg1) free(obj->arg1);
-    if(obj->arg2) free(obj->arg2);
+    int i;
+    for(i=0; i<HIPE_NARGS; i++)
+        if(obj->arg_length[i])
+            free(obj->arg[i]); //this is a no-op for null pointers.
     hipe_instruction_init(obj);
 }
 
@@ -48,11 +51,13 @@ void hipe_instruction_clear(hipe_instruction* obj)
 void hipe_instruction_copy(hipe_instruction* dest, hipe_instruction* src)
 {
     *dest = *src;
-    dest->arg1 = malloc(dest->arg1Length);
-    dest->arg2 = malloc(dest->arg2Length);
-    uint32_t i;
-    for(i=0; i<dest->arg1Length; i++)
-        dest->arg1[i] = src->arg1[i];
-    for(i=0; i<dest->arg2Length; i++)
-        dest->arg2[i] = src->arg2[i];
+    int i;
+    for(i=0; i<HIPE_NARGS; i++) {
+        if(dest->arg_length[i]) {
+            dest->arg[i] = malloc(dest->arg_length[i]);
+            memcpy(dest->arg[i], src->arg[i], dest->arg_length[i]);
+        } else {
+            dest->arg[i] = NULL;
+        }
+    }
 }

@@ -247,9 +247,9 @@ int main(int argc, char** argv)
             short action;
             if(hi.requestor == 'K') { //keyboard event
                 char charcode = 0; //extract the character code string and turn it into a char.
-                for(i=0; i<hi.arg2Length; i++) {
+                for(i=0; i<hi.arg_length[1]; i++) {
                     charcode *= 10;
-                    charcode += hi.arg2[i] - '0';
+                    charcode += hi.arg[1][i] - '0';
                 }
                 if(charcode >= '0' && charcode <= '9')
                     action = charcode - '0';

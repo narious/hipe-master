@@ -272,13 +272,12 @@ inline int loc::send(char opcode, uint64_t requestor, const std::vector<std::str
     instruction.opcode = opcode;
     instruction.requestor = requestor;
     instruction.location = location;
-    if(args.size()> 0 && args[0].size()) {
-        instruction.arg1 = (char*) args[0].data();
-        instruction.arg1Length = args[0].size();
-    }
-    if(args.size() > 1 && args[1].size()) {
-        instruction.arg2 = (char*) args[1].data();
-        instruction.arg2Length = args[1].size();
+    int i;
+    for(i=0; i<args.size(); i++) {
+        if(args[i].size()) {
+            instruction.arg[i] = (char*) args[i].data();
+            instruction.arg_length[i] = args[i].size();
+        }
     }
     result = hipe_send_instruction(*_session, instruction);
     return result;

@@ -160,10 +160,10 @@ hipe_session hipe_open_session(const char* host_key, const char* socket_path, co
     rq.opcode = HIPE_OP_REQUEST_CONTAINER;
     rq.location = 0;
     rq.requestor = getpid();
-    rq.arg1 = key;
-    rq.arg1Length = strlen(key);
-    rq.arg2 = (char*) clientName;
-    rq.arg2Length = strlen(clientName);
+    rq.arg[0] = key;
+    rq.arg_length[0] = strlen(key);
+    rq.arg[1] = (char*) clientName;
+    rq.arg_length[1] = strlen(clientName);
     hipe_send_instruction(session, rq);
 
     /*Await response from server. If the container request is rejected then close the
@@ -177,7 +177,7 @@ hipe_session hipe_open_session(const char* host_key, const char* socket_path, co
         hipe_close_session(session);
         return 0;
     }
-    if(incoming.arg1[0] != '1') {
+    if(incoming.arg[0][0] != '1') {
         fprintf(stderr, "Hipe: Container request denied.\n");
         hipe_close_session(session);
         return 0; /*null pointer*/
@@ -370,14 +370,14 @@ int hipe_send(hipe_session session, char opcode, uint64_t requestor, hipe_loc lo
     instruction.requestor = requestor;
     instruction.location = location;
     if(arg1) {
-        instruction.arg1 = malloc(strlen(arg1)+1);
-        strcpy(instruction.arg1, arg1);
-        instruction.arg1Length = strlen(arg1);
+        instruction.arg[0] = malloc(strlen(arg1)+1);
+        strcpy(instruction.arg[0], arg1);
+        instruction.arg_length[0] = strlen(arg1);
     }
     if(arg2) {
-        instruction.arg2 = malloc(strlen(arg2)+1);
-        strcpy(instruction.arg2, arg2);
-        instruction.arg2Length = strlen(arg2);
+        instruction.arg[1] = malloc(strlen(arg2)+1);
+        strcpy(instruction.arg[1], arg2);
+        instruction.arg_length[1] = strlen(arg2);
     }
     result = hipe_send_instruction(session, instruction);
     hipe_instruction_clear(&instruction);

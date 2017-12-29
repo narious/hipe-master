@@ -53,8 +53,8 @@ int main(int argc, char** argv) {
     hipe_instruction_init(&instr);
     instr.opcode = HIPE_OP_SET_SRC;
     instr.location = img;
-    instr.arg1 = data; instr.arg1Length=size;
-    instr.arg2 = "image/jpeg"; instr.arg2Length=strlen(instr.arg2);
+    instr.arg[0] = data; instr.arg_length[0]=size;
+    instr.arg[1] = "image/jpeg"; instr.arg_length[1]=strlen(instr.arg[1]);
 
     hipe_send_instruction(session, instr);
 

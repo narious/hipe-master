@@ -71,30 +71,30 @@ void instruction_decoder_feed(instruction_decoder* obj, char c)
 
         if(obj->instruction_chars_read == PREAMBLE_LENGTH) { /*Preamble complete.*/
             decodeInstructionPreamble(obj->preamble, &obj->output.opcode, &obj->output.requestor,
-                                      &obj->output.location, &obj->output.arg1Length, &obj->output.arg2Length);
-            obj->output.arg1 = (char*) malloc(obj->output.arg1Length + 1); /*allocate extra element for null termination.*/
-            obj->output.arg2 = (char*) malloc(obj->output.arg2Length + 1);
-            obj->output.arg1[obj->output.arg1Length] = '\0';
-            obj->output.arg2[obj->output.arg2Length] = '\0';
+                                      &obj->output.location, &(obj->output.arg_length[0]), &(obj->output.arg_length[1]));
+            obj->output.arg[0] = (char*) malloc(obj->output.arg_length[0] /*+ 1*/); /* **DONT** allocate extra element for null termination.*/
+            obj->output.arg[1] = (char*) malloc(obj->output.arg_length[1] /*+ 1*/);
+            //obj->output.arg[0][obj->output.arg_length[0]] = '\0';
+            //obj->output.arg[1][obj->output.arg_length[1]] = '\0';
             /*now ready to read args.*/
         }
-    } else if(obj->instruction_chars_read < (PREAMBLE_LENGTH + obj->output.arg1Length)) {
-        obj->output.arg1[obj->instruction_chars_read++ - PREAMBLE_LENGTH] = c;
-    } else if(obj->instruction_chars_read < (PREAMBLE_LENGTH + obj->output.arg1Length + obj->output.arg2Length)) {
-        obj->output.arg2[obj->instruction_chars_read++ - obj->output.arg1Length - PREAMBLE_LENGTH] = c;
+    } else if(obj->instruction_chars_read < (PREAMBLE_LENGTH + obj->output.arg_length[0])) {
+        obj->output.arg[0][obj->instruction_chars_read++ - PREAMBLE_LENGTH] = c;
+    } else if(obj->instruction_chars_read < (PREAMBLE_LENGTH + obj->output.arg_length[0] + obj->output.arg_length[1])) {
+        obj->output.arg[1][obj->instruction_chars_read++ - obj->output.arg_length[0] - PREAMBLE_LENGTH] = c;
     }
 }
 
 
 short instruction_decoder_iscomplete(instruction_decoder* obj)
 {
-    return (obj->instruction_chars_read >= PREAMBLE_LENGTH + obj->output.arg1Length + obj->output.arg2Length);
+    return (obj->instruction_chars_read >= PREAMBLE_LENGTH + obj->output.arg_length[0] + obj->output.arg_length[1]);
 }
 
 
 
 
-void decodeInstructionPreamble(const char* preamble, char* opcode, uint64_t* requestor, hipe_loc* location, uint32_t* arg1len, uint32_t* arg2len)
+void decodeInstructionPreamble(const char* preamble, char* opcode, uint64_t* requestor, hipe_loc* location, uint64_t* arg1len, uint64_t* arg2len)
 /*preamble is an array of characters of length PREAMBLE_LENGTH that have been read into the array.
  *They are the initial fixed-length preamble of the instruction.
  *Returns everything except the two variable-length arguments, but returns their lengths so they
@@ -156,8 +156,8 @@ void instruction_encoder_encodeinstruction(instruction_encoder* obj, hipe_instru
      **/
 
     unsigned short argWidth=4;
-    size_t arg1Size = instruction.arg1Length;
-    size_t arg2Size = instruction.arg2Length;
+    size_t arg1Size = instruction.arg_length[0];
+    size_t arg2Size = instruction.arg_length[1];
 
     instruction_encoder_clear(obj);
 
@@ -174,18 +174,18 @@ void instruction_encoder_encodeinstruction(instruction_encoder* obj, hipe_instru
         instruction.location >>= 8;
     }
     for(i=0; i<argWidth; i++) {
-        obj->encoded_output[pos++] = instruction.arg1Length & 255;
-        instruction.arg1Length >>= 8;
+        obj->encoded_output[pos++] = instruction.arg_length[0] & 255;
+        instruction.arg_length[0] >>= 8;
     }
     for(i=0; i<argWidth; i++) {
-        obj->encoded_output[pos++] = instruction.arg2Length & 255;
-        instruction.arg2Length >>= 8;
+        obj->encoded_output[pos++] = instruction.arg_length[1] & 255;
+        instruction.arg_length[1] >>= 8;
     }
     for(i=0; i<arg1Size; i++) {
-        obj->encoded_output[pos++] = instruction.arg1[i];
+        obj->encoded_output[pos++] = instruction.arg[0][i];
     }
     for(i=0; i<arg2Size; i++) {
-        obj->encoded_output[pos++] = instruction.arg2[i];
+        obj->encoded_output[pos++] = instruction.arg[1][i];
     }
     obj->encoded_length = pos;
 }

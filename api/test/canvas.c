@@ -47,14 +47,14 @@ int main(int argc, char** argv) {
         if(hi.opcode == HIPE_OP_EVENT) {
 
             /*What kind of event?*/
-            if(strncmp("mousemove", hi.arg1, hi.arg1Length) == 0
-                       || strncmp("mousedown", hi.arg1, hi.arg1Length) == 0
-                       || strncmp("mouseup", hi.arg1, hi.arg1Length) == 0 ) {
+            if(strncmp("mousemove", hi.arg[0], hi.arg_length[0]) == 0
+                       || strncmp("mousedown", hi.arg[0], hi.arg_length[0]) == 0
+                       || strncmp("mouseup", hi.arg[0], hi.arg_length[0]) == 0 ) {
             /*Mouse event on canvas. Extract info.*/
-                button = hi.arg2[0];
-                xy = malloc(hi.arg2Length - 1);
-                strncpy(xy, &(hi.arg2[2]), hi.arg2Length-2);
-                xy[hi.arg2Length-2] = '\0'; /*null terminate.*/
+                button = hi.arg[1][0];
+                xy = malloc(hi.arg_length[1] - 1);
+                strncpy(xy, &(hi.arg[1][2]), hi.arg_length[1]-2);
+                xy[hi.arg_length[1]-2] = '\0'; /*null terminate.*/
                 sscanf(xy, "%d,%d", &x, &y);
 
                 if(button == '1' && !nowDrawing) {  /*start line.*/

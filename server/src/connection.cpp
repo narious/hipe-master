@@ -1,4 +1,4 @@
-/*  Copyright (c) 2016 Daniel Kos, General Development Systems
+/*  Copyright (c) 2016-2018 Daniel Kos, General Development Systems
 
     This file is part of Hipe.
 
@@ -41,16 +41,16 @@ Connection::~Connection()
     delete container;
 }
 
-void Connection::sendInstruction(char opcode, int64_t requestor, int64_t location, std::string arg1, std::string arg2)
+void Connection::sendInstruction(char opcode, int64_t requestor, int64_t location, std::string arg0, std::string arg1)
 {
     hipe_instruction instruction;
     instruction.opcode = opcode;
     instruction.requestor = requestor;
     instruction.location = location;
-    instruction.arg1 = (char*) arg1.data();
-    instruction.arg1Length = arg1.size();
-    instruction.arg2 = (char*) arg2.data();
-    instruction.arg2Length = arg2.size();
+    instruction.arg[0] = (char*) arg0.data();
+    instruction.arg_length[0] = arg0.size();
+    instruction.arg[1] = (char*) arg1.data();
+    instruction.arg_length[1] = arg1.size();
 
     sendInstruction(instruction);
 }
@@ -69,7 +69,9 @@ void Connection::publishInstruction()
 {
     if(currentInstruction.output.opcode == HIPE_OP_REQUEST_CONTAINER) {
         //requestor contains the claimed pid of the connecting process.
-        container = containerManager->requestNew(std::string(currentInstruction.output.arg1, currentInstruction.output.arg1Length), std::string(currentInstruction.output.arg2, currentInstruction.output.arg2Length), currentInstruction.output.requestor, this);
+        container = containerManager->requestNew(std::string(currentInstruction.output.arg[0], 
+                    currentInstruction.output.arg_length[0]), std::string(currentInstruction.output.arg[1], 
+                    currentInstruction.output.arg_length[1]), currentInstruction.output.requestor, this);
         //send the result of the container request (arg1 represents approved/denied)
         sendInstruction(HIPE_OP_CONTAINER_GRANT, 0,0, (container ? "1":"0"),"0"); //new client awaits this confirmation that its key has been approved.
     } else if(container) { //allow other instructions only if a container request has already been granted.

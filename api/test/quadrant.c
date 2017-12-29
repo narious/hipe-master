@@ -192,8 +192,8 @@ int main(int argc, char** argv) {
         hipe_send(session, HIPE_OP_GET_FRAME_KEY, 0, f[i], 0, 0); 
         hipe_await_instruction(session, &instruction, HIPE_OP_KEY_RETURN);
 
-        strncpy(hostkey[i], instruction.arg1, instruction.arg1Length);
-        hostkey[i][instruction.arg1Length] = '\0'; //received arguments don't have null-terminators, so add one.
+        strncpy(hostkey[i], instruction.arg[0], instruction.arg_length[0]);
+        hostkey[i][instruction.arg_length[0]] = '\0'; //received arguments don't have null-terminators, so add one.
     }
 
     keyDisp = getLoc("nextkeydisp");
@@ -205,10 +205,10 @@ int main(int argc, char** argv) {
         hipe_next_instruction(session, &hi, 1);
         if(hi.opcode == HIPE_OP_SERVER_DENIED) return 0; //main frame closed.
         if(hi.opcode == HIPE_OP_FRAME_EVENT) {
-            if(hi.arg1[0] == HIPE_FRAME_EVENT_CLIENT_CONNECTED || hi.arg1[0] == HIPE_FRAME_EVENT_TITLE_CHANGED) {
-                char newTitle[hi.arg2Length+1]; //copy the new title into a null-terminated string.
-                strncpy(newTitle, hi.arg2, hi.arg2Length);
-                newTitle[hi.arg2Length] = '\0';
+            if(hi.arg[0][0] == HIPE_FRAME_EVENT_CLIENT_CONNECTED || hi.arg[0][0] == HIPE_FRAME_EVENT_TITLE_CHANGED) {
+                char newTitle[hi.arg_length[1]+1]; //copy the new title into a null-terminated string.
+                strncpy(newTitle, hi.arg[1], hi.arg_length[1]);
+                newTitle[hi.arg_length[1]] = '\0';
                 for(i=0; i<3; i++) {
                     if(hi.location == f[i]) {
                         hipe_send(session, HIPE_OP_SET_TEXT, 0, captionText[i], newTitle, 0); //update the title.
@@ -217,7 +217,7 @@ int main(int argc, char** argv) {
                         hostkey[i][0] = '\0'; //clear the hostkey as it's been claimed.
                     }
                 }
-            } else if(hi.arg1[0] == HIPE_FRAME_EVENT_CLIENT_DISCONNECTED) {
+            } else if(hi.arg[0][0] == HIPE_FRAME_EVENT_CLIENT_DISCONNECTED) {
                 for(i=0; i<3; i++) {
                     if(hi.location == f[i]) {
                         hipe_send(session, HIPE_OP_CLEAR, 0, captionText[i], 0, 0); //blank the title display
@@ -233,26 +233,26 @@ int main(int argc, char** argv) {
                         //obtain new hostkey so this frame can be reused.
                         hipe_send(session, HIPE_OP_GET_FRAME_KEY, 0, f[i], 0, 0); 
                         hipe_await_instruction(session, &instruction, HIPE_OP_KEY_RETURN);
-                        strncpy(hostkey[i], instruction.arg1, instruction.arg1Length);
-                        hostkey[i][instruction.arg1Length] = '\0'; //received arguments don't have null-terminators, so add one.
+                        strncpy(hostkey[i], instruction.arg[0], instruction.arg_length[0]);
+                        hostkey[i][instruction.arg_length[0]] = '\0'; //received arguments don't have null-terminators, so add one.
                     }
                 }
             }
 
             //determine the next hostkey to display to the user
-            if(hi.arg1[0] == HIPE_FRAME_EVENT_CLIENT_CONNECTED || hi.arg1[0] == HIPE_FRAME_EVENT_CLIENT_DISCONNECTED) {
+            if(hi.arg[0][0] == HIPE_FRAME_EVENT_CLIENT_CONNECTED || hi.arg[0][0] == HIPE_FRAME_EVENT_CLIENT_DISCONNECTED) {
                 updateKey();
             }
         } else if(hi.opcode == HIPE_OP_EVENT) {
             i = hi.requestor;
             if(i == 'K') { //keyboard event.
-                if(hi.arg2Length==2 && hi.arg2[0] == '4' && hi.arg2[1] == '4') { //44 is the keycode for PrintScreen
+                if(hi.arg_length[1]==2 && hi.arg[1][0] == '4' && hi.arg[1][1] == '4') { //44 is the keycode for PrintScreen
                     printf("Taking screenshot.\n");
                     hipe_send(session, HIPE_OP_TAKE_SNAPSHOT, 0,0, "pdf", 0);
                     hipe_await_instruction(session, &instruction, HIPE_OP_FILE_RETURN);
                     FILE* fp;
                     fp = fopen("/tmp/quadrant_screenshot.pdf", "w");
-                    fwrite(instruction.arg1, 1, instruction.arg1Length, fp);
+                    fwrite(instruction.arg[0], 1, instruction.arg_length[0], fp);
                     fclose(fp);
                 }
             } else if(hi.location == closeButton[i]) {

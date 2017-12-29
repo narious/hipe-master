@@ -37,21 +37,21 @@ extern "C" {
 /*clear the contents of the tag given by location (removing all child elements), or clear body if location==0.*/
 
 #define HIPE_OP_SET_TEXT           2
-/* set a tag's contents to a string of plain text given in arg1, overwriting previous contents.
+/* set a tag's contents to a string of plain text given in arg[0], overwriting previous contents.
  * if location==0 this applies to the entire body tag.
  */
 
 #define HIPE_OP_APPEND_TEXT        3
 /* append plain text inside the tag given by location, or inside body if location==0.
- * arg1 is the text content to append. HTML-style special character entities may be used.
+ * arg[0] is the text content to append. HTML-style special character entities may be used.
  */
 
 #define HIPE_OP_APPEND_TAG         4
 /* append a tag element inside the tag given by location, or inside body if location==0.
- * arg1 is the tag type, arg2 is an optional identifier for the tag */
+ * arg[0] is the tag type, arg2 is an optional identifier for the tag */
 
 #define HIPE_OP_ATTRIBUTE_RETURN   5
-/* arg1 is the name of the attribute and arg2 is the retrieved value */
+/* arg[0] is the name of the attribute and arg2 is the retrieved value */
 
 #define HIPE_OP_CONTAINER_GRANT    6
 /* Server response to container request. Arg1 is "0" if the container request was denied, or "1" if
@@ -59,35 +59,35 @@ extern "C" {
 
 #define HIPE_OP_EVENT              7
 /* Sent by the server to the client whenever a requested event occurs.
- * 'arg1' is the type of event, and 'location' is the tag for which events of 'arg1' were requested.
+ * 'arg[0]' is the type of event, and 'location' is the tag for which events of 'arg[0]' were requested.
  * 'requestor' returns the same client-supplied value as was used for HIPE_OP_EVENT_REQUEST.
  * 'arg2' provides event-specific detail about the event -- e.g. for "click" events it returns the
  * number of clicks registered.
  * */
 
 #define HIPE_OP_EVENT_CANCEL       8
-/* Sent by the client to cancel notification of further events of type 'arg1' on location 'location'.
+/* Sent by the client to cancel notification of further events of type 'arg[0]' on location 'location'.
  * if arg2=="1", the server will reply with the same instruction to acknowledge that the event has been
  * cancelled. This may be useful to a client that needs to know when it is safe to clean up event listeners.
  * */
 
 #define HIPE_OP_EVENT_REQUEST      9
-/*Sent by the client to request notification of event 'arg1' on location 'location'.
+/*Sent by the client to request notification of event 'arg[0]' on location 'location'.
  * */
 
 #define HIPE_OP_FREE_LOCATION      10
 /* Sent by the client to the server to de-allocate a location index that is no longer required.*/
 
 #define HIPE_OP_GET_ATTRIBUTE      11
-/* arg1 is the name of the attribute*/
+/* arg[0] is the name of the attribute*/
 
 #define HIPE_OP_GET_BY_ID          12
-/* Request a location index for the HTML tag with id attribute == arg1*/
+/* Request a location index for the HTML tag with id attribute == arg[0]*/
 
 #define HIPE_OP_GET_FIRST_CHILD    13
 
 #define HIPE_OP_GET_GEOMETRY       14
-/* arg1 == 0 requests x,y position, arg1 == 1 requests size. */
+/* arg[0] == 0 requests x,y position, arg[0] == 1 requests size. */
 
 #define HIPE_OP_GET_LAST_CHILD     15
 #define HIPE_OP_GET_NEXT_SIBLING   16
@@ -99,10 +99,10 @@ extern "C" {
  * Args are undefined (0), requestor is copied from the request, location is the requested location.*/
 
 #define HIPE_OP_POSITION_RETURN    19
-/* arg1 is x position and arg2 is y position relative to containing frame. */
+/* arg[0] is x position and arg2 is y position relative to containing frame. */
 
 #define HIPE_OP_REQUEST_CONTAINER  20
-/* this must be the first instruction received. arg1 is the key and arg2 is a short client name.*/
+/* this must be the first instruction received. arg[0] is the key and arg2 is a short client name.*/
 
 #define HIPE_OP_SERVER_DENIED      21
 /* Sent by the server when a request is received but cannot be acted on due to some critical violation.
@@ -111,28 +111,28 @@ extern "C" {
  * server end. */
 
 #define HIPE_OP_SET_ATTRIBUTE      22
-/* arg1 is the property and arg2 is the new value */
+/* arg[0] is the property and arg2 is the new value */
 
 #define HIPE_OP_SET_STYLE          23
-/* arg1 is the property and arg2 is the new value */
+/* arg[0] is the property and arg2 is the new value */
 
 #define HIPE_OP_ADD_STYLE_RULE     24 //to replace SET_STYLESHEET
 /* Used to apply CSS style rules before other content is displayed.
- * arg1 is the CSS descriptor of element(s) that the rule will apply to, and
+ * arg[0] is the CSS descriptor of element(s) that the rule will apply to, and
  * arg2 is the styling to apply, e.g. "border:0; width:100%;"
  */
 
 #define HIPE_OP_SET_SRC            25
 /* 
- * arg1 is the binary contents of the media file to be applied to the element.
+ * arg[0] is the binary contents of the media file to be applied to the element.
  * arg2 is the mime type of the source file to be applied to the element, e.g. "image/jpeg"
  */
 
 #define HIPE_OP_SET_TITLE          26
-/* arg1 overwrites the container's title with a new one.*/
+/* arg[0] overwrites the container's title with a new one.*/
 
 #define HIPE_OP_SIZE_RETURN        27
-/* arg1 is width and arg2 is height. */
+/* arg[0] is width and arg2 is height. */
 
 #define HIPE_OP_GET_FRAME_KEY      28
 /* Sent by client to request the hostkey for connecting to a particular iframe
@@ -141,7 +141,7 @@ extern "C" {
 
 #define HIPE_OP_KEY_RETURN         29
 /* Sent by the server in response to a GET_FRAME_KEY request.
- * arg1 is the returned host key and location is the frame on which the request was made.
+ * arg[0] is the returned host key and location is the frame on which the request was made.
  */
 
 #define HIPE_OP_FRAME_EVENT        30
@@ -152,7 +152,7 @@ extern "C" {
  * The framing client doesn't specify which events should be received.
  * requestor is the requestor value that was originally passed last time GET_FRAME_KEY was called.
  * location is the iframe element.
- * arg1 is the event type
+ * arg[0] is the event type
  * arg2 is event detail (if applicable).
  */
 
@@ -160,13 +160,13 @@ extern "C" {
 /* Sent by a client that manages a subframe to indicate a request for the client occupying that
  * frame to terminate.
  * Location: the frame element
- * arg1: non-null string - convey a user's request to close that client (e.g. user clicks close button).
+ * arg[0]: non-null string - convey a user's request to close that client (e.g. user clicks close button).
  *       null - tells hipe server to terminate client connection forcibly.
  */
 
 #define HIPE_OP_TOGGLE_CLASS       32
 /* Applies or removes a CSS class to/from an element.
- * arg1: the class name to apply/remove.
+ * arg[0]: the class name to apply/remove.
  */
 
 #define HIPE_OP_SET_FOCUS          33
@@ -174,13 +174,13 @@ extern "C" {
 
 #define HIPE_OP_SET_BACKGROUND_SRC 34
 /* Applies a background image to the element at location.
- * arg1 is the binary contents of the media file.
+ * arg[0] is the binary contents of the media file.
  * arg2 is the mime type of the binary data.
  */
 
 #define HIPE_OP_TAKE_SNAPSHOT      35
 /* Takes a screenshot of the client frame.
- * arg1 is the file format. ("pdf" for vector screenshots, or "png" for raster screenshots.)
+ * arg[0] is the file format. ("pdf" for vector screenshots, or "png" for raster screenshots.)
  */
 
 #define HIPE_OP_FILE_RETURN        36
@@ -190,33 +190,33 @@ extern "C" {
 
 #define HIPE_OP_ADD_STYLE_RULE_SRC 37
 /* Sets background image data for a particular CSS style rule.
- * arg1 is the CSS designator and arg2 is the image file data, which should be PNG format.
+ * arg[0] is the CSS designator and arg2 is the image file data, which should be PNG format.
  */
 
 #define HIPE_OP_USE_CANVAS         38
 /* Sets a canvas object at location to be the active canvas for drawing.
- * arg1 is the canvas drawing context to be used (e.g. "2d").
+ * arg[0] is the canvas drawing context to be used (e.g. "2d").
  */
 
 #define HIPE_OP_CANVAS_ACTION      39
 /* Carries out a drawing method on the canvas object selected with HIPE_OP_USE_CANVAS.
- * arg1 is the method to use (e.g. "fillRect") and arg2 is a string of comma-separated
+ * arg[0] is the method to use (e.g. "fillRect") and arg2 is a string of comma-separated
  * parameters (e.g "0,0,150,75").
  */
 
 #define HIPE_OP_CANVAS_SET_PROPERTY 40
 /* Sets a property on the current canvas context.
- * arg1 is the property, arg2 is the desired value.
+ * arg[0] is the property, arg2 is the desired value.
  */
 
 #define HIPE_OP_SET_ICON           41
 /* Sets the client application's icon, which will be passed to the client's
  * parent environment for the purpose of helping the user identify this application.
- * arg1 is the image file in PNG format. arg2 is unused.
+ * arg[0] is the image file in PNG format. arg2 is unused.
  */
 
 #define HIPE_OP_REMOVE_ATTRIBUTE   42
-/* Removes (unsets) the attribute specified in arg1. arg2 is unused.
+/* Removes (unsets) the attribute specified in arg[0]. arg2 is unused.
  */
 
 #define HIPE_OP_MESSAGE            43
@@ -224,7 +224,7 @@ extern "C" {
  * Or receives a message from another client.
  * Location: * 0 (or body element) means the message is being passed to/from the direct parent (which manages the client frame)
  *           * a frame element means message is being passed to/from that child frame's client.
- * arg1, arg2, requestor: passed through to other client unmodified. User-defined message data can be passed through here.
+ * arg[0], arg2, requestor: passed through to other client unmodified. User-defined message data can be passed through here.
  */
 
 /*--------------*/
@@ -236,6 +236,7 @@ extern "C" {
 #define HIPE_FRAME_EVENT_COLOR_CHANGED       5 //arg2 is the new foreground color
 #define HIPE_FRAME_EVENT_BACKGROUND_CHANGED  6 //arg2 is the new background color
 
+#define HIPE_NARGS 4 //fixed maximum number of arguments per hipe instruction.
 
 typedef uint64_t hipe_loc;
 
@@ -243,9 +244,8 @@ struct _hipe_instruction { /*for storing the (decoded) values of an instruction*
     char opcode;
     uint64_t requestor;
     hipe_loc location;
-    uint32_t arg1Length, arg2Length;
-    char* arg1;
-    char* arg2;
+    char* arg[HIPE_NARGS]; //up to 4 arguments may be transmitted per instruction.
+    uint64_t arg_length[HIPE_NARGS]; //each argument's length is transmitted as a 64 bit value.
 
     struct _hipe_instruction* next; /*for implementing a linked list.*/
 };

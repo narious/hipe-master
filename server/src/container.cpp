@@ -55,8 +55,8 @@ Container::~Container()
 
 void Container::receiveInstruction(hipe_instruction instruction)
 {
-    QString arg1 = QString::fromUtf8(instruction.arg1, instruction.arg1Length);
-    QString arg2 = QString::fromUtf8(instruction.arg2, instruction.arg2Length);
+    QString arg1 = QString::fromUtf8(instruction.arg[0], instruction.arg_length[0]);
+    QString arg2 = QString::fromUtf8(instruction.arg[1], instruction.arg_length[1]);
     uint64_t requestor = instruction.requestor;
     bool locationSpecified = (bool) instruction.location;
     QWebElement location = locationSpecified ? getReferenceableElement(instruction.location)
@@ -200,18 +200,18 @@ void Container::receiveInstruction(hipe_instruction instruction)
     } else if(instruction.opcode == HIPE_OP_SET_SRC) {
         QString dataURI = QString("data:") + arg2 + ";base64,";
 
-        QByteArray b64Data = QByteArray(instruction.arg1, instruction.arg1Length).toBase64();
+        QByteArray b64Data = QByteArray(instruction.arg[0], instruction.arg_length[0]).toBase64();
 
         dataURI += QString::fromLocal8Bit(b64Data);
         location.setAttribute("src", dataURI);
     } else if(instruction.opcode == HIPE_OP_SET_BACKGROUND_SRC) {
         QString dataURI = QString("data:") + arg2 + ";base64,";
-        QByteArray b64Data = QByteArray(instruction.arg1, instruction.arg1Length).toBase64();
+        QByteArray b64Data = QByteArray(instruction.arg[0], instruction.arg_length[0]).toBase64();
         dataURI += QString::fromLocal8Bit(b64Data);
         location.setStyleProperty("background-image", QString("url(\"") + dataURI + "\")");
     } else if(instruction.opcode == HIPE_OP_ADD_STYLE_RULE_SRC) {
         QString dataURI = QString("data:image/png;base64,");
-        QByteArray b64Data = QByteArray(instruction.arg2, instruction.arg2Length).toBase64();
+        QByteArray b64Data = QByteArray(instruction.arg[1], instruction.arg_length[1]).toBase64();
         dataURI += QString::fromLocal8Bit(b64Data);
         if(Sanitation::isAllowedCSS(arg1))
             stylesheet += arg1 + "{background-image:url(\"" + dataURI + "\");}\n";
@@ -303,13 +303,13 @@ void Container::receiveInstruction(hipe_instruction instruction)
             payload.requestor = instruction.requestor;
             payload.location = instruction.location;
             if(success) {
-                payload.arg1 = fData;
-                payload.arg1Length = size;
-                payload.arg2 = 0; payload.arg2Length = 0;
+                payload.arg[0] = fData;
+                payload.arg_length[0] = size;
+                payload.arg[1] = 0; payload.arg_length[1] = 0;
             } else {
-                payload.arg1 = 0; payload.arg1Length = 0;
-                payload.arg2 = (char*) "File error.";
-                payload.arg2Length = 11;
+                payload.arg[0] = 0; payload.arg_length[0] = 0;
+                payload.arg[1] = (char*) "File error.";
+                payload.arg_length[1] = 11;
             }
 
             client->sendInstruction(payload);
@@ -330,7 +330,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
         //TODO sanitise arg1 and arg2 against javascript injections.
         //Don't allow parentheses, semicolons, etc.
     } else if(instruction.opcode == HIPE_OP_SET_ICON) {
-        setIcon(instruction.arg1, instruction.arg1Length);
+        setIcon(instruction.arg[0], instruction.arg_length[0]);
     } else if(instruction.opcode == HIPE_OP_REMOVE_ATTRIBUTE) {
         if(Sanitation::isAllowedAttribute(arg1))
             location.removeAttribute(arg1);
@@ -351,7 +351,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
             sourceframe = webElement.webFrame();
         }
         if(target) { //send the instruction to the destination.
-            target->receiveMessage(HIPE_OP_MESSAGE, requestor, std::string(instruction.arg1,instruction.arg1Length), std::string(instruction.arg2, instruction.arg2Length), sourceframe);
+            target->receiveMessage(HIPE_OP_MESSAGE, requestor, std::string(instruction.arg[0],instruction.arg_length[0]), std::string(instruction.arg[1], instruction.arg_length[1]), sourceframe);
         }
     }
 }
