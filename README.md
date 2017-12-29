@@ -7,9 +7,13 @@ HIPE: Hypertext Pipe
 VERSION INFORMATION
 -------------------
 
-v0.27 beta -- 28 Dec 2017
+v0.28 beta -- 29 Dec 2017
 
-- A workaround has been added to allow HIPE_OP_ADD_STYLE_RULE instructions to be respected after initial
+- From 0.28: The argument ordering for the following  instructions has been altered: HIPE_OP_SET_ICON,
+  HIPE_OP_SET_BACKGROUND_SRC, HIPE_OP_SET_SRC. Applications that make use of these will need minor modification to
+  work with the new version. This change will ease the transition to a variadic instruction set.
+
+- From 0.27: A workaround has been added to allow HIPE_OP_ADD_STYLE_RULE instructions to be respected after initial
   body content has been added to the screen. Not all style rules added in this scenario appear to be respected
   by the webkit backend, however.
 

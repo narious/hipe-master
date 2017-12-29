@@ -198,15 +198,15 @@ void Container::receiveInstruction(hipe_instruction instruction)
         client->sendInstruction(HIPE_OP_ATTRIBUTE_RETURN, instruction.requestor, instruction.location,
                                 arg1.toStdString(), attrVal.toStdString());
     } else if(instruction.opcode == HIPE_OP_SET_SRC) {
-        QString dataURI = QString("data:") + arg1 + ";base64,";
+        QString dataURI = QString("data:") + arg2 + ";base64,";
 
-        QByteArray b64Data = QByteArray(instruction.arg2, instruction.arg2Length).toBase64();
+        QByteArray b64Data = QByteArray(instruction.arg1, instruction.arg1Length).toBase64();
 
         dataURI += QString::fromLocal8Bit(b64Data);
         location.setAttribute("src", dataURI);
     } else if(instruction.opcode == HIPE_OP_SET_BACKGROUND_SRC) {
-        QString dataURI = QString("data:") + arg1 + ";base64,";
-        QByteArray b64Data = QByteArray(instruction.arg2, instruction.arg2Length).toBase64();
+        QString dataURI = QString("data:") + arg2 + ";base64,";
+        QByteArray b64Data = QByteArray(instruction.arg1, instruction.arg1Length).toBase64();
         dataURI += QString::fromLocal8Bit(b64Data);
         location.setStyleProperty("background-image", QString("url(\"") + dataURI + "\")");
     } else if(instruction.opcode == HIPE_OP_ADD_STYLE_RULE_SRC) {
@@ -330,7 +330,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
         //TODO sanitise arg1 and arg2 against javascript injections.
         //Don't allow parentheses, semicolons, etc.
     } else if(instruction.opcode == HIPE_OP_SET_ICON) {
-        setIcon(instruction.arg2, instruction.arg2Length);
+        setIcon(instruction.arg1, instruction.arg1Length);
     } else if(instruction.opcode == HIPE_OP_REMOVE_ATTRIBUTE) {
         if(Sanitation::isAllowedAttribute(arg1))
             location.removeAttribute(arg1);

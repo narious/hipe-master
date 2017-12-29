@@ -123,8 +123,9 @@ extern "C" {
  */
 
 #define HIPE_OP_SET_SRC            25
-/* arg1 is the mime type of the source file to be applied to the element, e.g. "image/jpeg"
- * arg2 is the binary contents of the media file itself.
+/* 
+ * arg1 is the binary contents of the media file to be applied to the element.
+ * arg2 is the mime type of the source file to be applied to the element, e.g. "image/jpeg"
  */
 
 #define HIPE_OP_SET_TITLE          26
@@ -173,8 +174,8 @@ extern "C" {
 
 #define HIPE_OP_SET_BACKGROUND_SRC 34
 /* Applies a background image to the element at location.
- * arg1 is the mime type of the background image,
- * arg2 is the binary contents of the media file itself.
+ * arg1 is the binary contents of the media file.
+ * arg2 is the mime type of the binary data.
  */
 
 #define HIPE_OP_TAKE_SNAPSHOT      35
@@ -211,7 +212,7 @@ extern "C" {
 #define HIPE_OP_SET_ICON           41
 /* Sets the client application's icon, which will be passed to the client's
  * parent environment for the purpose of helping the user identify this application.
- * arg2 is the image file in PNG format. arg1 is unused/reserved for future use.
+ * arg1 is the image file in PNG format. arg2 is unused.
  */
 
 #define HIPE_OP_REMOVE_ATTRIBUTE   42
