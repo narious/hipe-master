@@ -41,6 +41,7 @@
 #include <string>
 #include <map>
 #include <stdexcept>
+#include <vector>
 
 namespace hipe {
 
@@ -75,7 +76,7 @@ class loc {
         bool operator< (const loc& other) const;
         operator bool() const; //check if the loc object is well-defined.
     
-        int send(char opcode, uint64_t requestor, std::string arg1="", std::string arg2="");
+        int send(char opcode, uint64_t requestor, const std::vector<std::string>& args={});
         //sends an instruction with this element passed as the location to act on.
 
 };
@@ -262,7 +263,7 @@ inline loc::operator hipe_loc() const { //allow casting to a hipe_loc variable f
     return location;
 }
 
-inline int loc::send(char opcode, uint64_t requestor, std::string arg1, std::string arg2) {
+inline int loc::send(char opcode, uint64_t requestor, const std::vector<std::string>& args) {
 //sends an instruction with this element passed as the location to act on.
         
     int result;
@@ -271,13 +272,13 @@ inline int loc::send(char opcode, uint64_t requestor, std::string arg1, std::str
     instruction.opcode = opcode;
     instruction.requestor = requestor;
     instruction.location = location;
-    if(arg1.size()) {
-        instruction.arg1 = (char*) arg1.data();
-        instruction.arg1Length = arg1.size();
+    if(args.size()> 0 && args[0].size()) {
+        instruction.arg1 = (char*) args[0].data();
+        instruction.arg1Length = args[0].size();
     }
-    if(arg2.size()) {
-        instruction.arg2 = (char*) arg2.data();
-        instruction.arg2Length = arg2.size();
+    if(args.size() > 1 && args[1].size()) {
+        instruction.arg2 = (char*) args[1].data();
+        instruction.arg2Length = args[1].size();
     }
     result = hipe_send_instruction(*_session, instruction);
     return result;
