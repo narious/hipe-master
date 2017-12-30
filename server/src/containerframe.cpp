@@ -41,39 +41,39 @@ Container* ContainerFrame::getParent()
     return parent;
 }
 
-void ContainerFrame::setBody(QString newBodyHtml, bool overwrite)
+void ContainerFrame::setBody(std::string newBodyHtml, bool overwrite)
 {
     if(!initYet) {
-        frame->setHtml(QString("<html><head><style>") + stylesheet + "</style><script>var canvascontext;</script></head><body onkeydown=\"c.receiveKeyEventOnBody(false, event.which);\" onkeyup=\"c.receiveKeyEventOnBody(true, event.which);\"></body></html>");
+        frame->setHtml(QString("<html><head><style>") + stylesheet.c_str() + "</style><script>var canvascontext;</script></head><body onkeydown=\"c.receiveKeyEventOnBody(false, event.which);\" onkeyup=\"c.receiveKeyEventOnBody(true, event.which);\"></body></html>");
         stylesheet = ""; //clear already-applied stylesheet data.
         webElement = frame->documentElement().lastChild();
         initYet = true;
 
         //alert parent of fg/bg colour scheme
-        QString fg, bg;
+        std::string fg, bg;
         while(!fg.size())  //the frame might not be rendered straight away; during this time these will return blank strings.
-            fg = webElement.styleProperty("color", QWebElement::ComputedStyle);
+            fg = webElement.styleProperty("color", QWebElement::ComputedStyle).toStdString();
         while(!bg.size())
-            bg = webElement.styleProperty("background-color", QWebElement::ComputedStyle);
+            bg = webElement.styleProperty("background-color", QWebElement::ComputedStyle).toStdString();
 
-        getParent()->receiveSubFrameEvent(HIPE_FRAME_EVENT_BACKGROUND_CHANGED, frame, bg.toStdString());
-        getParent()->receiveSubFrameEvent(HIPE_FRAME_EVENT_COLOR_CHANGED, frame, fg.toStdString());
+        getParent()->receiveSubFrameEvent(HIPE_FRAME_EVENT_BACKGROUND_CHANGED, frame, bg);
+        getParent()->receiveSubFrameEvent(HIPE_FRAME_EVENT_COLOR_CHANGED, frame, fg);
     }
-    if(overwrite) webElement.setInnerXml(newBodyHtml);
-    else webElement.appendInside(newBodyHtml);
+    if(overwrite) webElement.setInnerXml(newBodyHtml.c_str());
+    else webElement.appendInside(newBodyHtml.c_str()); //c_str() conversion is adequate since any binary data will be in safe base64 encoding.
 }
 
 void ContainerFrame::applyStylesheet() {
     if(!initYet) return; //no-op. Styles will be applied in the <head> when setBody is called.
 
     //appending new style rules after </head> is not supposed to be valid, but we might get away with it.
-    webElement.appendInside(QString("<style>") + stylesheet + "</style>");
+    webElement.appendInside(QString("<style>") + stylesheet.c_str() + "</style>");
     stylesheet = ""; //clear after application.
 }
 
-void ContainerFrame::setTitle(QString newTitle)
+void ContainerFrame::setTitle(std::string newTitle)
 {
-    parent->receiveSubFrameEvent(HIPE_FRAME_EVENT_TITLE_CHANGED, frame, newTitle.toStdString());
+    parent->receiveSubFrameEvent(HIPE_FRAME_EVENT_TITLE_CHANGED, frame, newTitle);
 }
 
 void ContainerFrame::setIcon(const char* imgData, size_t length)

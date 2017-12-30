@@ -17,11 +17,12 @@
 */
 
 #include "sanitation.h"
+#include <ctype.h>
+#include <QByteArray>
 
-//TODO: Lots of opportunity to optimise things here!!!
 
-std::set<QString> Sanitation::tagWhitelist;
-std::set<QString> Sanitation::attrWhitelist;
+std::set<std::string> Sanitation::tagWhitelist;
+std::set<std::string> Sanitation::attrWhitelist;
 
 void Sanitation::init()
 {
@@ -180,15 +181,15 @@ void Sanitation::init()
                     };
 }
 
-QString Sanitation::sanitisePlainText(QString input, bool convertLayout)
+std::string Sanitation::sanitisePlainText(std::string input, bool convertLayout)
 //Processes input string, replaces special HTML characters like < with their equivalent nonfunctional
 //representations, like &lt;. This is used to prevent HTML injection attacks.
 //And a bonus feature (if convertLayout set): '\n' and '\r' will be replaced by <br/> and <p/> respectively. This makes inserting
 //line breaks in Hipe a lot less painful - just put actual line feeds (CRs for parags) in any text to be appended.
 //Tabs can also be entered using '\t' -- they are replaced with the appropriate HTML character entity.
 {
-    QString output;
-    for(int i=0; i<input.size(); i++) {
+    std::string output;
+    for(size_t i=0; i<input.size(); i++) {
         if(convertLayout) {
             if(input[i] == '\n')
                 output += "<br/>";
@@ -211,7 +212,20 @@ QString Sanitation::sanitisePlainText(QString input, bool convertLayout)
     return output;
 }
 
-bool Sanitation::isAllowedAttribute(QString input)
+std::string Sanitation::toBase64(const std::string& binaryData) {
+    QByteArray b64qData = QByteArray(binaryData.data(), binaryData.size()).toBase64();
+    return std::string(b64qData.data(), b64qData.size());
+}
+
+std::string Sanitation::toLower(const char* text, size_t length) {
+    std::string result(text, length);
+    for(size_t i=0; i<length; i++)
+        if(result[i] >= 'A' && result[i] <= 'Z') result[i] -= ('A'-'a');
+    return result;
+}
+
+
+bool Sanitation::isAllowedAttribute(std::string input)
 //returns true iff use of the tag attribute is permitted by Hipe.
 //List of attributes obtained from https://www.w3.org/TR/html4/index/attributes.html
 //This is a whitelist of safe attributes that the user can use freely without special instructions.
@@ -221,7 +235,7 @@ bool Sanitation::isAllowedAttribute(QString input)
     return false;
 }
 
-bool Sanitation::isAllowedTag(QString input)
+bool Sanitation::isAllowedTag(std::string input)
 //returns true if the specified HTML tag is an allowed type. (e.g. "button" tags are allowed, "script" tags are not).
 {
     if(tagWhitelist.find(input) != tagWhitelist.end())
@@ -229,9 +243,9 @@ bool Sanitation::isAllowedTag(QString input)
     return false;
 }
 
-bool Sanitation::isAllowedCSS(QString input)
+bool Sanitation::isAllowedCSS(std::string input)
 {
-    for(int i=0; i<input.size(); i++) {
+    for(size_t i=0; i<input.size(); i++) {
         if(input[i] == '<') return false; //don't let the user break out of the stylesheet to inject html code.
         if(input[i] == '>') return false;
         if(input[i] == '{') return false; //the user isn't allowed to fill in a whole stylesheet directly, so has no need of these.
@@ -243,7 +257,7 @@ bool Sanitation::isAllowedCSS(QString input)
                 //we've detected an instance of the string "url".
                 //at this point, we'll reject the input if there is a '(' or whitespace followed by a '('.
                 while(i<input.size()) //skip any whitespace.
-                    if(input[i].isSpace())
+                    if(isspace(input[i]))
                         i++;
                 if(i<input.size() && input[i] == '(') return false;
             }

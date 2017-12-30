@@ -66,35 +66,43 @@ void instruction_decoder_clear(instruction_decoder* obj)
 
 void instruction_decoder_feed(instruction_decoder* obj, char c)
 {
+    int i;
+    size_t cumulativeLength = PREAMBLE_LENGTH;
     if(obj->instruction_chars_read < PREAMBLE_LENGTH) {
         obj->preamble[obj->instruction_chars_read++] = c;
 
         if(obj->instruction_chars_read == PREAMBLE_LENGTH) { /*Preamble complete.*/
             decodeInstructionPreamble(obj->preamble, &obj->output.opcode, &obj->output.requestor,
-                                      &obj->output.location, &(obj->output.arg_length[0]), &(obj->output.arg_length[1]));
-            obj->output.arg[0] = (char*) malloc(obj->output.arg_length[0] /*+ 1*/); /* **DONT** allocate extra element for null termination.*/
-            obj->output.arg[1] = (char*) malloc(obj->output.arg_length[1] /*+ 1*/);
-            //obj->output.arg[0][obj->output.arg_length[0]] = '\0';
-            //obj->output.arg[1][obj->output.arg_length[1]] = '\0';
+                                      &obj->output.location, obj->output.arg_length);
+            
+            for(i=0; i<HIPE_NARGS; i++) {
+                if(obj->output.arg_length[i])
+                    obj->output.arg[i] = (char*) malloc(obj->output.arg_length[i]); /* args are NOT null-terminated. */
+            }
             /*now ready to read args.*/
         }
-    } else if(obj->instruction_chars_read < (PREAMBLE_LENGTH + obj->output.arg_length[0])) {
-        obj->output.arg[0][obj->instruction_chars_read++ - PREAMBLE_LENGTH] = c;
-    } else if(obj->instruction_chars_read < (PREAMBLE_LENGTH + obj->output.arg_length[0] + obj->output.arg_length[1])) {
-        obj->output.arg[1][obj->instruction_chars_read++ - obj->output.arg_length[0] - PREAMBLE_LENGTH] = c;
+    } else {
+        for(i=0; i<HIPE_NARGS; i++) {
+            if(obj->instruction_chars_read < cumulativeLength + obj->output.arg_length[i]) {
+                obj->output.arg[i][obj->instruction_chars_read++ - cumulativeLength] = c;
+                break;
+            } else {
+                cumulativeLength += obj->output.arg_length[i];
+            }
+        }
     }
 }
 
 
 short instruction_decoder_iscomplete(instruction_decoder* obj)
 {
-    return (obj->instruction_chars_read >= PREAMBLE_LENGTH + obj->output.arg_length[0] + obj->output.arg_length[1]);
+    size_t totalLength = PREAMBLE_LENGTH;
+    int i=0;
+    while(i<HIPE_NARGS) totalLength += obj->output.arg_length[i++];
+    return (obj->instruction_chars_read >= totalLength);
 }
 
-
-
-
-void decodeInstructionPreamble(const char* preamble, char* opcode, uint64_t* requestor, hipe_loc* location, uint64_t* arg1len, uint64_t* arg2len)
+void decodeInstructionPreamble(const char* preamble, char* opcode, uint64_t* requestor, hipe_loc* location, uint64_t arglen[])
 /*preamble is an array of characters of length PREAMBLE_LENGTH that have been read into the array.
  *They are the initial fixed-length preamble of the instruction.
  *Returns everything except the two variable-length arguments, but returns their lengths so they
@@ -105,24 +113,25 @@ void decodeInstructionPreamble(const char* preamble, char* opcode, uint64_t* req
  *AFTER RETURN: please read the two arguments separately using the returned lengths arg1len and arg2len. The instruction is terminated
  *by reading the full lengths of the arguments.*/
 {
-    *requestor=0; *location=0; *arg1len=0; *arg2len=0;
+    *requestor=0; *location=0;
+    int i=0;
+    while(i<HIPE_NARGS) arglen[i++]=0; //initialise argument lengths to zero
 
     *opcode = (unsigned char) preamble[0];
 
     unsigned int pos=1;
-    unsigned short i;
-    for(i=0; i<8; i++) {
-        *requestor |= ((unsigned char)preamble[pos++]) << (8*i);
+    unsigned short p;
+    for(p=0; p<8; p++) {
+        *requestor |= ((unsigned char)preamble[pos++]) << (8*p);
     }
-    for(i=0; i<8; i++) {
-        *location |= ((unsigned char)preamble[pos++]) << (8*i);
+    for(p=0; p<8; p++) {
+        *location |= ((unsigned char)preamble[pos++]) << (8*p);
     }
-    for(i=0; i<4; i++) {
-        *arg1len |= ((unsigned char)preamble[pos++]) << (8*i);
-    }
-    for(i=0; i<4; i++) {
-        *arg2len |= ((unsigned char)preamble[pos++]) << (8*i);
-    }
+
+    for(i=0; i<HIPE_NARGS; i++)
+        for(p=0; p<_HIPE_ARG_WIDTH; p++) {
+            arglen[i] |= ((unsigned char)preamble[pos++]) << (8*p);
+        }
 }
 
 
@@ -149,43 +158,51 @@ void instruction_encoder_encodeinstruction(instruction_encoder* obj, hipe_instru
      * 1 byte opcode
      * 8 bytes requestor -- client's reference (an unsigned integer that may correspond to a pointer or other reference value relevant to the client)
      * 8 bytes location -- server's reference (this is an unsigned integer representing an array position and 0 means not-applicable).
-     * 4 bytes arg1 length (number of bytes in string)
-     * 4 bytes arg2 length (number of bytes in string)
-     * Variable bytes arg1 (utf8 string or arbitrary non-null-terminated character array)
-     * Variable bytes arg2 (utf8 string or arbitrary non-null-terminated character array)
+     * 8 bytes arg[0] length (number of bytes in string)
+     * 8 bytes arg[1] length (number of bytes in string)
+     * 8 bytes arg[...] (up to HIPE_NARGS - 1)
+     * Variable bytes arg[0] (utf8 string or arbitrary non-null-terminated character array)
+     * Variable bytes arg[1] (utf8 string or arbitrary non-null-terminated character array)
+     * ... up to arg[HIPE_NARGS-1]
      **/
 
-    unsigned short argWidth=4;
-    size_t arg1Size = instruction.arg_length[0];
-    size_t arg2Size = instruction.arg_length[1];
+    unsigned short argWidth=8;
+    uint64_t arglen[HIPE_NARGS];
+
+    int i=0;
+    for(; i<HIPE_NARGS; i++) //make temporary copies of argument lengths to work with.
+        arglen[i] = instruction.arg_length[i];
 
     instruction_encoder_clear(obj);
 
-    obj->encoded_output = (unsigned char*) malloc(1+8+8+argWidth+argWidth + arg1Size + arg2Size);
+    size_t encoding_length = PREAMBLE_LENGTH;
+    for(i=0; i<HIPE_NARGS; i++) encoding_length += arglen[i];
+    obj->encoded_output = (unsigned char*) malloc(encoding_length);
     obj->encoded_output[0] = instruction.opcode;
     size_t pos=1;
-    size_t i;
-    for(i=0; i<8; i++) {
+    size_t p;
+    for(p=0; p<8; p++) {
         obj->encoded_output[pos++] = instruction.requestor & 255;
         instruction.requestor >>= 8;
     }
-    for(i=0; i<8; i++) {
+    for(p=0; p<8; p++) {
         obj->encoded_output[pos++] = instruction.location & 255;
         instruction.location >>= 8;
     }
-    for(i=0; i<argWidth; i++) {
-        obj->encoded_output[pos++] = instruction.arg_length[0] & 255;
-        instruction.arg_length[0] >>= 8;
+
+    for(i=0; i<HIPE_NARGS; i++) {
+        for(p=0; p<argWidth; p++) {
+            //encode the least significant 8 bits of the length.
+            obj->encoded_output[pos++] = arglen[i] & 255;
+            //bit-shift along to the next least-significant byte of the length integer.
+            arglen[i] >>= 8;
+        }
     }
-    for(i=0; i<argWidth; i++) {
-        obj->encoded_output[pos++] = instruction.arg_length[1] & 255;
-        instruction.arg_length[1] >>= 8;
-    }
-    for(i=0; i<arg1Size; i++) {
-        obj->encoded_output[pos++] = instruction.arg[0][i];
-    }
-    for(i=0; i<arg2Size; i++) {
-        obj->encoded_output[pos++] = instruction.arg[1][i];
+
+    for(i=0; i<HIPE_NARGS; i++) {
+        for(p=0; p<instruction.arg_length[i]; p++) {
+            obj->encoded_output[pos++] = instruction.arg[i][p];
+        }
     }
     obj->encoded_length = pos;
 }

@@ -34,7 +34,8 @@ extern "C" {
 #ifndef COMMON_H
 #define COMMON_H
 
-#define PREAMBLE_LENGTH 25 /*number of bytes you need to read before you can determine the total instruction length.*/
+#define _HIPE_ARG_WIDTH 8 /*number of bytes needed to encode the length of an argument*/
+#define PREAMBLE_LENGTH (1+8+8+(_HIPE_ARG_WIDTH * HIPE_NARGS)) /*number of bytes you need to read before you can determine the total instruction length.*/
 
 #include <stdint.h>
 #include <sys/types.h>
@@ -86,7 +87,7 @@ the completed instruction may be read from the output member variable.*/
 
 
 
-void decodeInstructionPreamble(const char* preamble, char* opcode, uint64_t* requestor, hipe_loc* location, uint64_t* arg1len, uint64_t* arg2len);
+void decodeInstructionPreamble(const char* preamble, char* opcode, uint64_t* requestor, hipe_loc* location, uint64_t arglen[]);
 
 
 

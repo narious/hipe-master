@@ -43,7 +43,7 @@ Container* ContainerManager::requestNew(std::string key, std::string clientName,
     if(topLevelKeyList->claimKey(key)) {
         makeNewTopLevelKeyFile();
         Container* container = new ContainerTopLevel(c, QString::fromUtf8(clientName.c_str()));
-        container->setTitle(QString::fromUtf8(clientName.c_str()));
+        container->setTitle(clientName);
         return container;
     } else { //not top-level. Traverse each container in case the key refers to a sub-frame.
         for(Container* container : extantContainers) {

@@ -22,24 +22,26 @@
 #ifndef SANITATION_H
 #define SANITATION_H
 
-#include <QString>
+#include <string>
 #include <set>
 
 class Sanitation
 {
 private:
     //sets to store whitelists of allowed HTML tags and attributes.
-    static std::set<QString> tagWhitelist;
-    static std::set<QString> attrWhitelist;
+    static std::set<std::string> tagWhitelist;
+    static std::set<std::string> attrWhitelist;
 public:
     static void init();
     //initialises whitelists and related sanitation data.
     //Call this before using any of the sanitisation functions in this class.
 
-    static QString sanitisePlainText(QString input, bool convertLayout=false); //convert HTML syntactical characters in input into harmless escaped character entities.
-    static bool isAllowedAttribute(QString input);
-    static bool isAllowedTag(QString input);
-    static bool isAllowedCSS(QString input);
+    static std::string sanitisePlainText(std::string input, bool convertLayout=false); //convert HTML syntactical characters in input into harmless escaped character entities.
+    static std::string toBase64(const std::string& binaryData);
+    static std::string toLower(const char* text, size_t size); //convert to lowercase
+    static bool isAllowedAttribute(std::string input);
+    static bool isAllowedTag(std::string input);
+    static bool isAllowedCSS(std::string input);
 };
 
 #endif // SANITATION_H

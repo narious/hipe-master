@@ -44,6 +44,7 @@ Connection::~Connection()
 void Connection::sendInstruction(char opcode, int64_t requestor, int64_t location, std::string arg0, std::string arg1)
 {
     hipe_instruction instruction;
+    hipe_instruction_init(&instruction);
     instruction.opcode = opcode;
     instruction.requestor = requestor;
     instruction.location = location;

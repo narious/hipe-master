@@ -48,24 +48,25 @@ Container* ContainerTopLevel::getParent()
     return nullptr; //a top level container has no parent.
 }
 
-void ContainerTopLevel::setTitle(QString newTitle) {
-    w->setWindowTitle(newTitle);
+void ContainerTopLevel::setTitle(std::string newTitle) {
+    w->setWindowTitle(newTitle.c_str());
 }
 
-void ContainerTopLevel::setBody(QString newBodyHtml, bool overwrite) {
+void ContainerTopLevel::setBody(std::string newBodyHtml, bool overwrite) {
     if(!w->wasInitYet()) {
-        webElement = w->initBoilerplate(QString("<html><head><style>") + stylesheet + "</style><script>var canvascontext;</script></head><body  onkeydown=\"c.receiveKeyEventOnBody(false, event.which);\" onkeyup=\"c.receiveKeyEventOnBody(true, event.which);\"></body></html>"); //initialiser. If ommitted, resource images won't display (!)
+        webElement = w->initBoilerplate(std::string("<html><head><style>") + stylesheet + "</style><script>var canvascontext;</script></head><body  onkeydown=\"c.receiveKeyEventOnBody(false, event.which);\" onkeyup=\"c.receiveKeyEventOnBody(true, event.which);\"></body></html>"); //initialiser. If ommitted, resource images won't display (!)
         webElement.removeAllChildren();
     }
-    if(overwrite) webElement.setInnerXml(newBodyHtml); //remove any existing body as the user wishes to overwrite it.
-    else webElement.appendInside(newBodyHtml);
+    if(overwrite) webElement.setInnerXml(newBodyHtml.c_str()); //remove any existing body as the user wishes to overwrite it.
+    //c_str() conversion is adequate here since any binary data in the stylesheet will be expressed in base64 anyway.
+    else webElement.appendInside(newBodyHtml.c_str());
 }
 
 void ContainerTopLevel::applyStylesheet() {
     if(!w->wasInitYet()) return; //no-op. Styles will be applied in the <head> when setBody is called.
 
     //appending new style rules after </head> is not supposed to be valid, but we might get away with it.
-    webElement.appendInside(QString("<style>") + stylesheet + "</style>");
+    webElement.appendInside(QString("<style>") + stylesheet.c_str() + "</style>");
     stylesheet = ""; //clear after application.
 }
 
@@ -110,12 +111,12 @@ bool WebWindow::wasInitYet()
     return initYet;
 }
 
-QWebElement WebWindow::initBoilerplate(QString html)
+QWebElement WebWindow::initBoilerplate(std::string html)
 //If at least the boilerplate "<html><head></head><body></body></html>" is not specified,
 //WebKit doesn't behave itself, for example Qt resource images do not display.
 //RETURNS: the <body> element in the HTML boilerplate, where content can now be placed.
 {
-    webView->setHtml(html);
+    webView->setHtml(html.c_str());
     showMaximized(); //Now we're ready to show the window on the screen.
 
     initYet = true;

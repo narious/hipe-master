@@ -41,7 +41,7 @@ public:
     WebWindow(Container* cc);
 
     bool wasInitYet();
-    QWebElement initBoilerplate(QString html);
+    QWebElement initBoilerplate(std::string html);
 
     WebView* webView;
     QPalette pal;
@@ -69,8 +69,8 @@ public:
 private:
     WebWindow* w;
 protected:
-    void setTitle(QString newTitle);
-    void setBody(QString newBodyHtml, bool overwrite=true);
+    void setTitle(std::string newTitle);
+    void setBody(std::string newBodyHtml, bool overwrite=true);
     void applyStylesheet();
     void setIcon(const char* imgData, size_t length);
 };

@@ -81,6 +81,7 @@ void hipe_disconnect(hipe_session session) {
  * Postcondition: the session's file descriptor is set to -1. Other functions should check for this
  * before attempting to transmit or receive data. */
 
+    if(session->connection_fd == -1) return; //already disconnected.
     shutdown(session->connection_fd, SHUT_RDWR);
     close(session->connection_fd);
     session->connection_fd = -1;
@@ -157,6 +158,7 @@ hipe_session hipe_open_session(const char* host_key, const char* socket_path, co
     hipe_session_init(session);
     session->connection_fd = fd;
     hipe_instruction rq;
+    hipe_instruction_init(&rq);
     rq.opcode = HIPE_OP_REQUEST_CONTAINER;
     rq.location = 0;
     rq.requestor = getpid();
@@ -270,7 +272,7 @@ int read_to_queue(hipe_session session, int blocking)
                 return -1;
             }
         } else if(bufferedChars == 0) { /*connection closed by peer*/
-            hipe_close_session(session);
+            hipe_disconnect(session);
             return -1;
         } else for(p=0; p<bufferedChars; p++) { /*let's process our input! (Iterate for each character we've read in)*/
             char c = session->readBuffer[p];
