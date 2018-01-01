@@ -20,6 +20,7 @@
 #include "connection.h"
 #include "containerframe.h"
 #include "sanitation.h"
+#include "main.hpp"
 
 #include <QWebFrame>
 #include <QWebPage>
@@ -42,15 +43,12 @@ Container::Container(Connection* bridge, QString clientName) : QObject()
     //keyup/keydown events on the body element are treated as a special case,
     //since they might need to be propagated to a parent tag.
 
-    globalContainerManager->registerContainer(this);
-
     stylesheet = globalStyleRules.c_str(); //initialise our stylesheet rules to any global rules that have been loaded in from a CSS file.
     stylesheet += " ";
 }
 
 Container::~Container()
 {
-    globalContainerManager->deregisterContainer(this);
 }
 
 void Container::receiveInstruction(hipe_instruction instruction)
@@ -249,7 +247,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
         //find the relevant client
         for(FrameData& fd : subFrames) {
             if(fd.we == location) { //found
-                Container* target = globalContainerManager->findContainer(fd.wf); //find the corresponding container.
+                Container* target = identifyFromFrame(fd.wf)->container; //find the corresponding container.
                 if(target) {
                     if(!arg[0].size() || arg[0][0] == '\0')
                         delete target->client; //hard disconnection -- if this causes issues with Qt we might try target->client->deleteLater().
@@ -339,7 +337,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
             //find the relevant child frame client
             for(FrameData& fd : subFrames) {
                 if(fd.we == location) { //found
-                    target = globalContainerManager->findContainer(fd.wf); //find the corresponding container.
+                    target = identifyFromFrame(fd.wf)->container; //find the corresponding container.
                     break;
                 }
             }

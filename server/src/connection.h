@@ -34,22 +34,20 @@
 #include <QObject>
 #include <QLocalSocket>
 #include "common.h"
-#include "containermanager.h"
+#include "container.h"
 
 class Connection : public QObject
 {
     Q_OBJECT
 public:
-    explicit Connection(QLocalSocket* con, ContainerManager* containerManager, QObject *parent = 0);
+    explicit Connection(QLocalSocket* con, QObject *parent = 0);
     ~Connection();
 
     void sendInstruction(char opcode, int64_t requestor, int64_t location, std::string arg1, std::string arg2);
     void sendInstruction(hipe_instruction& instruction);
-
+    Container* container;
 private:
     QLocalSocket* con;
-    ContainerManager* containerManager;
-    Container* container;
 
     char readBuffer[READ_BUFFER_SIZE]; //where we put characters that have been read in over the connection.
 

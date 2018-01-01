@@ -31,7 +31,6 @@
 #include "keylist.h"
 class Client;
 class Connection;
-class ContainerManager;
 
 
 class FrameData {
@@ -100,10 +99,11 @@ public:
 
     virtual Container* getParent()=0; //returns the parent container, or nullptr if it's a top level container.
 
+    QWebFrame* frame;
+
 protected:
     Connection* client;
     QWebElement webElement;
-    QWebFrame* frame;
     std::string stylesheet; //build up the stylesheet before we apply it.
 
 signals:

@@ -23,7 +23,6 @@ SOURCES += main.cpp \
     keylist.cpp \
     connection.cpp \
     connectionmanager.cpp \
-    containermanager.cpp \
     container.cpp \
     containerframe.cpp \
     containertoplevel.cpp \
@@ -31,13 +30,12 @@ SOURCES += main.cpp \
     common.c \
     sanitation.cpp
 
-HEADERS += \
+HEADERS += main.hpp \
     ExpArray.hh \
     keylist.h \
     common.h \
     connection.h \
     connectionmanager.h \
-    containermanager.h \
     container.h \
     containerframe.h \
     containertoplevel.h \

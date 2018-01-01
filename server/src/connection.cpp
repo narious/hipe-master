@@ -18,13 +18,15 @@
 
 
 #include "connection.h"
+#include "connectionmanager.h"
+#include "container.h"
 #include "common.h"
+#include "main.hpp"
 
-Connection::Connection(QLocalSocket* con, ContainerManager* containerManager, QObject *parent) :
+Connection::Connection(QLocalSocket* con, QObject *parent) :
     QObject(parent)
 {
     this->con = con;
-    this->containerManager = containerManager;
     container = nullptr;
 
     instruction_decoder_init(&currentInstruction);
@@ -33,10 +35,14 @@ Connection::Connection(QLocalSocket* con, ContainerManager* containerManager, QO
 
     connect(con,SIGNAL(readyRead()), this,SLOT(_readyRead()));
     connect(con,SIGNAL(disconnected()), this,SLOT(_disconnected()));
+
+    registerConnection(this);
 }
 
 Connection::~Connection()
 {
+    deregisterConnection(this);
+
     instruction_decoder_clear(&currentInstruction);
     delete container;
 }
@@ -70,7 +76,7 @@ void Connection::publishInstruction()
 {
     if(currentInstruction.output.opcode == HIPE_OP_REQUEST_CONTAINER) {
         //requestor contains the claimed pid of the connecting process.
-        container = containerManager->requestNew(std::string(currentInstruction.output.arg[0], 
+        container = requestContainerFromKey(std::string(currentInstruction.output.arg[0], 
                     currentInstruction.output.arg_length[0]), std::string(currentInstruction.output.arg[1], 
                     currentInstruction.output.arg_length[1]), currentInstruction.output.requestor, this);
         //send the result of the container request (arg1 represents approved/denied)

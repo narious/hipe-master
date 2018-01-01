@@ -33,17 +33,79 @@
 #include <unistd.h> //for getuid()
 #include <sys/types.h> //for getuid()
 #include <QWebSettings>
+#include <QLocalServer>
 #include "connectionmanager.h"
-#include "containermanager.h"
+#include "containertoplevel.h"
 #include "keylist.h"
 #include "sanitation.h"
 #include "container.h"
+#include "connection.h"
+#include <list>
+
+
+std::string uid;
+std::list<Connection*> activeConnections;
+KeyList* topLevelKeyList;
+std::string keyFilePath; //path and filename to store next available top-level key in.
+
+
+void registerConnection(Connection* c)
+{
+    activeConnections.push_back(c);
+}
+
+void deregisterConnection(Connection* c)
+{
+    activeConnections.remove(c);
+}
+
+void makeNewTopLevelKeyFile()
+//create file. Store random key in it.
+{
+    std::ofstream keyfile(keyFilePath);
+    keyfile << topLevelKeyList->generateContainerKey();
+    keyfile.close();
+}
+
+Container* requestContainerFromKey(std::string key, std::string clientName, uint64_t pid, Connection* c)
+//returns nullptr if request denied.
+{
+    if(topLevelKeyList->claimKey(key)) {
+        makeNewTopLevelKeyFile();
+        Container* container = new ContainerTopLevel(c, QString::fromUtf8(clientName.c_str()));
+        container->setTitle(clientName);
+        return container;
+    } else { //not top-level. Traverse each container in case the key refers to a sub-frame.
+        for(Connection* connection : activeConnections) {
+            Container* container = connection->container;
+            if(!container) continue;
+            Container* newContainer = container->requestNew(key, clientName, pid, c);
+            if(newContainer)
+                return newContainer;
+        }
+    }
+    return nullptr;
+}
+
+Connection* identifyFromFrame(QWebFrame* frame)
+{
+    for(Connection* c : activeConnections) {
+        if(!c->container) continue;
+        if(c->container->frame == frame)
+            return c;
+    }
+    return nullptr;
+}
+
 
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
     a.setApplicationName("hiped");
     a.setApplicationVersion("v0 beta. Check README.md for more specific info.");
+
+    std::stringstream userid; userid << getuid();
+    uid = userid.str();
 
     Sanitation::init();
 
@@ -89,7 +151,6 @@ int main(int argc, char *argv[])
     }
 
     a.setQuitOnLastWindowClosed(false);
-    desktop = a.desktop();
 
     if(stylesheetArg.size()) { //load the stylesheet into a string
         std::ifstream cssFile(stylesheetArg);
@@ -103,9 +164,6 @@ int main(int argc, char *argv[])
         Container::globalStyleRules = buffer.str();
     }
 
-    std::stringstream userid; userid << getuid();
-    uid = userid.str(); //uid defined in containermanager.h as a convenient global variable.
-
     char default_path[200]; //determine default runtime path for the current user.
     default_runtime_dir(default_path, 200);
 
@@ -115,9 +173,11 @@ int main(int argc, char *argv[])
     else
         keyFile = std::string(default_path) + "hipe.hostkey";
 
-    ContainerManager containerManager(keyFile);
-    globalContainerManager = &containerManager; //make the instance globally available so containers can register themselves.
-    ConnectionManager connectionManager(&containerManager);
+    topLevelKeyList = new KeyList("H");
+    keyFilePath = keyFile;
+    makeNewTopLevelKeyFile();
+
+    ConnectionManager connectionManager;
 
     QString socketFile;
     if(socketFileArg.size())

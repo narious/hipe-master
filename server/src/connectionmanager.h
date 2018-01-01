@@ -20,18 +20,15 @@
 #define SERVER_H
 
 #include <QLocalServer>
-#include "containermanager.h"
-
+class Connection;
 
 class ConnectionManager : public QLocalServer
 {
     Q_OBJECT
 public:
-    explicit ConnectionManager(ContainerManager* theContainerManager, QObject *parent = 0);
+    explicit ConnectionManager(QObject *parent = 0);
 private:
-    ContainerManager* containerManager;
 signals:
-
 public slots:
     void acceptConnection();
 };

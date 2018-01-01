@@ -86,7 +86,7 @@ WebWindow::WebWindow(Container* cc)
 
     setWindowTitle("Hipe client");
     move(0,0); //in the absense of a window manager, this is a 'root' window that fills the screen.
-    resize(desktop->screenGeometry().width(), desktop->screenGeometry().height());
+    resize(QApplication::desktop()->screenGeometry().width(), QApplication::desktop()->screenGeometry().height());
 
     webView = new WebView();
     webView->setRenderHint(QPainter::Antialiasing);
