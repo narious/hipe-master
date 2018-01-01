@@ -1,4 +1,4 @@
-/*  Copyright (c) 2015 Daniel Kos, General Development Systems
+/*  Copyright (c) 2015-2018 Daniel Kos, General Development Systems
 
     This file is part of Hipe.
 

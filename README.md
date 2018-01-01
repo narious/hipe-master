@@ -7,7 +7,7 @@ HIPE: Hypertext Pipe
 VERSION INFORMATION
 -------------------
 
-v1.00 beta -- 30 Dec 2017
+v1.00 beta -- 1 Jan 2018
 
 - The hipe_send() function now supports a variadic syntax. Existing programs will require modification.
 - Hipe now uses a slightly different message-passing format between client and server, enabling between
