@@ -74,11 +74,8 @@ void instruction_decoder_feed(instruction_decoder* obj, char c)
         if(obj->instruction_chars_read == PREAMBLE_LENGTH) { /*Preamble complete.*/
             decodeInstructionPreamble(obj->preamble, &obj->output.opcode, &obj->output.requestor,
                                       &obj->output.location, obj->output.arg_length);
-            
-            for(i=0; i<HIPE_NARGS; i++) {
-                if(obj->output.arg_length[i])
-                    obj->output.arg[i] = (char*) malloc(obj->output.arg_length[i]); /* args are NOT null-terminated. */
-            }
+            hipe_instruction_alloc(&(obj->output)); /* allocate memory in the instruction based on lengths read. */
+
             /*now ready to read args.*/
         }
     } else {

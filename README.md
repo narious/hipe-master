@@ -7,8 +7,11 @@ HIPE: Hypertext Pipe
 VERSION INFORMATION
 -------------------
 
-v0.28 beta -- 29 Dec 2017
+v1.00 beta -- 30 Dec 2017
 
+- The hipe_send() function now supports a variadic syntax. Existing programs will require modification.
+- Hipe now uses a slightly different message-passing format between client and server, enabling between
+  zero and four arguments per instruction. (Existing programs require recompilation.)
 - From 0.28: The argument ordering for the following  instructions has been altered: HIPE_OP_SET_ICON,
   HIPE_OP_SET_BACKGROUND_SRC, HIPE_OP_SET_SRC. Applications that make use of these will need minor modification to
   work with the new version. This change will ease the transition to a variadic instruction set.
@@ -22,12 +25,8 @@ v0.28 beta -- 29 Dec 2017
 
 TODO:
 
-- Hipe is moving from a fixed number of arguments per instruction to a variable number of arguments (from 0 to 4 arguments
-  with argument length limited to the memory size magnitude (size_t) of the target machine).
-  This means functions need to be revised to allow variadic arguments, and the struct format of hipe_instruction
-  will change, as will the communication protocol. This will break some existing applications but it's now or never
-  as far as Hipe is concerned.
-
+- Reduce reliance on Qt to enable future porting to other toolkits. Use POSIX socket functions rather than
+  those provided by Qt.
 - Fix bug: A lot of HIPE_OP_GET_GEOMETRY requests in quick succession (alternated with other instructions)
   can cause the client to hang on the call to hipe_await_instruction() for a reply that doesn't eventuate.
   This scenario also causes the CPU to go to 100%, suggesting the blocking syscalls aren't running optimally.

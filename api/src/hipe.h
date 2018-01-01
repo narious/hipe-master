@@ -56,8 +56,9 @@ short hipe_await_instruction(hipe_session session, hipe_instruction* instruction
  * an acknowledgement from the server.
  */
 
-int hipe_send(hipe_session session, char opcode, uint64_t requestor, hipe_loc location, const char* arg1, const char* arg2);
-/* Convenience function to send instructions when both arguments are null-terminated strings
+int hipe_send(hipe_session session, char opcode, uint64_t requestor, hipe_loc location, int n_args, ...);
+/* Convenience function to send instructions when the arguments (0 or more) are null-terminated strings expressed
+ * as char* or const char*
  */
  
 

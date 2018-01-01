@@ -48,10 +48,10 @@ extern "C" {
 
 #define HIPE_OP_APPEND_TAG         4
 /* append a tag element inside the tag given by location, or inside body if location==0.
- * arg[0] is the tag type, arg2 is an optional identifier for the tag */
+ * arg[0] is the tag type, arg[1] is an optional identifier for the tag */
 
 #define HIPE_OP_ATTRIBUTE_RETURN   5
-/* arg[0] is the name of the attribute and arg2 is the retrieved value */
+/* arg[0] is the name of the attribute and arg[1] is the retrieved value */
 
 #define HIPE_OP_CONTAINER_GRANT    6
 /* Server response to container request. Arg1 is "0" if the container request was denied, or "1" if
@@ -61,13 +61,13 @@ extern "C" {
 /* Sent by the server to the client whenever a requested event occurs.
  * 'arg[0]' is the type of event, and 'location' is the tag for which events of 'arg[0]' were requested.
  * 'requestor' returns the same client-supplied value as was used for HIPE_OP_EVENT_REQUEST.
- * 'arg2' provides event-specific detail about the event -- e.g. for "click" events it returns the
+ * 'arg[1]' provides event-specific detail about the event -- e.g. for "click" events it returns the
  * number of clicks registered.
  * */
 
 #define HIPE_OP_EVENT_CANCEL       8
 /* Sent by the client to cancel notification of further events of type 'arg[0]' on location 'location'.
- * if arg2=="1", the server will reply with the same instruction to acknowledge that the event has been
+ * if arg[1]=="1", the server will reply with the same instruction to acknowledge that the event has been
  * cancelled. This may be useful to a client that needs to know when it is safe to clean up event listeners.
  * */
 
@@ -99,10 +99,10 @@ extern "C" {
  * Args are undefined (0), requestor is copied from the request, location is the requested location.*/
 
 #define HIPE_OP_POSITION_RETURN    19
-/* arg[0] is x position and arg2 is y position relative to containing frame. */
+/* arg[0] is x position and arg[1] is y position relative to containing frame. */
 
 #define HIPE_OP_REQUEST_CONTAINER  20
-/* this must be the first instruction received. arg[0] is the key and arg2 is a short client name.*/
+/* this must be the first instruction received. arg[0] is the key and arg[1] is a short client name.*/
 
 #define HIPE_OP_SERVER_DENIED      21
 /* Sent by the server when a request is received but cannot be acted on due to some critical violation.
@@ -111,28 +111,28 @@ extern "C" {
  * server end. */
 
 #define HIPE_OP_SET_ATTRIBUTE      22
-/* arg[0] is the property and arg2 is the new value */
+/* arg[0] is the property and arg[1] is the new value */
 
 #define HIPE_OP_SET_STYLE          23
-/* arg[0] is the property and arg2 is the new value */
+/* arg[0] is the property and arg[1] is the new value */
 
 #define HIPE_OP_ADD_STYLE_RULE     24 //to replace SET_STYLESHEET
 /* Used to apply CSS style rules before other content is displayed.
  * arg[0] is the CSS descriptor of element(s) that the rule will apply to, and
- * arg2 is the styling to apply, e.g. "border:0; width:100%;"
+ * arg[1] is the styling to apply, e.g. "border:0; width:100%;"
  */
 
 #define HIPE_OP_SET_SRC            25
 /* 
  * arg[0] is the binary contents of the media file to be applied to the element.
- * arg2 is the mime type of the source file to be applied to the element, e.g. "image/jpeg"
+ * arg[1] is the mime type of the source file to be applied to the element, e.g. "image/jpeg"
  */
 
 #define HIPE_OP_SET_TITLE          26
 /* arg[0] overwrites the container's title with a new one.*/
 
 #define HIPE_OP_SIZE_RETURN        27
-/* arg[0] is width and arg2 is height. */
+/* arg[0] is width and arg[1] is height. */
 
 #define HIPE_OP_GET_FRAME_KEY      28
 /* Sent by client to request the hostkey for connecting to a particular iframe
@@ -153,7 +153,7 @@ extern "C" {
  * requestor is the requestor value that was originally passed last time GET_FRAME_KEY was called.
  * location is the iframe element.
  * arg[0] is the event type
- * arg2 is event detail (if applicable).
+ * arg[1] is event detail (if applicable).
  */
 
 #define HIPE_OP_FRAME_CLOSE        31
@@ -175,7 +175,7 @@ extern "C" {
 #define HIPE_OP_SET_BACKGROUND_SRC 34
 /* Applies a background image to the element at location.
  * arg[0] is the binary contents of the media file.
- * arg2 is the mime type of the binary data.
+ * arg[1] is the mime type of the binary data.
  */
 
 #define HIPE_OP_TAKE_SNAPSHOT      35
@@ -190,7 +190,7 @@ extern "C" {
 
 #define HIPE_OP_ADD_STYLE_RULE_SRC 37
 /* Sets background image data for a particular CSS style rule.
- * arg[0] is the CSS designator and arg2 is the image file data, which should be PNG format.
+ * arg[0] is the CSS designator and arg[1] is the image file data, which should be PNG format.
  */
 
 #define HIPE_OP_USE_CANVAS         38
@@ -200,41 +200,42 @@ extern "C" {
 
 #define HIPE_OP_CANVAS_ACTION      39
 /* Carries out a drawing method on the canvas object selected with HIPE_OP_USE_CANVAS.
- * arg[0] is the method to use (e.g. "fillRect") and arg2 is a string of comma-separated
+ * arg[0] is the method to use (e.g. "fillRect") and arg[1] is a string of comma-separated
  * parameters (e.g "0,0,150,75").
  */
 
 #define HIPE_OP_CANVAS_SET_PROPERTY 40
 /* Sets a property on the current canvas context.
- * arg[0] is the property, arg2 is the desired value.
+ * arg[0] is the property, arg[1] is the desired value.
  */
 
 #define HIPE_OP_SET_ICON           41
 /* Sets the client application's icon, which will be passed to the client's
  * parent environment for the purpose of helping the user identify this application.
- * arg[0] is the image file in PNG format. arg2 is unused.
+ * arg[0] is the image file in PNG format. arg[1] is unused.
  */
 
 #define HIPE_OP_REMOVE_ATTRIBUTE   42
-/* Removes (unsets) the attribute specified in arg[0]. arg2 is unused.
+/* Removes (unsets) the attribute specified in arg[0]. arg[1] is unused.
  */
 
 #define HIPE_OP_MESSAGE            43
 /* Sends an arbitrary message to another Hipe client with a direct parent/child relationship.
  * Or receives a message from another client.
- * Location: * 0 (or body element) means the message is being passed to/from the direct parent (which manages the client frame)
+ * Location: * 0 (or body element) means the message is being passed to/from the direct parent 
+ *               (which manages the client frame)
  *           * a frame element means message is being passed to/from that child frame's client.
- * arg[0], arg2, requestor: passed through to other client unmodified. User-defined message data can be passed through here.
+ * arg[0], arg[1], requestor: passed through to other client unmodified. User-defined message data can be passed through here.
  */
 
 /*--------------*/
 
-#define HIPE_FRAME_EVENT_CLIENT_CONNECTED    1 //arg2 is client name
+#define HIPE_FRAME_EVENT_CLIENT_CONNECTED    1 //arg[1] is client name
 #define HIPE_FRAME_EVENT_CLIENT_DISCONNECTED 2
-#define HIPE_FRAME_EVENT_TITLE_CHANGED       3 //arg2 is new title
-#define HIPE_FRAME_EVENT_ICON_CHANGED        4 //arg2 is binary PNG image data.
-#define HIPE_FRAME_EVENT_COLOR_CHANGED       5 //arg2 is the new foreground color
-#define HIPE_FRAME_EVENT_BACKGROUND_CHANGED  6 //arg2 is the new background color
+#define HIPE_FRAME_EVENT_TITLE_CHANGED       3 //arg[1] is new title
+#define HIPE_FRAME_EVENT_ICON_CHANGED        4 //arg[1] is binary PNG image data.
+#define HIPE_FRAME_EVENT_COLOR_CHANGED       5 //arg[1] is the new foreground color
+#define HIPE_FRAME_EVENT_BACKGROUND_CHANGED  6 //arg[1] is the new background color
 
 #define HIPE_NARGS 4 //fixed maximum number of arguments per hipe instruction.
 
@@ -257,6 +258,11 @@ void hipe_instruction_init(hipe_instruction* obj);
  *going to be reused for collecting new input from hipe. This function doesn't allocate or free memory,
  *but it initialises the struct's values into a consistent state so that other hipe functions can do so
  *safely.
+ */
+
+void hipe_instruction_alloc(hipe_instruction* obj);
+/*Allocates memory to store each argument in obj, according to arg_length[] values already assigned to
+ *obj. Arguments allocated in this way should later be freed with hipe_instruction_clear().
  */
 
 void hipe_instruction_clear(hipe_instruction* obj);

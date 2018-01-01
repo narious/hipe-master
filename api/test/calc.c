@@ -16,7 +16,7 @@ hipe_loc mantissa;
 short operation;
 
 hipe_loc getLoc(char* id) {
-    hipe_send(session, HIPE_OP_GET_BY_ID, 0, 0, id, 0); 
+    hipe_send(session, HIPE_OP_GET_BY_ID, 0, 0, 1, id); 
     hipe_instruction instruction;
     hipe_instruction_init(&instruction);
     hipe_await_instruction(session, &instruction, HIPE_OP_LOCATION_RETURN);
@@ -24,7 +24,7 @@ hipe_loc getLoc(char* id) {
 }
 
 hipe_loc getLastChild(hipe_loc parent) {
-    hipe_send(session, HIPE_OP_GET_LAST_CHILD, 0, parent, 0, 0); 
+    hipe_send(session, HIPE_OP_GET_LAST_CHILD, 0, parent, 0); 
     hipe_instruction instruction;
     hipe_instruction_init(&instruction);
     hipe_await_instruction(session, &instruction, HIPE_OP_LOCATION_RETURN);
@@ -36,7 +36,7 @@ void updateDisplay() {
     char mantissaStr[16];
     snprintf(mantissaStr, 16, "%lf", currentValue);
 
-    hipe_send(session, HIPE_OP_SET_TEXT, 0, mantissa, mantissaStr, 0); 
+    hipe_send(session, HIPE_OP_SET_TEXT, 0, mantissa, 1, mantissaStr); 
 }
 
 void crankTheHandle(short nextOperation) {
@@ -97,91 +97,91 @@ int main(int argc, char** argv)
     if(!session) exit(1);
 
     //Apply initial styling rules
-    hipe_send(session, HIPE_OP_ADD_STYLE_RULE, 0,0, "body", "height:100%; margin:0; background-color:grey;padding:1% 1% 0 1%; overflow:hidden;");
-    hipe_send(session, HIPE_OP_ADD_STYLE_RULE, 0,0, "button", "height:100%; width:100%; display:block; font-size:large; color: black; background-color:dimgrey; box-shadow:-1px -1px 1px cyan; border-color:cadetblue; border-radius:3px; border-width:1px;");
-    hipe_send(session, HIPE_OP_ADD_STYLE_RULE, 0,0, "button:active", "background-color:grey");
-    hipe_send(session, HIPE_OP_ADD_STYLE_RULE, 0,0, "table", "position:absolute;");
-    hipe_send(session, HIPE_OP_ADD_STYLE_RULE, 0,0, "td", "width:25%");
-    hipe_send(session, HIPE_OP_ADD_STYLE_RULE, 0,0, "#mantissa", "text-align:right; border:inset 2px; border-radius:5px; background-color:aquamarine");
+    hipe_send(session, HIPE_OP_ADD_STYLE_RULE, 0,0, 2, "body", "height:100%; margin:0; background-color:grey;padding:1% 1% 0 1%; overflow:hidden;");
+    hipe_send(session, HIPE_OP_ADD_STYLE_RULE, 0,0, 2, "button", "height:100%; width:100%; display:block; font-size:large; color: black; background-color:dimgrey; box-shadow:-1px -1px 1px cyan; border-color:cadetblue; border-radius:3px; border-width:1px;");
+    hipe_send(session, HIPE_OP_ADD_STYLE_RULE, 0,0, 2, "button:active", "background-color:grey");
+    hipe_send(session, HIPE_OP_ADD_STYLE_RULE, 0,0, 2, "table", "position:absolute;");
+    hipe_send(session, HIPE_OP_ADD_STYLE_RULE, 0,0, 2, "td", "width:25%");
+    hipe_send(session, HIPE_OP_ADD_STYLE_RULE, 0,0, 2, "#mantissa", "text-align:right; border:inset 2px; border-radius:5px; background-color:aquamarine");
 
     //Specify initial window layout
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, 0, "table", 0);
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, 0, 1, "table");
     hipe_loc tableLoc = getLastChild(0);
-    hipe_send(session, HIPE_OP_SET_STYLE, 0, tableLoc, "visibility", "hidden"); //hide the table until constructed.
+    hipe_send(session, HIPE_OP_SET_STYLE, 0, tableLoc, 2, "visibility", "hidden"); //hide the table until constructed.
 
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, tableLoc, "tbody", 0);
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, tableLoc, 1, "tbody");
     hipe_loc tbodyLoc = getLastChild(tableLoc);
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, tbodyLoc, "tr", 0);
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, tbodyLoc, 1, "tr");
 
     //first row of table layout shows the calculator's mantissa display
     hipe_loc rowLoc = getLastChild(tbodyLoc);
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, "td", "mantissa");
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 2, "td", "mantissa");
     mantissa = getLoc("mantissa");
-    hipe_send(session, HIPE_OP_SET_ATTRIBUTE, 0, mantissa, "colspan", "4");
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, tbodyLoc, "tr", 0);
-    hipe_send(session, HIPE_OP_FREE_LOCATION, 0, rowLoc, 0,0); //free the location reference to first row as we no longer need it.
+    hipe_send(session, HIPE_OP_SET_ATTRIBUTE, 0, mantissa, 2, "colspan", "4");
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, tbodyLoc, 1, "tr");
+    hipe_send(session, HIPE_OP_FREE_LOCATION, 0, rowLoc, 0); //free the location reference to first row as we no longer need it.
 
     //second row of table layout displays first row of buttons: clear, clear entry, divide, times.
     rowLoc = getLastChild(tbodyLoc); //rowLoc now points to second row.
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, "td", 0);
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), "button", "oC"); //C button.
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, "td", 0);
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), "button", "oE"); //CE button.
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, "td", 0);
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), "button", "oD"); //&div; button.
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, "td", 0);
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), "button", "oT"); //&times; button.
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, tbodyLoc, "tr", 0);
-    hipe_send(session, HIPE_OP_FREE_LOCATION, 0, rowLoc, 0,0); //free the location reference to 2nd row as we no longer need it.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "oC"); //C button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "oE"); //CE button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "oD"); //&div; button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "oT"); //&times; button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, tbodyLoc, 1, "tr");
+    hipe_send(session, HIPE_OP_FREE_LOCATION, 0, rowLoc, 0); //free the location reference to 2nd row as we no longer need it.
 
     //third row of table layout displays calculator buttons: 7, 8, 9, minus.
     rowLoc = getLastChild(tbodyLoc);
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, "td", 0);
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), "button", "n7"); //7 button.
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, "td", 0);
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), "button", "n8"); //8 button.
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, "td", 0);
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), "button", "n9"); //9 button.
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, "td", 0);
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), "button", "oM"); //&minus; button.
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, tbodyLoc, "tr", 0);
-    hipe_send(session, HIPE_OP_FREE_LOCATION, 0, rowLoc, 0,0); //free the location reference to 3rd row as we no longer need it.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "n7"); //7 button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "n8"); //8 button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "n9"); //9 button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "oM"); //&minus; button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, tbodyLoc, 1, "tr");
+    hipe_send(session, HIPE_OP_FREE_LOCATION, 0, rowLoc, 0); //free the location reference to 3rd row as we no longer need it.
 
     //fourth row of table layout displays calculator buttons: 4, 5, 6, plus.
     rowLoc = getLastChild(tbodyLoc);
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, "td", 0);
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), "button", "n4"); //4 button.
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, "td", 0);
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), "button", "n5"); //5 button.
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, "td", 0);
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), "button", "n6"); //6 button.
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, "td", 0);
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), "button", "oA"); //+ button.
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, tbodyLoc, "tr", 0);
-    hipe_send(session, HIPE_OP_FREE_LOCATION, 0, rowLoc, 0,0);
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "n4"); //4 button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "n5"); //5 button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "n6"); //6 button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "oA"); //+ button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, tbodyLoc, 1, "tr");
+    hipe_send(session, HIPE_OP_FREE_LOCATION, 0, rowLoc, 0);
 
     //fifth row of table layout displays calculator buttons: 1, 2, 3, equals (spans 2 rows)
     rowLoc = getLastChild(tbodyLoc);
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, "td", 0);
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), "button", "n1"); //1 button.
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, "td", 0);
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), "button", "n2"); //2 button.
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, "td", 0);
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), "button", "n3"); //3 button.
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, "td", 0);
-    hipe_send(session, HIPE_OP_SET_ATTRIBUTE,0,getLastChild(rowLoc), "rowspan", "2"); //make = button span 2 rows.
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), "button", "oR"); //= button.
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, tbodyLoc, "tr", 0);
-    hipe_send(session, HIPE_OP_FREE_LOCATION, 0, rowLoc, 0,0);
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "n1"); //1 button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "n2"); //2 button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "n3"); //3 button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
+    hipe_send(session, HIPE_OP_SET_ATTRIBUTE,0,getLastChild(rowLoc), 2, "rowspan", "2"); //make = button span 2 rows.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "oR"); //= button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, tbodyLoc, 1, "tr");
+    hipe_send(session, HIPE_OP_FREE_LOCATION, 0, rowLoc, 0);
     
     //sixth row of table layout displays calculator buttons: 0 (spans 2 cols), point.
     rowLoc = getLastChild(tbodyLoc);
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, "td", 0);
-    hipe_send(session, HIPE_OP_SET_ATTRIBUTE,0,getLastChild(rowLoc), "colspan", "2"); //make 0 button span 2 rows.
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), "button", "n0"); //0 button.
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, "td", 0);
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), "button", "oP"); //. button.
-    hipe_send(session, HIPE_OP_FREE_LOCATION, 0, rowLoc, 0,0);
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
+    hipe_send(session, HIPE_OP_SET_ATTRIBUTE,0,getLastChild(rowLoc), 2, "colspan", "2"); //make 0 button span 2 rows.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "n0"); //0 button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "oP"); //. button.
+    hipe_send(session, HIPE_OP_FREE_LOCATION, 0, rowLoc, 0);
 
     //Get location handles for all the GUI elements so we can play with them.
     mantissa = getLoc("mantissa");
@@ -195,14 +195,14 @@ int main(int argc, char** argv)
     hipe_loc bEquals = getLoc("oR");
 
     //label these buttons by setting content inside their <button> tags.
-    hipe_send(session, HIPE_OP_SET_TEXT, 0, bClear, "C", 0);
-    hipe_send(session, HIPE_OP_SET_TEXT, 0, bClearEntry, "CE", 0);
-    hipe_send(session, HIPE_OP_SET_TEXT, 0, bDiv, "&div;", 0);
-    hipe_send(session, HIPE_OP_SET_TEXT, 0, bTimes, "&times;", 0);
-    hipe_send(session, HIPE_OP_SET_TEXT, 0, bMinus, "&minus;", 0);
-    hipe_send(session, HIPE_OP_SET_TEXT, 0, bAdd, "+", 0);
-    hipe_send(session, HIPE_OP_SET_TEXT, 0, bPoint, ".", 0);
-    hipe_send(session, HIPE_OP_SET_TEXT, 0, bEquals, "=", 0);
+    hipe_send(session, HIPE_OP_SET_TEXT, 0, bClear, 1, "C");
+    hipe_send(session, HIPE_OP_SET_TEXT, 0, bClearEntry, 1, "CE");
+    hipe_send(session, HIPE_OP_SET_TEXT, 0, bDiv, 1, "&div;");
+    hipe_send(session, HIPE_OP_SET_TEXT, 0, bTimes, 1, "&times;");
+    hipe_send(session, HIPE_OP_SET_TEXT, 0, bMinus, 1, "&minus;");
+    hipe_send(session, HIPE_OP_SET_TEXT, 0, bAdd, 1, "+");
+    hipe_send(session, HIPE_OP_SET_TEXT, 0, bPoint, 1, ".");
+    hipe_send(session, HIPE_OP_SET_TEXT, 0, bEquals, 1, "=");
 
     hipe_loc bNum[10]; //collect the number buttons in an array.
     int i;
@@ -212,30 +212,30 @@ int main(int argc, char** argv)
         idstr[1] = i+'0';
         bNum[i] = getLoc(idstr);
         //label the button with its index -- the number it represents. Use idstr[i] but skip the 0th character.
-        hipe_send(session, HIPE_OP_SET_TEXT, 0, bNum[i], &(idstr[1]), 0);
+        hipe_send(session, HIPE_OP_SET_TEXT, 0, bNum[i], 1, &(idstr[1]));
     }
 
     //Stretch the table to fill the frame and make it visible now that the table has been fully constructed.
-    hipe_send(session, HIPE_OP_SET_STYLE, 0, tableLoc, "width", "98%");
-    hipe_send(session, HIPE_OP_SET_STYLE, 0, tableLoc, "height", "98%");
-    hipe_send(session, HIPE_OP_SET_STYLE, 0, tableLoc, "visibility", "visible"); //hide the table until constructed.
+    hipe_send(session, HIPE_OP_SET_STYLE, 0, tableLoc, 2, "width", "98%");
+    hipe_send(session, HIPE_OP_SET_STYLE, 0, tableLoc, 2, "height", "98%");
+    hipe_send(session, HIPE_OP_SET_STYLE, 0, tableLoc, 2, "visibility", "visible"); //hide the table until constructed.
 
     //Now set up click events for all the buttons. Pass a character code mnemonic as requestor.
-    hipe_send(session, HIPE_OP_EVENT_REQUEST, 'C', bClear,   "click", "");
-    hipe_send(session, HIPE_OP_EVENT_REQUEST, 'E', bClearEntry,"click", "");
-    hipe_send(session, HIPE_OP_EVENT_REQUEST, '/', bDiv,     "click", "");
-    hipe_send(session, HIPE_OP_EVENT_REQUEST, '*', bTimes,   "click", "");
-    hipe_send(session, HIPE_OP_EVENT_REQUEST, '-', bMinus,   "click", "");
-    hipe_send(session, HIPE_OP_EVENT_REQUEST, '+', bAdd,     "click", "");
-    hipe_send(session, HIPE_OP_EVENT_REQUEST, '.', bPoint,   "click", "");
-    hipe_send(session, HIPE_OP_EVENT_REQUEST, '=', bEquals,  "click", "");
+    hipe_send(session, HIPE_OP_EVENT_REQUEST, 'C', bClear,   2, "click", "");
+    hipe_send(session, HIPE_OP_EVENT_REQUEST, 'E', bClearEntry,2,"click", "");
+    hipe_send(session, HIPE_OP_EVENT_REQUEST, '/', bDiv,     2, "click", "");
+    hipe_send(session, HIPE_OP_EVENT_REQUEST, '*', bTimes,   2, "click", "");
+    hipe_send(session, HIPE_OP_EVENT_REQUEST, '-', bMinus,   2, "click", "");
+    hipe_send(session, HIPE_OP_EVENT_REQUEST, '+', bAdd,     2, "click", "");
+    hipe_send(session, HIPE_OP_EVENT_REQUEST, '.', bPoint,   2, "click", "");
+    hipe_send(session, HIPE_OP_EVENT_REQUEST, '=', bEquals,  2, "click", "");
     
     //For digits, use the value of the digit as the requestor value.
     for(i=0; i<10; i++) {
-        hipe_send(session, HIPE_OP_EVENT_REQUEST, i, bNum[i],  "click", "");
+        hipe_send(session, HIPE_OP_EVENT_REQUEST, i, bNum[i], 1, "click");
     }
 
-    hipe_send(session, HIPE_OP_EVENT_REQUEST, 'K', 0, "keypress", "");
+    hipe_send(session, HIPE_OP_EVENT_REQUEST, 'K', 0, 1, "keypress");
 
     updateDisplay();
 

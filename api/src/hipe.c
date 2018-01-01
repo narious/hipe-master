@@ -24,6 +24,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <unistd.h>
+#include <stdarg.h>
 
 #include <sys/socket.h>
 #include <sys/types.h>
@@ -364,25 +365,28 @@ short hipe_await_instruction(hipe_session session, hipe_instruction* instruction
 }
 
 
-int hipe_send(hipe_session session, char opcode, uint64_t requestor, hipe_loc location, const char* arg1, const char* arg2) {
+int hipe_send(hipe_session session, char opcode, uint64_t requestor, hipe_loc location, int n_args, ...) {
     int result;
     hipe_instruction instruction;
     hipe_instruction_init(&instruction);
     instruction.opcode = opcode;
     instruction.requestor = requestor;
     instruction.location = location;
-    if(arg1) {
-        instruction.arg[0] = malloc(strlen(arg1)+1);
-        strcpy(instruction.arg[0], arg1);
-        instruction.arg_length[0] = strlen(arg1);
+    int i;
+    va_list args;
+    const char* this_arg;
+    va_start(args, n_args); //process variadic arguments.
+    for(i=0; i<n_args && i<HIPE_NARGS; i++) {
+        this_arg = va_arg(args, const char*);
+        if(this_arg) {
+            instruction.arg_length[i] = strlen(this_arg); //adding null terminator to length breaks certain behaviour. Why?
+            //note that the encoded arguments in the instruction should *not* be null terminated.
+            instruction.arg[i] = (char*) this_arg;
+        }
     }
-    if(arg2) {
-        instruction.arg[1] = malloc(strlen(arg2)+1);
-        strcpy(instruction.arg[1], arg2);
-        instruction.arg_length[1] = strlen(arg2);
-    }
+    va_end(args);
     result = hipe_send_instruction(session, instruction);
-    hipe_instruction_clear(&instruction);
+    //hipe_instruction_clear(&instruction);
     return result;
 }
 

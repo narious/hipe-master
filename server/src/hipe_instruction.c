@@ -1,4 +1,4 @@
-/*  Copyright (c) 2015 Daniel Kos, General Development Systems
+/*  Copyright (c) 2015-2017 Daniel Kos, General Development Systems
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -38,6 +38,24 @@ void hipe_instruction_init(hipe_instruction* obj)
 }
 
 
+void hipe_instruction_alloc(hipe_instruction* obj)
+{
+    int i;
+    for(i=0; i<HIPE_NARGS; i++) {
+        if(obj->arg_length[i]) {
+            obj->arg[i] = malloc(obj->arg_length[i]+1);
+            obj->arg[i][obj->arg_length[i]] = '\0';
+            //Note: this function places a null-pointer after the end of each
+            //argument (not counted in the length of the argument) for convenience
+            //of accessing string arguments. Instructions received will have been
+            //encoded similarly.  However, Hipe does not require instructions
+            //to be encoded this way for transmission.
+        } else
+            obj->arg[i] = NULL;
+    }
+}
+
+
 void hipe_instruction_clear(hipe_instruction* obj)
 {
     int i;
@@ -51,13 +69,9 @@ void hipe_instruction_clear(hipe_instruction* obj)
 void hipe_instruction_copy(hipe_instruction* dest, hipe_instruction* src)
 {
     *dest = *src;
+    hipe_instruction_alloc(dest);
     int i;
-    for(i=0; i<HIPE_NARGS; i++) {
-        if(dest->arg_length[i]) {
-            dest->arg[i] = malloc(dest->arg_length[i]);
+    for(i=0; i<HIPE_NARGS; i++) 
+        if(dest->arg_length[i]) 
             memcpy(dest->arg[i], src->arg[i], dest->arg_length[i]);
-        } else {
-            dest->arg[i] = NULL;
-        }
-    }
 }

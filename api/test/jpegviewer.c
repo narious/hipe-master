@@ -7,7 +7,7 @@
 hipe_session session;
 
 hipe_loc getLoc(char* id) {
-    hipe_send(session, HIPE_OP_GET_BY_ID, 0, 0, id, 0); 
+    hipe_send(session, HIPE_OP_GET_BY_ID, 0, 0, 1, id); 
     hipe_instruction instruction;
     hipe_instruction_init(&instruction);
     hipe_await_instruction(session, &instruction, HIPE_OP_LOCATION_RETURN);
@@ -46,7 +46,7 @@ int main(int argc, char** argv) {
     session = hipe_open_session((argc>2) ? argv[2] : 0,0,0,argv[0]);
     if(!session) return 3; /*quit if can't connect to Hipe.*/
 
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0,0, "img", "theimage");
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0,0, 2, "img", "theimage");
     hipe_loc img = getLoc("theimage");
 
     hipe_instruction instr;
