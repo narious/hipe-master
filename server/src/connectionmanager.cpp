@@ -33,7 +33,7 @@ void ConnectionManager::timerEvent() {
 //go thru the connection list and service all events.
     timer->stop();
     if(serviceConnections()) { //returns true if the call was productive
-        timer->start(5);  //next event should therefore be scheduled sooner.
+        timer->start(1);  //next event should therefore be scheduled sooner.
     } else {
         timer->start(80); //nothing much going on right now.
     }
