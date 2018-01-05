@@ -75,3 +75,8 @@ void hipe_instruction_copy(hipe_instruction* dest, hipe_instruction* src)
         if(dest->arg_length[i]) 
             memcpy(dest->arg[i], src->arg[i], dest->arg_length[i]);
 }
+
+void hipe_instruction_move(hipe_instruction* dest, hipe_instruction* src) {
+    *dest = *src;
+    hipe_instruction_init(src);
+}

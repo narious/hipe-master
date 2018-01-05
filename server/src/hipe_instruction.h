@@ -280,6 +280,13 @@ void hipe_instruction_copy(hipe_instruction* dest, hipe_instruction* src);
  *with hipe_instruction_clear().
  */
 
+void hipe_instruction_move(hipe_instruction* dest, hipe_instruction* src);
+/*Moves allocations from src to dest. Similar to hipe_instruction_copy except no new memory
+ *is allocated; the memory allocated to src is reassigned to dest, and src is then re-initialised.
+ *The memory in dest should later be freed in a manner consistent with how src was previously
+ *allocated.
+ */
+
 #endif
 #ifdef __cplusplus
 }

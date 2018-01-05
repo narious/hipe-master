@@ -26,6 +26,7 @@
 
 
 #include <QApplication>
+#include <QTimer>
 #include <string>
 #include <iostream>
 #include <fstream>
@@ -95,6 +96,19 @@ Connection* identifyFromFrame(QWebFrame* frame)
             return c;
     }
     return nullptr;
+}
+
+bool serviceConnections() {
+//calls the service() function on each active connection.
+//This allows each connection to check if it has queued instructions waiting to be executed,
+//and execute them upon the GUI as part of the main thread's event loop.
+//RETURNS true if there have been productive service calls made - this can be used as a hint
+//to repeat calling this function sooner as this is a period of activity.
+    bool was_productive = false;
+    for(Connection* c : activeConnections) {
+        if(c->service()) was_productive = true;
+    }
+    return was_productive;
 }
 
 
@@ -187,7 +201,6 @@ int main(int argc, char *argv[])
 
     connectionManager.removeServer(socketFile); //remove any abandoned socket file of the same name.
     if(connectionManager.listen(socketFile)) { //this maps the socket file and begins listening
-    //by default, the socket is created as /tmp/hipe-uid1000.socket, where 1000 is the user's UID.
         std::cout << "Listening on " << connectionManager.fullServerName().toStdString() << "\n";
         return a.exec(); //start Qt's event loop, listening for connections, responding to events, etc.
     } else {

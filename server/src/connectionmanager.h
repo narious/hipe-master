@@ -31,6 +31,7 @@ private:
 signals:
 public slots:
     void acceptConnection();
+    void timerEvent(); //bound to the main event loop.
 };
 
 #endif // SERVER_H

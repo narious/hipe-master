@@ -33,8 +33,11 @@
 
 #include <QObject>
 #include <QLocalSocket>
+#include <queue>
 #include "common.h"
 #include "container.h"
+
+#include <iostream> //for debugging only
 
 class Connection : public QObject
 {
@@ -46,6 +49,13 @@ public:
     void sendInstruction(char opcode, int64_t requestor, int64_t location, std::string arg1, std::string arg2);
     void sendInstruction(hipe_instruction& instruction);
     Container* container;
+
+    bool service();
+    //for future implementation: The hiped event loop iterates over each activeConnection and calls the
+    //service() function in each, returning to an idle state if all connections return false (unproductive call).
+    //The purpose of service() is to check if an incoming instruction has been queued by the socket thread
+    //and service it in the primary/GUI thread; by modifying the GUI appropriately.
+
 private:
     QLocalSocket* con;
 
@@ -53,8 +63,10 @@ private:
 
     instruction_decoder currentInstruction;
 
-    void publishInstruction();
+    void runInstruction(hipe_instruction* instruction);
     //deals with a completed instruction -- sends it to wherever it's needed.
+
+    std::queue<hipe_instruction*> incomingInstructions;
 
 signals:
 

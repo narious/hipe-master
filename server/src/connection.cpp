@@ -72,24 +72,31 @@ void Connection::sendInstruction(hipe_instruction& instruction)
     instruction_encoder_clear(&outgoingInstruction);
 }
 
-void Connection::publishInstruction()
+void Connection::runInstruction(hipe_instruction* instruction)
 {
-    if(currentInstruction.output.opcode == HIPE_OP_REQUEST_CONTAINER) {
+    if(instruction->opcode == HIPE_OP_REQUEST_CONTAINER) {
         //requestor contains the claimed pid of the connecting process.
-        container = requestContainerFromKey(std::string(currentInstruction.output.arg[0], 
-                    currentInstruction.output.arg_length[0]), std::string(currentInstruction.output.arg[1], 
-                    currentInstruction.output.arg_length[1]), currentInstruction.output.requestor, this);
+        container = requestContainerFromKey(std::string(instruction->arg[0], 
+                    instruction->arg_length[0]), std::string(instruction->arg[1], 
+                    instruction->arg_length[1]), instruction->requestor, this);
         //send the result of the container request (arg1 represents approved/denied)
         sendInstruction(HIPE_OP_CONTAINER_GRANT, 0,0, (container ? "1":"0"),"0"); //new client awaits this confirmation that its key has been approved.
     } else if(container) { //allow other instructions only if a container request has already been granted.
         //send the instruction to the container.
-        hipe_instruction instruction;
-        instruction = currentInstruction.output;
-        container->receiveInstruction(instruction);
+        container->receiveInstruction(*instruction);
     } else {
         //error. Access was not granted, so no other instructions are permitted.
         sendInstruction(HIPE_OP_SERVER_DENIED, 0,0, "",""); //access denied.
     }
+}
+
+bool Connection::service() {
+//for future implementation: The hiped event loop iterates over each activeConnection and calls the
+//service() function in each, returning to an idle state if all connections return false (unproductive call).
+//The purpose of service() is to check if an incoming instruction has been queued by the socket thread
+//and service it in the primary/GUI thread; by modifying the GUI appropriately.
+
+    return false;
 }
 
 void Connection::_readyRead()
@@ -108,7 +115,7 @@ void Connection::_readyRead()
             char c = readBuffer[p];
             instruction_decoder_feed(&currentInstruction, c);
             if(instruction_decoder_iscomplete(&currentInstruction)) { //check if instruction is complete.
-                publishInstruction();
+                runInstruction(&(currentInstruction.output));
                 instruction_decoder_clear(&currentInstruction);
             }
         }

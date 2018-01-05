@@ -27,6 +27,7 @@ extern std::string uid; //string-format of UID number of the Unix user that owns
 //self-registration functions for connections to call when they are created/destructed.
 void registerConnection(Connection*);
 void deregisterConnection(Connection*);
+bool serviceConnections();
 
 extern KeyList* topLevelKeyList;
 extern std::string keyFilePath; //path and filename to store next available top-level key in.
