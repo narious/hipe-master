@@ -17,9 +17,9 @@ ConnectionManager::ConnectionManager(QObject *parent) :
 {
     connect(this,SIGNAL(newConnection()),this,SLOT(acceptConnection()));
 
-        QTimer *timer = new QTimer();
+        timer = new QTimer();
         timer->connect(timer, SIGNAL(timeout()), this, SLOT(timerEvent()));
-        timer->start(80); //ms interval.
+        timer->start(40); //ms interval.
 }
 
 void ConnectionManager::acceptConnection() {
@@ -31,5 +31,10 @@ void ConnectionManager::acceptConnection() {
 void ConnectionManager::timerEvent() {
 //when a timer event occurs in the main hiped event loop,
 //go thru the connection list and service all events.
-    serviceConnections();
+    timer->stop();
+    if(serviceConnections()) { //returns true if the call was productive
+        timer->start(5);  //next event should therefore be scheduled sooner.
+    } else {
+        timer->start(80); //nothing much going on right now.
+    }
 }

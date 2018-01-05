@@ -91,12 +91,21 @@ void Connection::runInstruction(hipe_instruction* instruction)
 }
 
 bool Connection::service() {
-//for future implementation: The hiped event loop iterates over each activeConnection and calls the
+//The hiped event loop iterates over each activeConnection and calls the
 //service() function in each, returning to an idle state if all connections return false (unproductive call).
 //The purpose of service() is to check if an incoming instruction has been queued by the socket thread
 //and service it in the primary/GUI thread; by modifying the GUI appropriately.
 
-    return false;
+    if(incomingInstructions.empty()) return false; //unproductive call.
+    hipe_instruction* hi;
+    while(!incomingInstructions.empty()) {
+        hi = incomingInstructions.front();
+        incomingInstructions.pop();
+        runInstruction(hi);
+        hipe_instruction_clear(hi);
+        delete hi;
+    }
+    return true; //this was a productive call.
 }
 
 void Connection::_readyRead()
@@ -115,7 +124,10 @@ void Connection::_readyRead()
             char c = readBuffer[p];
             instruction_decoder_feed(&currentInstruction, c);
             if(instruction_decoder_iscomplete(&currentInstruction)) { //check if instruction is complete.
-                runInstruction(&(currentInstruction.output));
+                hipe_instruction* newInstruction = new hipe_instruction;
+                hipe_instruction_move(newInstruction, &(currentInstruction.output));
+                incomingInstructions.push(newInstruction);
+                //runInstruction(newInstruction);
                 instruction_decoder_clear(&currentInstruction);
             }
         }

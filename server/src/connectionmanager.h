@@ -20,6 +20,7 @@
 #define SERVER_H
 
 #include <QLocalServer>
+#include <QTimer>
 class Connection;
 
 class ConnectionManager : public QLocalServer
@@ -28,6 +29,7 @@ class ConnectionManager : public QLocalServer
 public:
     explicit ConnectionManager(QObject *parent = 0);
 private:
+    QTimer* timer;
 signals:
 public slots:
     void acceptConnection();
