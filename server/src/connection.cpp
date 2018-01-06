@@ -36,7 +36,7 @@ Connection::Connection(QLocalSocket* con, QObject *parent) :
     connect(con,SIGNAL(readyRead()), this,SLOT(_readyRead()));
     connect(con,SIGNAL(disconnected()), this,SLOT(_disconnected()));
 
-    registerConnection(this);
+    registerConnection(this, con->socketDescriptor());
 }
 
 Connection::~Connection()

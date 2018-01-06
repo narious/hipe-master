@@ -41,23 +41,28 @@
 #include "sanitation.h"
 #include "container.h"
 #include "connection.h"
-#include <list>
+#include <map>
 
 
 std::string uid;
-std::list<Connection*> activeConnections;
+std::map<int, Connection*> activeConnections; //maps each socket descriptor to its client connection object.
 KeyList* topLevelKeyList;
 std::string keyFilePath; //path and filename to store next available top-level key in.
 
 
-void registerConnection(Connection* c)
+void registerConnection(Connection* c, int fd)
 {
-    activeConnections.push_back(c);
+    activeConnections[fd] = c;
+    //activeConnections.push_back(c);
 }
 
 void deregisterConnection(Connection* c)
 {
-    activeConnections.remove(c);
+    for(auto it=activeConnections.begin(); it!=activeConnections.end(); it++)
+        if((it->second) == c) {
+            activeConnections.erase(it);
+            return;
+        }
 }
 
 void makeNewTopLevelKeyFile()
@@ -77,7 +82,9 @@ Container* requestContainerFromKey(std::string key, std::string clientName, uint
         container->setTitle(clientName);
         return container;
     } else { //not top-level. Traverse each container in case the key refers to a sub-frame.
-        for(Connection* connection : activeConnections) {
+        for(auto& elmnt : activeConnections) {
+        //elmnt is a pair. Second element points to Connection object.
+            Connection* connection = elmnt.second;
             Container* container = connection->container;
             if(!container) continue;
             Container* newContainer = container->requestNew(key, clientName, pid, c);
@@ -90,10 +97,11 @@ Container* requestContainerFromKey(std::string key, std::string clientName, uint
 
 Connection* identifyFromFrame(QWebFrame* frame)
 {
-    for(Connection* c : activeConnections) {
-        if(!c->container) continue;
-        if(c->container->frame == frame)
-            return c;
+    for(auto& elmnt : activeConnections) { 
+    //each element is a pair of <int descriptor, Connection*>
+        if(!elmnt.second->container) continue;
+        if(elmnt.second->container->frame == frame)
+            return elmnt.second;
     }
     return nullptr;
 }
@@ -105,8 +113,9 @@ bool serviceConnections() {
 //RETURNS true if there have been productive service calls made - this can be used as a hint
 //to repeat calling this function sooner as this is a period of activity.
     bool was_productive = false;
-    for(Connection* c : activeConnections) {
-        if(c->service()) was_productive = true;
+    for(auto& elmnt : activeConnections) {
+    //elmnt is a pair. Second element points to Connection object.
+        if(elmnt.second->service()) was_productive = true;
     }
     return was_productive;
 }

@@ -25,7 +25,7 @@ class Connection;
 extern std::string uid; //string-format of UID number of the Unix user that owns this hiped instance.
 
 //self-registration functions for connections to call when they are created/destructed.
-void registerConnection(Connection*);
+void registerConnection(Connection*, int fd);
 void deregisterConnection(Connection*);
 bool serviceConnections();
 
