@@ -27,6 +27,8 @@ extern std::string uid; //string-format of UID number of the Unix user that owns
 extern bool verbose; //verbose mode (unless overridden by --silent arg) means success messages are printed
 //to stderr.
 
+extern int serverFD; //the socket descriptor in which we listen for new client connection requests.
+
 //self-registration functions for connections to call when they are created/destructed.
 void registerConnection(Connection*, int fd);
 void deregisterConnection(Connection*);

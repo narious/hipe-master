@@ -22,27 +22,24 @@
 #include "container.h"
 #include "common.h"
 #include "main.hpp"
+#include <sys/socket.h>
+#include <unistd.h>
+#include <errno.h>
 
-Connection::Connection(QLocalSocket* con, QObject *parent) :
-    QObject(parent)
+Connection::Connection(int clientFD)
 {
-    this->con = con;
+    this->clientFD = clientFD;
     container = nullptr;
 
     instruction_decoder_init(&currentInstruction);
 
-    con->setParent(this); //will automatically be destructed.
-
-    connect(con,SIGNAL(readyRead()), this,SLOT(_readyRead()));
-    connect(con,SIGNAL(disconnected()), this,SLOT(_disconnected()));
-
-    registerConnection(this, con->socketDescriptor());
+    registerConnection(this, clientFD); //con->socketDescriptor());
 }
 
 Connection::~Connection()
+//this happens in the main thread, in the service cycle.
 {
-    deregisterConnection(this);
-
+    disconnect(); //disconnect if not already done.
     instruction_decoder_clear(&currentInstruction);
     delete container;
 }
@@ -64,11 +61,25 @@ void Connection::sendInstruction(char opcode, int64_t requestor, int64_t locatio
 
 void Connection::sendInstruction(hipe_instruction& instruction)
 {
+    if(clientFD == -1) return;
     instruction_encoder outgoingInstruction;
     instruction_encoder_init (&outgoingInstruction);
     instruction_encoder_encodeinstruction(&outgoingInstruction, instruction);
 
-    con->write((const char*)outgoingInstruction.encoded_output, outgoingInstruction.encoded_length);
+    ssize_t charsWritten;
+    const char* bufferToWrite = (const char*) outgoingInstruction.encoded_output;
+    size_t bytesRemaining = outgoingInstruction.encoded_length;
+    while(bytesRemaining > 0) {
+        charsWritten = write(clientFD, bufferToWrite, bytesRemaining);
+        if(charsWritten < 1) {
+            disconnect(); //has been disconnected at other end perhaps.
+            break;
+        } else {
+            bytesRemaining -= charsWritten;
+            bufferToWrite += charsWritten;
+        }
+    }
+
     instruction_encoder_clear(&outgoingInstruction);
 }
 
@@ -95,7 +106,8 @@ bool Connection::service() {
 //service() function in each, returning to an idle state if all connections return false (unproductive call).
 //The purpose of service() is to check if an incoming instruction has been queued by the socket thread
 //and service it in the primary/GUI thread; by modifying the GUI appropriately.
-
+    if(clientFD == -1) return false;
+    std::lock_guard<std::mutex> guard(mIncomingInstructions);
     if(incomingInstructions.empty()) return false; //unproductive call.
     hipe_instruction* hi;
     while(!incomingInstructions.empty()) {
@@ -108,39 +120,35 @@ bool Connection::service() {
     return true; //this was a productive call.
 }
 
+void Connection::disconnect() {
+    if(clientFD == -1) return; //already disconnected.
+    shutdown(clientFD, SHUT_RDWR);
+    close(clientFD);
+    clientFD = -1;
+}
+
 void Connection::_readyRead()
 {
+    if(clientFD == -1) return;
     short bufferedChars; //the number of characters that have been read into the buffer. Must be <=READ_BUFFER_SIZE
 
-    while(true) { //stay in this function for as long as characters are available to be read.
+    //attempt to read new characters
+    bufferedChars = read(clientFD, readBuffer, READ_BUFFER_SIZE); //blocking call!
+    //can return -1 if connection closed, or 0 when no more ready.
 
-        //attempt to read new characters
-        bufferedChars = con->read(readBuffer, READ_BUFFER_SIZE);
-        //can return -1 if connection closed, or 0 when no more ready.
-
-        if(bufferedChars <= 0) { //nothing more to read right now, or connection closed, or connection error.
-            return;
-        } else for(int p=0; p<bufferedChars; p++) { //let's process our input! (Iterate for each character we've read in)
-            char c = readBuffer[p];
-            instruction_decoder_feed(&currentInstruction, c);
-            if(instruction_decoder_iscomplete(&currentInstruction)) { //check if instruction is complete.
-                hipe_instruction* newInstruction = new hipe_instruction;
-                hipe_instruction_move(newInstruction, &(currentInstruction.output));
-                incomingInstructions.push(newInstruction);
-                //runInstruction(newInstruction);
-                instruction_decoder_clear(&currentInstruction);
-            }
+    if(bufferedChars <= 0) { //connection closed
+        disconnect();
+        return;
+    } else for(int p=0; p<bufferedChars; p++) { //let's process our input! (Iterate for each character we've read in)
+        char c = readBuffer[p];
+        instruction_decoder_feed(&currentInstruction, c);
+        if(instruction_decoder_iscomplete(&currentInstruction)) { //check if instruction is complete.
+            hipe_instruction* newInstruction = new hipe_instruction;
+            hipe_instruction_move(newInstruction, &(currentInstruction.output));
+            std::lock_guard<std::mutex> guard(mIncomingInstructions);
+            incomingInstructions.push(newInstruction);
+            //runInstruction(newInstruction);
+            instruction_decoder_clear(&currentInstruction);
         }
     }
 }
-
-void Connection::_disconnected()
-//Triggered automatically when connection is lost/terminated from the client end.
-{
-    //TODO: here: tell the containerManager to detach our container from ourselves.
-
-    disconnect(); //disconnect this QObject's slots, not the interprocess connection!
-    deleteLater(); //schedule this object to be deleted when control returns to the event loop.
-                   //This also calls the destructor, destroying the container automatically.
-}
-

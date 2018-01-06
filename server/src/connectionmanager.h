@@ -23,6 +23,8 @@
 #include <QTimer>
 class Connection;
 
+//The name 'connection manager' is no longer relevant. This class manages some Qt events.
+
 class ConnectionManager : public QLocalServer
 {
     Q_OBJECT
@@ -32,7 +34,6 @@ private:
     QTimer* timer;
 signals:
 public slots:
-    void acceptConnection();
     void timerEvent(); //bound to the main event loop.
 };
 

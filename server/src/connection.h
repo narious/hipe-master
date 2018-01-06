@@ -36,14 +36,13 @@
 #include <queue>
 #include "common.h"
 #include "container.h"
+#include <mutex>
 
-#include <iostream> //for debugging only
-
-class Connection : public QObject
+class Connection
 {
-    Q_OBJECT
 public:
-    explicit Connection(QLocalSocket* con, QObject *parent = 0);
+    //explicit Connection(QLocalSocket* con, QObject *parent = 0);
+    Connection(int clientFD);
     ~Connection();
 
     void sendInstruction(char opcode, int64_t requestor, int64_t location, std::string arg1, std::string arg2);
@@ -56,8 +55,12 @@ public:
     //The purpose of service() is to check if an incoming instruction has been queued by the socket thread
     //and service it in the primary/GUI thread; by modifying the GUI appropriately.
 
+    inline bool isConnected() {return (clientFD!=-1);}
+
+    void _readyRead();
 private:
-    QLocalSocket* con;
+    //QLocalSocket* con;
+    int clientFD; //socket descriptor of the connection.
 
     char readBuffer[READ_BUFFER_SIZE]; //where we put characters that have been read in over the connection.
 
@@ -66,13 +69,13 @@ private:
     void runInstruction(hipe_instruction* instruction);
     //deals with a completed instruction -- sends it to wherever it's needed.
 
+    void disconnect();
+
     std::queue<hipe_instruction*> incomingInstructions;
 
-signals:
+    std::mutex mIncomingInstructions; //instruction queue is filled by the incomingInstruction thread, and emptied
+    //in the main thread. Mutual exclusion must be enforced to ensure no two threads access the queue simultaneously.
 
-public slots:
-    void _readyRead();
-    void _disconnected();
 };
 
 #endif // CONNECTION_H

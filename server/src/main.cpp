@@ -33,6 +33,8 @@
 #include <sstream> //for std::stringstream
 #include <unistd.h> //for getuid()
 #include <sys/types.h> //for getuid()
+#include <sys/socket.h>
+#include <sys/un.h>
 #include <QWebSettings>
 #include <QLocalServer>
 #include "connectionmanager.h"
@@ -42,23 +44,29 @@
 #include "container.h"
 #include "connection.h"
 #include <map>
+#include <thread>
+#include <mutex>
 
 
 std::string uid;
 bool verbose;
-std::map<int, Connection*> activeConnections; //maps each socket descriptor to its client connection object.
+int serverFD;
 KeyList* topLevelKeyList;
 std::string keyFilePath; //path and filename to store next available top-level key in.
 
+std::map<int, Connection*> activeConnections; //maps each socket descriptor to its client connection object.
+std::mutex mActiveConnections; //mutex to lock the activeConnections list during accesses.
 
 void registerConnection(Connection* c, int fd)
 {
+    std::lock_guard<std::mutex> guard(mActiveConnections);
     activeConnections[fd] = c;
     //activeConnections.push_back(c);
 }
 
 void deregisterConnection(Connection* c)
 {
+    std::lock_guard<std::mutex> guard(mActiveConnections);
     for(auto it=activeConnections.begin(); it!=activeConnections.end(); it++)
         if((it->second) == c) {
             activeConnections.erase(it);
@@ -76,6 +84,9 @@ void makeNewTopLevelKeyFile()
 
 Container* requestContainerFromKey(std::string key, std::string clientName, uint64_t pid, Connection* c)
 //returns nullptr if request denied.
+//CONCURRENCY: this function is only called from within Connection::runInstruction which only happens in the
+//main thread with the activeConnections mutex held. Therefore there's no need to guard mActiveConnections -
+//the lock is already held by this thread.
 {
     if(topLevelKeyList->claimKey(key)) {
         makeNewTopLevelKeyFile();
@@ -98,6 +109,7 @@ Container* requestContainerFromKey(std::string key, std::string clientName, uint
 
 Connection* identifyFromFrame(QWebFrame* frame)
 {
+    std::lock_guard<std::mutex> guard(mActiveConnections); //lock activeConnections list for access.
     for(auto& elmnt : activeConnections) { 
     //each element is a pair of <int descriptor, Connection*>
         if(!elmnt.second->container) continue;
@@ -114,11 +126,78 @@ bool serviceConnections() {
 //RETURNS true if there have been productive service calls made - this can be used as a hint
 //to repeat calling this function sooner as this is a period of activity.
     bool was_productive = false;
-    for(auto& elmnt : activeConnections) {
-    //elmnt is a pair. Second element points to Connection object.
-        if(elmnt.second->service()) was_productive = true;
+    std::lock_guard<std::mutex> guard(mActiveConnections); //lock activeConnections list for access.
+    for(auto it=activeConnections.begin(); it!=activeConnections.end(); it++) {
+        Connection* c = it->second;
+        if(!c->isConnected()) {
+            activeConnections.erase(it); //clean up defunct connection.
+            delete c; //clean up connection object by running its destructor.
+            return true; //can't continue iterating now since we've changed the list.
+        }
+        if(c->service()) was_productive = true;
     }
     return was_productive;
+}
+
+
+void incomingSocketThread() {
+//responds to incoming socket events - new connection request, incoming instruction, etc.
+
+    fd_set fds_to_watch;
+    int max_fd;
+    std::unique_lock<std::mutex> guard(mActiveConnections, std::defer_lock);
+    //will lock this later to ensure mutual exclusion when accessing activeConnection map.    
+
+    while(true) {
+        //fill the fd_set with all the socket descriptors we want to look for data on...
+        FD_ZERO(&fds_to_watch);
+        FD_SET(serverFD, &fds_to_watch);
+        max_fd = serverFD;
+        guard.lock();
+        for(auto& elmnt : activeConnections) {
+        //elmnt is a pair; first element is the socket descriptor.
+            FD_SET(elmnt.first, &fds_to_watch);
+            if(elmnt.first > max_fd) max_fd = elmnt.first;
+        }
+        guard.unlock(); //done accessing activeConnections for now.
+
+        int numReady = select(++max_fd, &fds_to_watch, NULL, NULL, NULL); //block until there's something of interest.
+
+        //just got out of select() call. Let's find out what's new...
+        if(numReady == 0) continue; //nothing ready (timeout if applicable)
+        if(numReady < 0) {
+            if(errno == EBADF) {
+            //A client may have disconnected but not yet been cleaned up by the service function.
+                usleep(20000); //we don't know how long until the next service cycle, but there's no point
+                //burning CPU cycles to spin this error repeatedly until then. Wait a short time; order of ~10ms.
+                continue; 
+            }
+            return; //error
+        }
+
+        if(FD_ISSET(serverFD, &fds_to_watch)) {
+        //new connection pending...
+            FD_CLR(serverFD, &fds_to_watch);
+            numReady--;
+            int clientFD = accept(serverFD, NULL, NULL);
+            new Connection(clientFD);
+        }
+        
+        guard.lock();  //check for file descriptors of active connections...
+        for(auto& elmnt : activeConnections) {
+            if(FD_ISSET(elmnt.first, &fds_to_watch)) {
+                FD_CLR(elmnt.first, &fds_to_watch);
+
+                //read from this file descriptor into the connection's instruction queue...
+                elmnt.second->_readyRead();
+
+                numReady--;
+                if(numReady < 1) break;
+
+            }
+        }
+        guard.unlock();
+    }
 }
 
 
@@ -207,19 +286,49 @@ int main(int argc, char *argv[])
 
     ConnectionManager connectionManager;
 
-    QString socketFile;
+    std::string socketFile;
     if(socketFileArg.size())
-        socketFile = socketFileArg.c_str();
+        socketFile = socketFileArg;
     else
-        socketFile = QString(default_path) + "hipe.socket";
+        socketFile = std::string(default_path) + "hipe.socket";
 
-    connectionManager.removeServer(socketFile); //remove any abandoned socket file of the same name.
-    if(connectionManager.listen(socketFile)) { //this maps the socket file and begins listening
-        if(verbose)
-            std::cerr << "hiped: Listening on " << connectionManager.fullServerName().toStdString() << "\n";
-        return a.exec(); //start Qt's event loop, listening for connections, responding to events, etc.
-    } else {
+
+    //create a new socket...
+    serverFD = socket(AF_UNIX, SOCK_STREAM, 0);
+    if(serverFD < 0) {
+    std::cerr << "hiped: could not create server socket.\n";
+        return 1;
+    }
+
+    //map the socket to the location of socketFile (socket file is now created)...
+    struct sockaddr_un sockServAddr;
+    sockServAddr.sun_family = AF_UNIX;
+    strcpy(sockServAddr.sun_path, socketFile.c_str());
+    unlink(socketFile.c_str()); //remove any abandoned socket file of the same name.
+    if(bind(serverFD, (struct sockaddr*)&sockServAddr, sizeof(struct sockaddr_un)) != 0) {
+        std::cerr << "hiped: could not create socket file.\n";
+        return 1;
+    }
+
+    //make serverFD a 'listening' socket for new connections.
+    if(listen(serverFD, 128) != 0) {
+        std::cerr << "hiped: Socket error. Please try again.\n";
+        return 1;
+    }
+
+/*    if(!connectionManager.listen(serverFD)) {
         std::cerr << "hiped: Couldn't open socket.\n";
         return 1;
     }
+*/
+    if(verbose)
+        std::cerr << "hiped: Listening on " << socketFile << "\n";
+
+    std::thread sockThread(incomingSocketThread);
+    a.exec(); //start Qt's event loop, listening for connections, responding to events, etc.
+
+    //clean up...
+    sockThread.join();
+    unlink(socketFile.c_str());
+    return 0;
 }

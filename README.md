@@ -7,8 +7,12 @@ HIPE: Hypertext Pipe
 VERSION INFORMATION
 -------------------
 
-v1.00 beta -- 1 Jan 2018
+v1.01 beta -- 7 Jan 2018
 
+- Socket handling in the hiped server process is now handled with multithreading. Instructions are
+  collected and decoded in a separate thread.
+
+From 1.0:
 - The hipe_send() function now supports a variadic syntax. Existing programs will require modification.
 - Hipe now uses a slightly different message-passing format between client and server, enabling between
   zero and four arguments per instruction. (Existing programs require recompilation.)

@@ -15,18 +15,12 @@
 ConnectionManager::ConnectionManager(QObject *parent) :
     QLocalServer(parent)
 {
-    connect(this,SIGNAL(newConnection()),this,SLOT(acceptConnection()));
-
-        timer = new QTimer();
-        timer->connect(timer, SIGNAL(timeout()), this, SLOT(timerEvent()));
-        timer->start(40); //ms interval.
+    timer = new QTimer();
+    timer->connect(timer, SIGNAL(timeout()), this, SLOT(timerEvent()));
+    timer->start(40); //ms interval.
 }
 
-void ConnectionManager::acceptConnection() {
-    QLocalSocket* con = nextPendingConnection();
-    if(!con) return; //no pending connections; false alarm.
-    new Connection(con);
-}
+
 
 void ConnectionManager::timerEvent() {
 //when a timer event occurs in the main hiped event loop,
