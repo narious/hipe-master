@@ -45,6 +45,7 @@
 
 
 std::string uid;
+bool verbose;
 std::map<int, Connection*> activeConnections; //maps each socket descriptor to its client connection object.
 KeyList* topLevelKeyList;
 std::string keyFilePath; //path and filename to store next available top-level key in.
@@ -129,6 +130,7 @@ int main(int argc, char *argv[])
 
     std::stringstream userid; userid << getuid();
     uid = userid.str();
+    verbose = true;
 
     Sanitation::init();
 
@@ -144,6 +146,7 @@ int main(int argc, char *argv[])
             std::cout << "--socket (file path)\n\tCreate server socket file with a custom path and filename.\n";
             std::cout << "--keyfile (file path)\n\tCreate top-level host key file with a custom path and filename.\n";
             std::cout << "--stylesheet (file path)\n\tLoad a CSS file to provide default global styling to all clients.\n";
+            std::cout << "--silent\n\tOnly critical error messages will be printed to the error console.\n";
             std::cout << "-h, --help\n\tDisplay this help information.\n";
             return 0;
         } else if(thisArg.compare("--socket")==0) {
@@ -167,6 +170,8 @@ int main(int argc, char *argv[])
                 return 1;
             }
             stylesheetArg = argv[i];
+        } else if(thisArg.compare("--silent")==0) {
+            verbose = false;
         } else if(thisArg[0] == '-') {
             std::cerr << "Unrecognised option: " << thisArg << "\nTry '" << argv[0] << " --help' for usage information\n";
             return 1;
@@ -210,10 +215,11 @@ int main(int argc, char *argv[])
 
     connectionManager.removeServer(socketFile); //remove any abandoned socket file of the same name.
     if(connectionManager.listen(socketFile)) { //this maps the socket file and begins listening
-        std::cout << "Listening on " << connectionManager.fullServerName().toStdString() << "\n";
+        if(verbose)
+            std::cerr << "hiped: Listening on " << connectionManager.fullServerName().toStdString() << "\n";
         return a.exec(); //start Qt's event loop, listening for connections, responding to events, etc.
     } else {
-        std::cerr << "Couldn't open socket.\n";
+        std::cerr << "hiped: Couldn't open socket.\n";
         return 1;
     }
 }
