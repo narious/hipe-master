@@ -87,7 +87,7 @@ extern "C" {
 #define HIPE_OP_GET_FIRST_CHILD    13
 
 #define HIPE_OP_GET_GEOMETRY       14
-/* arg[0] == 0 requests x,y position, arg[0] == 1 requests size. */
+/* Request a HIPE_OP_GEOMETRY reply with the x,y,width,height coordinates of location.*/
 
 #define HIPE_OP_GET_LAST_CHILD     15
 #define HIPE_OP_GET_NEXT_SIBLING   16
@@ -98,8 +98,9 @@ extern "C" {
 /* Sent from server to client in immediate response to a 'get child' request.
  * Args are undefined (0), requestor is copied from the request, location is the requested location.*/
 
-#define HIPE_OP_POSITION_RETURN    19
-/* arg[0] is x position and arg[1] is y position relative to containing frame. */
+#define HIPE_OP_GEOMETRY_RETURN    19
+/* arg[0] is x position and arg[1] is y position relative to containing frame. 
+ * arg[2] is the width and arg[3] is the height of the element itself. */
 
 #define HIPE_OP_REQUEST_CONTAINER  20
 /* this must be the first instruction received. arg[0] is the key and arg[1] is a short client name.*/
@@ -130,9 +131,6 @@ extern "C" {
 
 #define HIPE_OP_SET_TITLE          26
 /* arg[0] overwrites the container's title with a new one.*/
-
-#define HIPE_OP_SIZE_RETURN        27
-/* arg[0] is width and arg[1] is height. */
 
 #define HIPE_OP_GET_FRAME_KEY      28
 /* Sent by client to request the hostkey for connecting to a particular iframe
@@ -227,6 +225,12 @@ extern "C" {
  *           * a frame element means message is being passed to/from that child frame's client.
  * arg[0], arg[1], requestor: passed through to other client unmodified. User-defined message data can be passed through here.
  */
+
+#define HIPE_OP_GET_SCROLL_GEOMETRY 44
+/* Requests the scroll geometry of the specified element. No arguments. Return instruction is
+ * a HIPE_OP_GEOMETRY_RETURN instruction, where arg[0] is the x scroll position at the left hand side,
+ * arg[1] is the y scroll position at the visible top of the element, arg[2] is the total scrollable
+ * width of the element content, and arg[3] is the total scrollable height.*/
 
 /*--------------*/
 

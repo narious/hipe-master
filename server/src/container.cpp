@@ -106,22 +106,22 @@ void Container::receiveInstruction(hipe_instruction instruction)
     } else if(instruction.opcode == HIPE_OP_GET_FIRST_CHILD) {
         //answer the location request.
         client->sendInstruction(HIPE_OP_LOCATION_RETURN, instruction.requestor,
-                                getIndexOfElement(location.firstChild()), "", "");
+                                getIndexOfElement(location.firstChild()));
     } else if(instruction.opcode == HIPE_OP_GET_LAST_CHILD) {
         //answer the location request.
         client->sendInstruction(HIPE_OP_LOCATION_RETURN, instruction.requestor,
-                                getIndexOfElement(location.lastChild()), "", "");
+                                getIndexOfElement(location.lastChild()));
     } else if(instruction.opcode == HIPE_OP_GET_NEXT_SIBLING) {
         //answer the location request.
         client->sendInstruction(HIPE_OP_LOCATION_RETURN, instruction.requestor,
-                                getIndexOfElement(location.nextSibling()), "", "");
+                                getIndexOfElement(location.nextSibling()));
     } else if(instruction.opcode == HIPE_OP_GET_PREV_SIBLING) {
         //answer the location request.
         client->sendInstruction(HIPE_OP_LOCATION_RETURN, instruction.requestor,
-                                getIndexOfElement(location.previousSibling()), "", "");
+                                getIndexOfElement(location.previousSibling()));
     } else if(instruction.opcode == HIPE_OP_GET_BY_ID) {
         client->sendInstruction(HIPE_OP_LOCATION_RETURN, instruction.requestor,
-                                getIndexOfElement(webElement.findFirst(QString("#") + arg[0].c_str())), "", "");
+                                getIndexOfElement(webElement.findFirst(QString("#") + arg[0].c_str())));
     } else if(instruction.opcode == HIPE_OP_SET_ATTRIBUTE) {
         if(Sanitation::isAllowedAttribute(arg[0])) {
             if(arg[0]=="value") { //workaround for updating input boxes after creation
@@ -175,20 +175,22 @@ void Container::receiveInstruction(hipe_instruction instruction)
     } else if(instruction.opcode == HIPE_OP_EVENT_CANCEL) {
         location.removeAttribute(QString("on") + arg[0].c_str());
         if(arg[1] == "1") { //reply requested. Send back an EVENT_CANCEL instruction to tell the client it can clean up event listeners for this event now.
-            client->sendInstruction(HIPE_OP_EVENT_CANCEL, instruction.requestor, instruction.location, arg[0], arg[1]);
+            client->sendInstruction(HIPE_OP_EVENT_CANCEL, instruction.requestor, instruction.location, {arg[0], arg[1]});
         }
     } else if(instruction.opcode == HIPE_OP_GET_GEOMETRY) {
-        QString left = location.evaluateJavaScript("this.offsetLeft;").toString();
-        QString top = location.evaluateJavaScript("this.offsetTop;").toString();
-        if(arg[0].at(0) != '1') { //get position
-            client->sendInstruction(HIPE_OP_POSITION_RETURN, instruction.requestor, instruction.location,
-                                    left.toStdString(), top.toStdString());
-        } else { //get size
-            QString width = location.evaluateJavaScript("this.offsetWidth;").toString();
-            QString height = location.evaluateJavaScript("this.offsetHeight;").toString();
-            client->sendInstruction(HIPE_OP_SIZE_RETURN, instruction.requestor, instruction.location,
-                                    width.toStdString(), height.toStdString());
-        }
+        std::string left = location.evaluateJavaScript("this.offsetLeft;").toString().toStdString();
+        std::string top = location.evaluateJavaScript("this.offsetTop;").toString().toStdString();
+        std::string width = location.evaluateJavaScript("this.offsetWidth;").toString().toStdString();
+        std::string height = location.evaluateJavaScript("this.offsetHeight;").toString().toStdString();
+        client->sendInstruction(HIPE_OP_GEOMETRY_RETURN, instruction.requestor, instruction.location,
+                                    {left, top, width, height});
+    } else if(instruction.opcode == HIPE_OP_GET_SCROLL_GEOMETRY) {
+        std::string left = location.evaluateJavaScript("this.scrollLeft;").toString().toStdString();
+        std::string top = location.evaluateJavaScript("this.scrollTop;").toString().toStdString();
+        std::string width = location.evaluateJavaScript("this.scrollWidth;").toString().toStdString();
+        std::string height = location.evaluateJavaScript("this.scrollHeight;").toString().toStdString();
+        client->sendInstruction(HIPE_OP_GEOMETRY_RETURN, instruction.requestor, instruction.location,
+                                    {left, top, width, height});
     } else if(instruction.opcode == HIPE_OP_GET_ATTRIBUTE) {
         QString attrVal;
         if(arg[0] == "value") {
@@ -200,7 +202,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
             attrVal = location.attribute(arg[0].c_str());
         }
         client->sendInstruction(HIPE_OP_ATTRIBUTE_RETURN, instruction.requestor, instruction.location,
-                                arg[0], attrVal.toStdString());
+                                {arg[0], attrVal.toStdString()});
     } else if(instruction.opcode == HIPE_OP_SET_SRC) {
         std::string dataURI = std::string("data:") + arg[1] + ";base64," + Sanitation::toBase64(arg[0]);
         location.setAttribute("src", dataURI.c_str());
@@ -243,7 +245,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
         else location.removeAttribute("id");
 
         //return the host key to the client if element was found, else return blank string.
-        client->sendInstruction(HIPE_OP_KEY_RETURN, instruction.requestor, instruction.location, found ? hostKey.toStdString() : "", "");
+        client->sendInstruction(HIPE_OP_KEY_RETURN, instruction.requestor, instruction.location, {found ? hostKey.toStdString() : ""});
     } else if(instruction.opcode == HIPE_OP_FRAME_CLOSE) {
         //find the relevant client
         for(FrameData& fd : subFrames) {
@@ -359,7 +361,7 @@ void Container::containerClosed()
 //The client needs to check for this message and deal with it.
 {
     //client->deleteLater();
-    client->sendInstruction(HIPE_OP_FRAME_CLOSE, 0, 0, "", "");
+    client->sendInstruction(HIPE_OP_FRAME_CLOSE, 0, 0);
 }
 
 Container* Container::requestNew(std::string key, std::string clientName, uint64_t pid, Connection* c) {
@@ -402,7 +404,7 @@ void Container::receiveSubFrameEvent(short evtType, QWebFrame* sender, std::stri
             }
 
             client->sendInstruction(HIPE_OP_FRAME_EVENT, sf.requestor, findReferenceableElement(sf.we),
-                                    evtTypeString, detail);
+                                    {evtTypeString, detail});
 
             if(evtType == HIPE_FRAME_EVENT_CLIENT_DISCONNECTED)
                 subFrames.remove(sf);
@@ -428,7 +430,7 @@ void Container::receiveMessage(char opcode, int64_t requestor, std::string arg1,
             }
         }
 
-    client->sendInstruction(opcode, requestor, location, arg1, arg2);
+    client->sendInstruction(opcode, requestor, location, {arg1, arg2});
 
     //propagate to parent (and grandparent, etc.) if flag specified.
     if(propagateToParent && getParent())
@@ -456,9 +458,9 @@ void Container::keyEventOnChildFrame(QWebFrame* origin, bool keyUp, QString keyc
 
     //Determine if an onkeydown/onkeyup attribute is attached to this element. Fire off an event if so.
     if(keyUp && childFrame.hasAttribute("onkeyup"))
-        client->sendInstruction(HIPE_OP_EVENT, 0 /*fixme: how can we find out the requestor?*/, location, "keyup", keycode.toStdString());
+        client->sendInstruction(HIPE_OP_EVENT, 0 /*fixme: how can we find out the requestor?*/, location, {"keyup", keycode.toStdString()});
     else if(!keyUp && childFrame.hasAttribute("onkeydown"))
-        client->sendInstruction(HIPE_OP_EVENT, 0 /*fixme: how can we find out the requestor?*/, location, "keydown", keycode.toStdString());
+        client->sendInstruction(HIPE_OP_EVENT, 0 /*fixme: how can we find out the requestor?*/, location, {"keydown", keycode.toStdString()});
 
     if(getParent()) { //propagate this up to *our* parent and so on, in case they need this keyboard event.
         getParent()->keyEventOnChildFrame(webElement.webFrame(), keyUp, keycode);
@@ -469,7 +471,7 @@ void Container::keyEventOnChildFrame(QWebFrame* origin, bool keyUp, QString keyc
 
 void Container::_receiveGuiEvent(quint64 location, quint64 requestor, QString event, QString detail)
 {
-    client->sendInstruction(HIPE_OP_EVENT, requestor, location, event.toStdString(), detail.toStdString());
+    client->sendInstruction(HIPE_OP_EVENT, requestor, location, {event.toStdString(), detail.toStdString()});
 }
 
 void Container::_receiveKeyEventOnBody(bool keyUp, QString keycode)

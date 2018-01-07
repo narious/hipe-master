@@ -47,7 +47,7 @@ public:
     Connection(int clientFD);
     ~Connection();
 
-    void sendInstruction(char opcode, int64_t requestor, int64_t location, std::string arg1, std::string arg2);
+    void sendInstruction(char opcode, int64_t requestor, int64_t location, const std::vector<std::string>& args = {});
     void sendInstruction(hipe_instruction& instruction);
     Container* container;
 

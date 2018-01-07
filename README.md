@@ -9,6 +9,9 @@ VERSION INFORMATION
 
 v1.01 beta -- 7 Jan 2018
 
+- HIPE_OP_GET_SCROLL_GEOMETRY instruction has been added.
+- HIPE_OP_GET_GEOMETRY instruction has changed. Server now replies with a HIPE_OP_GEOMETRY_RETURN
+  instruction, and the old two-step reply instructions have been removed.
 - Socket handling in the hiped server process is now handled with multithreading. Instructions are
   collected and decoded in a separate thread.
 

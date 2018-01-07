@@ -47,18 +47,20 @@ Connection::~Connection()
     delete container;
 }
 
-void Connection::sendInstruction(char opcode, int64_t requestor, int64_t location, std::string arg0, std::string arg1)
+void Connection::sendInstruction(char opcode, int64_t requestor, int64_t location, const std::vector<std::string>& args)
 {
     hipe_instruction instruction;
     hipe_instruction_init(&instruction);
     instruction.opcode = opcode;
     instruction.requestor = requestor;
     instruction.location = location;
-    instruction.arg[0] = (char*) arg0.data();
-    instruction.arg_length[0] = arg0.size();
-    instruction.arg[1] = (char*) arg1.data();
-    instruction.arg_length[1] = arg1.size();
-
+    for(size_t i=0; i<args.size(); i++) {
+        if(args[i].size()) {
+            instruction.arg[i] = (char*) args[i].data();
+            instruction.arg_length[i] = args[i].size();
+        }
+    }
+    
     sendInstruction(instruction);
 }
 
@@ -94,13 +96,13 @@ void Connection::runInstruction(hipe_instruction* instruction)
                     instruction->arg_length[0]), std::string(instruction->arg[1], 
                     instruction->arg_length[1]), instruction->requestor, this);
         //send the result of the container request (arg1 represents approved/denied)
-        sendInstruction(HIPE_OP_CONTAINER_GRANT, 0,0, (container ? "1":"0"),"0"); //new client awaits this confirmation that its key has been approved.
+        sendInstruction(HIPE_OP_CONTAINER_GRANT, 0,0, {(container ? "1":"0"),"0"}); //new client awaits this confirmation that its key has been approved.
     } else if(container) { //allow other instructions only if a container request has already been granted.
         //send the instruction to the container.
         container->receiveInstruction(*instruction);
     } else {
         //error. Access was not granted, so no other instructions are permitted.
-        sendInstruction(HIPE_OP_SERVER_DENIED, 0,0, "",""); //access denied.
+        sendInstruction(HIPE_OP_SERVER_DENIED, 0,0); //access denied.
     }
 }
 
