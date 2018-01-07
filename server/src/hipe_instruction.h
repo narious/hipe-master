@@ -232,6 +232,14 @@ extern "C" {
  * arg[1] is the y scroll position at the visible top of the element, arg[2] is the total scrollable
  * width of the element content, and arg[3] is the total scrollable height.*/
 
+#define HIPE_OP_SCROLL_TO          45
+#define HIPE_OP_SCROLL_BY          46
+/* Scrolls the contents of the element TO an absolute position or BY a relative (_BY) amount.
+ *  arg[0] is the horizontal pixel offset to scroll to (or by)
+ *  arg[1] is the vertical pixel offset to scroll to (or by)
+ *  To scroll in one direction only, leave the unwanted argument unspecified.
+ */
+
 /*--------------*/
 
 #define HIPE_FRAME_EVENT_CLIENT_CONNECTED    1 //arg[1] is client name

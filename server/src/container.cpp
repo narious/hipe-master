@@ -191,6 +191,24 @@ void Container::receiveInstruction(hipe_instruction instruction)
         std::string height = location.evaluateJavaScript("this.scrollHeight;").toString().toStdString();
         client->sendInstruction(HIPE_OP_GEOMETRY_RETURN, instruction.requestor, instruction.location,
                                     {left, top, width, height});
+    } else if(instruction.opcode == HIPE_OP_SCROLL_BY) {
+        if(instruction.arg_length[0]) { //left offset
+            int leftVal = std::stoi(arg[0]);
+            location.evaluateJavaScript(QString("this.scrollLeft +=") + leftVal + ";");
+        }
+        if(instruction.arg_length[1]) { //top offset
+            int topVal = std::stoi(arg[1]);
+            location.evaluateJavaScript(QString("this.scrollLeft +=") + topVal + ";");
+        }
+    } else if(instruction.opcode == HIPE_OP_SCROLL_TO) {
+        if(instruction.arg_length[0]) { //left offset
+            int leftVal = std::stoi(arg[0]);
+            location.evaluateJavaScript(QString("this.scrollLeft =") + leftVal + ";");
+        }
+        if(instruction.arg_length[1]) { //top offset
+            int topVal = std::stoi(arg[1]);
+            location.evaluateJavaScript(QString("this.scrollLeft =") + topVal + ";");
+        }
     } else if(instruction.opcode == HIPE_OP_GET_ATTRIBUTE) {
         QString attrVal;
         if(arg[0] == "value") {
