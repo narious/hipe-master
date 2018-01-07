@@ -46,6 +46,7 @@
 #include <map>
 #include <thread>
 #include <mutex>
+#include <signal.h>
 
 
 std::string uid;
@@ -55,18 +56,18 @@ KeyList* topLevelKeyList;
 std::string keyFilePath; //path and filename to store next available top-level key in.
 
 std::map<int, Connection*> activeConnections; //maps each socket descriptor to its client connection object.
-std::mutex mActiveConnections; //mutex to lock the activeConnections list during accesses.
+std::recursive_mutex mActiveConnections; //mutex to lock the activeConnections list during accesses.
 
 void registerConnection(Connection* c, int fd)
 {
-    std::lock_guard<std::mutex> guard(mActiveConnections);
+    std::lock_guard<std::recursive_mutex> guard(mActiveConnections);
     activeConnections[fd] = c;
     //activeConnections.push_back(c);
 }
 
 void deregisterConnection(Connection* c)
 {
-    std::lock_guard<std::mutex> guard(mActiveConnections);
+    std::lock_guard<std::recursive_mutex> guard(mActiveConnections);
     for(auto it=activeConnections.begin(); it!=activeConnections.end(); it++)
         if((it->second) == c) {
             activeConnections.erase(it);
@@ -90,7 +91,7 @@ Container* requestContainerFromKey(std::string key, std::string clientName, uint
 {
     if(topLevelKeyList->claimKey(key)) {
         makeNewTopLevelKeyFile();
-        Container* container = new ContainerTopLevel(c, QString::fromUtf8(clientName.c_str()));
+        Container* container = new ContainerTopLevel(c, clientName);
         container->setTitle(clientName);
         return container;
     } else { //not top-level. Traverse each container in case the key refers to a sub-frame.
@@ -109,7 +110,7 @@ Container* requestContainerFromKey(std::string key, std::string clientName, uint
 
 Connection* identifyFromFrame(QWebFrame* frame)
 {
-    std::lock_guard<std::mutex> guard(mActiveConnections); //lock activeConnections list for access.
+    std::lock_guard<std::recursive_mutex> guard(mActiveConnections);
     for(auto& elmnt : activeConnections) { 
     //each element is a pair of <int descriptor, Connection*>
         if(!elmnt.second->container) continue;
@@ -126,7 +127,7 @@ bool serviceConnections() {
 //RETURNS true if there have been productive service calls made - this can be used as a hint
 //to repeat calling this function sooner as this is a period of activity.
     bool was_productive = false;
-    std::lock_guard<std::mutex> guard(mActiveConnections); //lock activeConnections list for access.
+    std::lock_guard<std::recursive_mutex> guard(mActiveConnections); //lock activeConnections list for access.
     for(auto it=activeConnections.begin(); it!=activeConnections.end(); it++) {
         Connection* c = it->second;
         if(!c->isConnected()) {
@@ -145,7 +146,7 @@ void incomingSocketThread() {
 
     fd_set fds_to_watch;
     int max_fd;
-    std::unique_lock<std::mutex> guard(mActiveConnections, std::defer_lock);
+    std::unique_lock<std::recursive_mutex> guard(mActiveConnections, std::defer_lock);
     //will lock this later to ensure mutual exclusion when accessing activeConnection map.    
 
     while(true) {
@@ -257,6 +258,8 @@ int main(int argc, char *argv[])
         }
     }
 
+    signal(SIGPIPE, SIG_IGN); //broken client pipes must not crash the display server.
+
     a.setQuitOnLastWindowClosed(false);
 
     if(stylesheetArg.size()) { //load the stylesheet into a string
@@ -330,5 +333,6 @@ int main(int argc, char *argv[])
     //clean up...
     sockThread.join();
     unlink(socketFile.c_str());
+    delete topLevelKeyList;
     return 0;
 }

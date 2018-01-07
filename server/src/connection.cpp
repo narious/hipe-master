@@ -39,7 +39,10 @@ Connection::Connection(int clientFD)
 Connection::~Connection()
 //this happens in the main thread, in the service cycle.
 {
-    disconnect(); //disconnect if not already done.
+    disconnect(); //mark as disconnected if not already done.
+
+    shutdown(clientFD, SHUT_RDWR);
+    close(clientFD);
     instruction_decoder_clear(&currentInstruction);
     delete container;
 }
@@ -61,7 +64,7 @@ void Connection::sendInstruction(char opcode, int64_t requestor, int64_t locatio
 
 void Connection::sendInstruction(hipe_instruction& instruction)
 {
-    if(clientFD == -1) return;
+    if(!connected) return;
     instruction_encoder outgoingInstruction;
     instruction_encoder_init (&outgoingInstruction);
     instruction_encoder_encodeinstruction(&outgoingInstruction, instruction);
@@ -106,7 +109,7 @@ bool Connection::service() {
 //service() function in each, returning to an idle state if all connections return false (unproductive call).
 //The purpose of service() is to check if an incoming instruction has been queued by the socket thread
 //and service it in the primary/GUI thread; by modifying the GUI appropriately.
-    if(clientFD == -1) return false;
+    if(!connected) return false;
     std::lock_guard<std::mutex> guard(mIncomingInstructions);
     if(incomingInstructions.empty()) return false; //unproductive call.
     hipe_instruction* hi;
@@ -121,15 +124,12 @@ bool Connection::service() {
 }
 
 void Connection::disconnect() {
-    if(clientFD == -1) return; //already disconnected.
-    shutdown(clientFD, SHUT_RDWR);
-    close(clientFD);
-    clientFD = -1;
+    connected = false;
 }
 
 void Connection::_readyRead()
 {
-    if(clientFD == -1) return;
+    if(!connected) return;
     short bufferedChars; //the number of characters that have been read into the buffer. Must be <=READ_BUFFER_SIZE
 
     //attempt to read new characters

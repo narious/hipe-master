@@ -22,7 +22,7 @@
 //ContainerFrame is an alternative version of ContainerTopLevel, that exists within an iframe
 //of another.
 
-ContainerFrame::ContainerFrame(Connection* bridge, QString clientName, QWebFrame* frame, Container* parent) : Container(bridge, clientName) {
+ContainerFrame::ContainerFrame(Connection* bridge, std::string clientName, QWebFrame* frame, Container* parent) : Container(bridge, clientName) {
     initYet = false;
     this->frame = frame;
     this->parent = parent;

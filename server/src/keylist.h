@@ -19,40 +19,33 @@
 /// Each client, and the global environment, holds a KeyList object.
 /// It indexes a list of randomly generated keys which a client needs in order to become
 /// parented by a particular host. A valid key can only be claimed once, afterwhich it's
-/// removed from the pool. The KeyList object emits a signal when a key is claimed,
-/// which can be bound to whatever function does the work of setting up the container
-/// for the new client.
+/// removed from the pool.
 
 #ifndef KEYLIST_H
 #define KEYLIST_H
 
-#include <QObject>
-#include <QMutex>
+#include <mutex>
 #include <list>
+#include <random>
 
-class KeyList : public QObject
-{
-    Q_OBJECT
+
+class KeyList {
 private:
     static std::random_device rand;
     static unsigned int sequenceNumber;
-    static QMutex sequenceGuard;
+
+    static std::mutex mKeyList; //used to make KeyList operations thread-safe.
+    //rarity of this operation means a single mutex can be shared between instances.
 
     std::string baseString;
     std::list<std::string> keys;
-    QMutex listGuard;
 
     static char map6bitToAlphaNumeric(int num);
 
 public:
-    explicit KeyList(std::string baseString, QObject *parent = 0);
+    explicit KeyList(std::string baseString);
     std::string generateContainerKey();
     bool claimKey(std::string key);
-
-signals:
-    void keyGranted(std::string key);
-public slots:
-
 };
 
 #endif // KEYLIST_H

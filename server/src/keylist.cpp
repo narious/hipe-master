@@ -18,14 +18,12 @@
 
 #include "keylist.h"
 #include <sstream>
-#include <QMutexLocker>
 
 std::random_device KeyList::rand;
 unsigned int KeyList::sequenceNumber = rand(); //who says we should start at zero? if it overflows it will wrap regardless.
-QMutex KeyList::sequenceGuard;
+std::mutex KeyList::mKeyList;
 
-KeyList::KeyList(std::string baseString, QObject *parent) :
-    QObject(parent)
+KeyList::KeyList(std::string baseString)
 {
     this->baseString = baseString;
 }
@@ -55,7 +53,7 @@ std::string KeyList::generateContainerKey()
     /// and random integers respectively.
     /// We convert to base-64 and use map6bitToAlphaNumeric for this purpose.
 
-    QMutexLocker nowLocking(&sequenceGuard); //get exclusivity to protect the sequence number and the rand object..
+    std::lock_guard<std::mutex> guard(mKeyList);
 
     unsigned int num1 = rand();
     unsigned int num2 = sequenceNumber++;  //increment it once each time this function is called.
@@ -72,7 +70,6 @@ std::string KeyList::generateContainerKey()
     //The key string is formed as the concatenation of baseString, an alphanumeric
     //character sequence formed by incrementing a static variable,
 
-    QMutexLocker nowLocking2(&listGuard);
     keys.push_front(result.str());
 
     return result.str();
@@ -80,12 +77,11 @@ std::string KeyList::generateContainerKey()
 
 bool KeyList::claimKey(std::string key)
 {
-    //1. search the list, 2. remove it from the list. 3. fire the signal.
-    QMutexLocker nowLocking(&listGuard);
+    std::lock_guard<std::mutex> guard(mKeyList);
 
-    for(std::string& k : keys) {
-        if(k == key) {
-            keyGranted(key);
+    for(auto it=keys.begin(); it!=keys.end(); it++) {
+        if(*it == key) {
+            keys.erase(it);
             return true;
         }
     }

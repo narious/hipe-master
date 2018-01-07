@@ -58,7 +58,7 @@ public:
     friend class ContainerManager;
     static std::string globalStyleRules;
 
-    Container(Connection* client, QString clientName);
+    Container(Connection* client, std::string clientName);
     ~Container();
 
     void receiveInstruction(hipe_instruction instruction);

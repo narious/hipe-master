@@ -40,6 +40,8 @@
 
 class Connection
 {
+private:
+    bool connected = true;
 public:
     //explicit Connection(QLocalSocket* con, QObject *parent = 0);
     Connection(int clientFD);
@@ -55,7 +57,8 @@ public:
     //The purpose of service() is to check if an incoming instruction has been queued by the socket thread
     //and service it in the primary/GUI thread; by modifying the GUI appropriately.
 
-    inline bool isConnected() {return (clientFD!=-1);}
+    inline bool isConnected() {return connected;}
+    void disconnect();
 
     void _readyRead();
 private:
@@ -69,7 +72,7 @@ private:
     void runInstruction(hipe_instruction* instruction);
     //deals with a completed instruction -- sends it to wherever it's needed.
 
-    void disconnect();
+
 
     std::queue<hipe_instruction*> incomingInstructions;
 

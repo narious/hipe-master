@@ -62,7 +62,7 @@ class ContainerTopLevel : public Container
 
 public:
 
-    explicit ContainerTopLevel(Connection*, QString clientName);
+    explicit ContainerTopLevel(Connection*, std::string clientName);
     ~ContainerTopLevel();
 
     Container* getParent();

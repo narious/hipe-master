@@ -28,7 +28,7 @@ class ContainerFrame : public Container {
 //by the parent container.
 
 public:
-    ContainerFrame(Connection* client, QString clientName, QWebFrame* frame, Container* parent); //object is not created until an iframe is actually assigned to a client.
+    ContainerFrame(Connection* client, std::string clientName, QWebFrame* frame, Container* parent); //object is not created until an iframe is actually assigned to a client.
     ~ContainerFrame();
 
     Container* getParent();

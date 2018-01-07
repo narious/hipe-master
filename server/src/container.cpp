@@ -29,11 +29,11 @@
 
 std::string Container::globalStyleRules="";
 
-Container::Container(Connection* bridge, QString clientName) : QObject()
+Container::Container(Connection* bridge, std::string clientName) : QObject()
 {
     this->client = bridge;
 
-    keyList = new KeyList(clientName.toStdString());
+    keyList = new KeyList(clientName);
 
     connect(this, SIGNAL(receiveGuiEvent(quint64,quint64,QString,QString)),
             this, SLOT(_receiveGuiEvent(quint64,quint64,QString,QString)));
@@ -49,6 +49,7 @@ Container::Container(Connection* bridge, QString clientName) : QObject()
 
 Container::~Container()
 {
+    delete keyList;
 }
 
 void Container::receiveInstruction(hipe_instruction instruction)
@@ -247,12 +248,12 @@ void Container::receiveInstruction(hipe_instruction instruction)
         //find the relevant client
         for(FrameData& fd : subFrames) {
             if(fd.we == location) { //found
-                Container* target = identifyFromFrame(fd.wf)->container; //find the corresponding container.
+                Connection* target = identifyFromFrame(fd.wf); //find the corresponding container.
                 if(target) {
                     if(!arg[0].size() || arg[0][0] == '\0')
-                        delete target->client; //hard disconnection -- if this causes issues with Qt we might try target->client->deleteLater().
+                        target->disconnect(); //Hard disconnection. Will be cleaned up in the next service cycle.
                     else
-                        target->containerClosed(); //soft close request.
+                        target->container->containerClosed(); //soft close request.
                 }
                 break;
             }
@@ -371,7 +372,7 @@ Container* Container::requestNew(std::string key, std::string clientName, uint64
                 fd.title = clientName;
                 fd.pid = pid;
                 receiveSubFrameEvent(HIPE_FRAME_EVENT_CLIENT_CONNECTED, fd.wf, clientName);
-                return (Container*) new ContainerFrame(c, QString(clientName.c_str()), fd.wf, this);
+                return (Container*) new ContainerFrame(c, clientName, fd.wf, this);
             }
         }
     }

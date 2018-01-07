@@ -31,7 +31,7 @@
 //At the top level, clients that request new frames are granted
 //system-level windows instead of frames managed by other clients.
 
-ContainerTopLevel::ContainerTopLevel(Connection* bridge, QString clientName) : Container(bridge, clientName) {
+ContainerTopLevel::ContainerTopLevel(Connection* bridge, std::string clientName) : Container(bridge, clientName) {
     w = new WebWindow(this);
     frame = w->webView->page()->mainFrame();
     connect(frame, SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(frameCleared()));
