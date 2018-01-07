@@ -54,6 +54,7 @@ bool verbose;
 int serverFD;
 KeyList* topLevelKeyList;
 std::string keyFilePath; //path and filename to store next available top-level key in.
+std::string randomDevice;
 
 std::map<int, Connection*> activeConnections; //maps each socket descriptor to its client connection object.
 std::recursive_mutex mActiveConnections; //mutex to lock the activeConnections list during accesses.
@@ -210,6 +211,7 @@ int main(int argc, char *argv[])
 
     std::stringstream userid; userid << getuid();
     uid = userid.str();
+    randomDevice = ""; //unless overridden by --random argument, default behaviour is used.
     verbose = true;
 
     Sanitation::init();
@@ -223,10 +225,11 @@ int main(int argc, char *argv[])
         std::string thisArg = argv[i];
         if(thisArg.compare("--help")==0 || thisArg.compare("-h")==0) { //print help text then exit normally.
             std::cout << "Usage: " << argv[0] << " [options]\nOptions:\nHipe display server\n\n";
-            std::cout << "--socket (file path)\n\tCreate server socket file with a custom path and filename.\n";
             std::cout << "--keyfile (file path)\n\tCreate top-level host key file with a custom path and filename.\n";
-            std::cout << "--stylesheet (file path)\n\tLoad a CSS file to provide default global styling to all clients.\n";
+            std::cout << "--random (file path)\n\tUse a hardware random device (e.g. /dev/random), for key generation.\n";
             std::cout << "--silent\n\tOnly critical error messages will be printed to the error console.\n";
+            std::cout << "--socket (file path)\n\tCreate server socket file with a custom path and filename.\n";
+            std::cout << "--stylesheet (file path)\n\tLoad a CSS file to provide default global styling to all clients.\n";
             std::cout << "-h, --help\n\tDisplay this help information.\n";
             return 0;
         } else if(thisArg.compare("--socket")==0) {
@@ -236,6 +239,13 @@ int main(int argc, char *argv[])
                 return 1;
             }
             socketFileArg = argv[i];
+        } else if(thisArg.compare("--random")==0) {
+            //next arg must be present.
+            if(++i == argc) {
+                std::cerr << "Argument not optional. Try '" << argv[0] << " --help' for usage information\n";
+                return 1;
+            }
+            randomDevice = argv[i];
         } else if(thisArg.compare("--keyfile")==0) {
             //next arg must be present.
             if(++i == argc) {
@@ -283,7 +293,7 @@ int main(int argc, char *argv[])
     else
         keyFile = std::string(default_path) + "hipe.hostkey";
 
-    topLevelKeyList = new KeyList("H");
+    topLevelKeyList = new KeyList("H", randomDevice);
     keyFilePath = keyFile;
     makeNewTopLevelKeyFile();
 

@@ -19,13 +19,25 @@
 #include "keylist.h"
 #include <sstream>
 
-std::random_device KeyList::rand;
-unsigned int KeyList::sequenceNumber = rand(); //who says we should start at zero? if it overflows it will wrap regardless.
+std::random_device* KeyList::rand = nullptr;
+unsigned int KeyList::sequenceNumber; //who says we should start at zero? if it overflows it will wrap regardless.
 std::mutex KeyList::mKeyList;
 
-KeyList::KeyList(std::string baseString)
+KeyList::KeyList(std::string baseString, std::string randomDevice)
 {
     this->baseString = baseString;
+
+    if(!rand) { //static random generator/sequence start point has not been initialised yet.
+        if(randomDevice.size())
+            rand = new std::random_device(randomDevice);
+        else
+            rand = new std::random_device;
+        sequenceNumber = (*rand)(); //who says we should start at zero? if it overflows it will wrap regardless.
+    }
+}
+
+KeyList::~KeyList() {
+    delete rand;
 }
 
 char KeyList::map6bitToAlphaNumeric(int num) {
@@ -55,7 +67,7 @@ std::string KeyList::generateContainerKey()
 
     std::lock_guard<std::mutex> guard(mKeyList);
 
-    unsigned int num1 = rand();
+    unsigned int num1 = (*rand)();
     unsigned int num2 = sequenceNumber++;  //increment it once each time this function is called.
 
     std::stringstream result;

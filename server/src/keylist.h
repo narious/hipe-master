@@ -31,7 +31,7 @@
 
 class KeyList {
 private:
-    static std::random_device rand;
+    static std::random_device* rand;
     static unsigned int sequenceNumber;
 
     static std::mutex mKeyList; //used to make KeyList operations thread-safe.
@@ -43,7 +43,11 @@ private:
     static char map6bitToAlphaNumeric(int num);
 
 public:
-    explicit KeyList(std::string baseString);
+    explicit KeyList(std::string baseString, std::string randomDevice="");
+    //randomDevice is a hardware device path, e.g. "/dev/random" which is optionally specified.
+    //If ommitted, default behaviour ensues.
+
+    ~KeyList();
     std::string generateContainerKey();
     bool claimKey(std::string key);
 };

@@ -23,6 +23,7 @@
 class Connection;
 
 extern std::string uid; //string-format of UID number of the Unix user that owns this hiped instance.
+extern std::string randomDevice; //random number device path (e.g. /dev/random). If empty, default behaviour is used.
 
 extern bool verbose; //verbose mode (unless overridden by --silent arg) means success messages are printed
 //to stderr.
