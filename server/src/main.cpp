@@ -293,7 +293,8 @@ int main(int argc, char *argv[])
     else
         keyFile = std::string(default_path) + "hipe.hostkey";
 
-    topLevelKeyList = new KeyList("H", randomDevice);
+    KeyList::initClass(randomDevice);
+    topLevelKeyList = new KeyList("H");
     keyFilePath = keyFile;
     makeNewTopLevelKeyFile();
 

@@ -23,21 +23,22 @@ std::random_device* KeyList::rand = nullptr;
 unsigned int KeyList::sequenceNumber; //who says we should start at zero? if it overflows it will wrap regardless.
 std::mutex KeyList::mKeyList;
 
-KeyList::KeyList(std::string baseString, std::string randomDevice)
+void KeyList::initClass(std::string randomDevice) {
+//must be called before any KeyList objects are created.    
+    if(randomDevice.size())
+        rand = new std::random_device(randomDevice);
+    else
+        rand = new std::random_device;
+    sequenceNumber = (*rand)(); //who says we should start at zero? if it overflows it will wrap regardless.
+}
+
+KeyList::KeyList(std::string baseString)
 {
     this->baseString = baseString;
-
-    if(!rand) { //static random generator/sequence start point has not been initialised yet.
-        if(randomDevice.size())
-            rand = new std::random_device(randomDevice);
-        else
-            rand = new std::random_device;
-        sequenceNumber = (*rand)(); //who says we should start at zero? if it overflows it will wrap regardless.
-    }
 }
 
 KeyList::~KeyList() {
-    delete rand;
+
 }
 
 char KeyList::map6bitToAlphaNumeric(int num) {

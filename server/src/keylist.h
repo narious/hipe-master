@@ -43,9 +43,12 @@ private:
     static char map6bitToAlphaNumeric(int num);
 
 public:
-    explicit KeyList(std::string baseString, std::string randomDevice="");
+    static void initClass(std::string randomDevice=""); 
+    //must be called before any objects are created from this class.
     //randomDevice is a hardware device path, e.g. "/dev/random" which is optionally specified.
     //If ommitted, default behaviour ensues.
+
+    explicit KeyList(std::string baseString);
 
     ~KeyList();
     std::string generateContainerKey();

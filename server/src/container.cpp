@@ -33,7 +33,7 @@ Container::Container(Connection* bridge, std::string clientName) : QObject()
 {
     this->client = bridge;
 
-    keyList = new KeyList(clientName, randomDevice);
+    keyList = new KeyList(clientName);
 
     connect(this, SIGNAL(receiveGuiEvent(quint64,quint64,QString,QString)),
             this, SLOT(_receiveGuiEvent(quint64,quint64,QString,QString)));
