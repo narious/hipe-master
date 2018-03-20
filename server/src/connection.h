@@ -52,10 +52,11 @@ public:
     Container* container;
 
     bool service();
-    //for future implementation: The hiped event loop iterates over each activeConnection and calls the
-    //service() function in each, returning to an idle state if all connections return false (unproductive call).
-    //The purpose of service() is to check if an incoming instruction has been queued by the socket thread
-    //and service it in the primary/GUI thread; by modifying the GUI appropriately.
+    //The hiped event loop iterates over each activeConnection and calls the
+    //service() function in each, returning to an idle state if all connections
+    //return false (unproductive call). The purpose of service() is to check if
+    //an incoming instruction has been queued by the socket thread and service
+    //it in the primary/GUI thread; by modifying the GUI appropriately.
 
     inline bool isConnected() {return connected;}
     void disconnect();
@@ -76,8 +77,14 @@ private:
 
     std::queue<hipe_instruction*> incomingInstructions;
 
-    std::mutex mIncomingInstructions; //instruction queue is filled by the incomingInstruction thread, and emptied
-    //in the main thread. Mutual exclusion must be enforced to ensure no two threads access the queue simultaneously.
+    std::mutex mIncomingInstructions;
+    //instruction queue is filled by the incomingInstruction thread, and emptied
+    //in the main thread. Mutual exclusion must be enforced to ensure no two
+    //threads access the queue simultaneously.
+
+    std::mutex mWriteProtect;
+    //mutex to enforce atomicity of write calls when sending messages back
+    //to client.
 
 };
 

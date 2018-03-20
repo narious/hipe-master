@@ -60,13 +60,15 @@ void Connection::sendInstruction(char opcode, int64_t requestor, int64_t locatio
             instruction.arg_length[i] = args[i].size();
         }
     }
-    
+
     sendInstruction(instruction);
 }
 
 void Connection::sendInstruction(hipe_instruction& instruction)
 {
     if(!connected) return;
+    std::lock_guard<std::mutex> guard(mWriteProtect);
+
     instruction_encoder outgoingInstruction;
     instruction_encoder_init (&outgoingInstruction);
     instruction_encoder_encodeinstruction(&outgoingInstruction, instruction);
@@ -92,8 +94,8 @@ void Connection::runInstruction(hipe_instruction* instruction)
 {
     if(instruction->opcode == HIPE_OP_REQUEST_CONTAINER) {
         //requestor contains the claimed pid of the connecting process.
-        container = requestContainerFromKey(std::string(instruction->arg[0], 
-                    instruction->arg_length[0]), std::string(instruction->arg[1], 
+        container = requestContainerFromKey(std::string(instruction->arg[0],
+                    instruction->arg_length[0]), std::string(instruction->arg[1],
                     instruction->arg_length[1]), instruction->requestor, this);
         //send the result of the container request (arg1 represents approved/denied)
         sendInstruction(HIPE_OP_CONTAINER_GRANT, 0,0, {(container ? "1":"0"),"0"}); //new client awaits this confirmation that its key has been approved.
@@ -108,9 +110,10 @@ void Connection::runInstruction(hipe_instruction* instruction)
 
 bool Connection::service() {
 //The hiped event loop iterates over each activeConnection and calls the
-//service() function in each, returning to an idle state if all connections return false (unproductive call).
-//The purpose of service() is to check if an incoming instruction has been queued by the socket thread
-//and service it in the primary/GUI thread; by modifying the GUI appropriately.
+//service() function in each, returning to an idle state if all connections
+//return false (unproductive call). The purpose of service() is to check if an
+//incoming instruction has been queued by the socket thread and service it in
+//the primary/GUI thread; by modifying the GUI appropriately.
     if(!connected) return false;
     std::lock_guard<std::mutex> guard(mIncomingInstructions);
     if(incomingInstructions.empty()) return false; //unproductive call.

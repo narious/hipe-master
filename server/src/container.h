@@ -29,7 +29,6 @@
 #include "ExpArray.hh"
 #include "common.h"
 #include "keylist.h"
-class Client;
 class Connection;
 
 
