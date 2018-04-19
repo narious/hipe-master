@@ -53,7 +53,7 @@ Container::~Container()
 }
 
 void Container::receiveInstruction(hipe_instruction instruction)
-//POLICY NOTES: Qt's webkit DOM functions require QStrings extensively. However we prefer to avoid 
+//POLICY NOTES: Qt's webkit DOM functions require QStrings extensively. However we prefer to avoid
 //coupling our application too closely to Qt due to the Qt Company's neglect of webkit bindings.
 //THEREFORE, use C++11 standard types where possible, and only convert to QString type where absolutely
 //necessary.

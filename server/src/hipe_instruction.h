@@ -34,10 +34,12 @@ extern "C" {
 #include <stdint.h>
 
 #define HIPE_OP_CLEAR              1
-/*clear the contents of the tag given by location (removing all child elements), or clear body if location==0.*/
+/*clear the contents of the tag given by location (removing all child elements),
+ *or clear body if location==0.*/
 
 #define HIPE_OP_SET_TEXT           2
-/* set a tag's contents to a string of plain text given in arg[0], overwriting previous contents.
+/* set a tag's contents to a string of plain text given in arg[0], overwriting
+ * previous contents.
  * if location==0 this applies to the entire body tag.
  */
 
@@ -54,8 +56,8 @@ extern "C" {
 /* arg[0] is the name of the attribute and arg[1] is the retrieved value */
 
 #define HIPE_OP_CONTAINER_GRANT    6
-/* Server response to container request. Arg1 is "0" if the container request was denied, or "1" if
- * a new container has been granted. */
+/* Server response to container request. Arg1 is "0" if the container request
+ * was denied, or "1" if a new container has been granted. */
 
 #define HIPE_OP_EVENT              7
 /* Sent by the server to the client whenever a requested event occurs.
@@ -99,17 +101,18 @@ extern "C" {
  * Args are undefined (0), requestor is copied from the request, location is the requested location.*/
 
 #define HIPE_OP_GEOMETRY_RETURN    19
-/* arg[0] is x position and arg[1] is y position relative to containing frame. 
+/* arg[0] is x position and arg[1] is y position relative to containing frame.
  * arg[2] is the width and arg[3] is the height of the element itself. */
 
 #define HIPE_OP_REQUEST_CONTAINER  20
 /* this must be the first instruction received. arg[0] is the key and arg[1] is a short client name.*/
 
 #define HIPE_OP_SERVER_DENIED      21
-/* Sent by the server when a request is received but cannot be acted on due to some critical violation.
- * Usually this means that the client has not followed protocol, e.g. is trying to send instructions
- * even though a container request was previously denied. Or, the session has been terminated at the
- * server end. */
+/*Sent by the server when a request is received but cannot be acted on due to
+ *some critical violation. Usually this means that the client has not followed
+ *protocol, e.g. is trying to send instructions even though a container request
+ *was previously denied. Or, the session has been terminated at the server end.
+ */
 
 #define HIPE_OP_SET_ATTRIBUTE      22
 /* arg[0] is the property and arg[1] is the new value */
@@ -124,7 +127,7 @@ extern "C" {
  */
 
 #define HIPE_OP_SET_SRC            25
-/* 
+/*
  * arg[0] is the binary contents of the media file to be applied to the element.
  * arg[1] is the mime type of the source file to be applied to the element, e.g. "image/jpeg"
  */
@@ -220,24 +223,26 @@ extern "C" {
 #define HIPE_OP_MESSAGE            43
 /* Sends an arbitrary message to another Hipe client with a direct parent/child relationship.
  * Or receives a message from another client.
- * Location: * 0 (or body element) means the message is being passed to/from the direct parent 
+ * Location: * 0 (or body element) means the message is being passed to/from the direct parent
  *               (which manages the client frame)
  *           * a frame element means message is being passed to/from that child frame's client.
  * arg[0], arg[1], requestor: passed through to other client unmodified. User-defined message data can be passed through here.
  */
 
 #define HIPE_OP_GET_SCROLL_GEOMETRY 44
-/* Requests the scroll geometry of the specified element. No arguments. Return instruction is
- * a HIPE_OP_GEOMETRY_RETURN instruction, where arg[0] is the x scroll position at the left hand side,
- * arg[1] is the y scroll position at the visible top of the element, arg[2] is the total scrollable
- * width of the element content, and arg[3] is the total scrollable height.*/
+/*Requests the scroll geometry of the specified element. No arguments. Return
+ *instruction is a HIPE_OP_GEOMETRY_RETURN instruction, where arg[0] is the x
+ *scroll position at the left hand side, arg[1] is the y scroll position at the
+ *visible top of the element, arg[2] is the total scrollable width of the
+ *element content, and arg[3] is the total scrollable height.
+ */
 
 #define HIPE_OP_SCROLL_TO          45
 #define HIPE_OP_SCROLL_BY          46
-/* Scrolls the contents of the element TO an absolute position or BY a relative (_BY) amount.
- *  arg[0] is the horizontal pixel offset to scroll to (or by)
- *  arg[1] is the vertical pixel offset to scroll to (or by)
- *  To scroll in one direction only, leave the unwanted argument unspecified.
+/*Scrolls the contents of the element TO an absolute position or BY a relative
+ *(_BY) amount. arg[0] is the horizontal pixel offset to scroll to (or by).
+ *arg[1] is the vertical pixel offset to scroll to (or by) To scroll in one
+ *direction only, leave the unwanted argument unspecified.
  */
 
 /*--------------*/
@@ -265,39 +270,42 @@ struct _hipe_instruction { /*for storing the (decoded) values of an instruction*
 typedef struct _hipe_instruction hipe_instruction;
 
 void hipe_instruction_init(hipe_instruction* obj);
-/*Must be called on any new hipe_instruction instance (excepting shallow copies of an existing instance).
- *The same applies if a struct previously modified by the user (e.g. assigning arg strings to it) is
- *going to be reused for collecting new input from hipe. This function doesn't allocate or free memory,
- *but it initialises the struct's values into a consistent state so that other hipe functions can do so
- *safely.
+/*Must be called on any new hipe_instruction instance (excepting shallow copies
+ *of an existing instance). The same applies if a struct previously modified by
+ *the user (e.g. assigning arg strings to it) is going to be reused for
+ *collecting new input from hipe. This function doesn't allocate or free memory,
+ *but it initialises the struct's values into a consistent state so that other
+ *hipe functions can do so safely.
  */
 
 void hipe_instruction_alloc(hipe_instruction* obj);
-/*Allocates memory to store each argument in obj, according to arg_length[] values already assigned to
- *obj. Arguments allocated in this way should later be freed with hipe_instruction_clear().
+/*Allocates memory to store each argument in obj, according to arg_length[]
+ *values already assigned to obj. Arguments allocated in this way should later
+ *be freed with hipe_instruction_clear().
  */
 
 void hipe_instruction_clear(hipe_instruction* obj);
-/*Frees memory previously allocated within the instruction, and leaves the struct in a clean state ready
- *for reuse. Do not use this function to clear a hipe_instruction for which you have allocated values
- *yourself. Instead, de-allocate the argument strings in a way consistent with how you allocated them,
- *then call hipe_instruction_init() to re-initialise the values into a clean state.
+/*Frees memory previously allocated within the instruction, and leaves the
+ *struct in a clean state ready for reuse. Do not use this function to clear a
+ *hipe_instruction for which you have allocated values yourself. Instead,
+ *de-allocate the argument strings in a way consistent with how you allocated
+ *them, then call hipe_instruction_init() to re-initialise the values into a
+ *clean state.
  */
 
 void hipe_instruction_copy(hipe_instruction* dest, hipe_instruction* src);
 /*Deeply copies src values into dest, allocating memory for args.
- *Does not do any initialisation or deallocation of any previous values that may have been present
- *in dest previously.
- *When done with the instruction in dest, free the memory of its internal variables
- *with hipe_instruction_clear().
+ *Does not do any initialisation or deallocation of any previous values that may
+ *have been present in dest previously.
+ *When done with the instruction in dest, free the memory of its internal
+ *variables with hipe_instruction_clear().
  */
 
 void hipe_instruction_move(hipe_instruction* dest, hipe_instruction* src);
-/*Moves allocations from src to dest. Similar to hipe_instruction_copy except no new memory
- *is allocated; the memory allocated to src is reassigned to dest, and src is then re-initialised.
- *The memory in dest should later be freed in a manner consistent with how src was previously
- *allocated.
- */
+/*Moves allocations from src to dest. Similar to hipe_instruction_copy except no
+/*new memory is allocated; the memory allocated to src is reassigned to dest,
+/*and src is then re-initialised. The memory in dest should later be freed in a
+/*manner consistent with how src was previously allocated. */
 
 #endif
 #ifdef __cplusplus

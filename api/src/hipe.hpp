@@ -52,30 +52,38 @@ class loc {
 
     protected:
         hipe_loc location;
-        session* _session; 
-    
+        session* _session;
+
         loc(hipe_loc location, session* s); //construct a new element object using its location value
         //This function is protected because exposing it may lead to incorrect reference count management.
     public:
         loc(); //create a new null instance to be reassigned later.
         loc(const loc& orig); //copy constructor
-        loc(const hipe_loc& location); //create an instance that can be used for comparison only (no session or reference count info).
+
+        loc(const hipe_loc& location);
+        //create an instance that can be used for comparison only (no session or reference count info).
+
         loc& operator= (const loc& orig); //copy assignment operator
-        loc& operator= (const hipe_loc& location); //assign a location that can be used for comparison only (no session or reference info).
+
+        loc& operator= (const hipe_loc& location);
+        //assign a location that can be used for comparison only (no session or reference info).
+
         ~loc(); //destructor
-    
+
+        ///////////////////////////////////////////////////////////////////////
+
         loc firstChild(); //return first child element of this element
         loc lastChild(); //return the last child element of this element.
         loc nextSibling(); //return the element that follows this one at the current level.
         loc prevSibling(); //return the element that precedes this one at the current level.
-        
+
         operator hipe_loc() const; //allow casting to a hipe_loc variable for use with hipe API C functions.
         bool operator== (hipe_loc) const; //allow comparison with hipe_loc location handle.
         bool operator== (const loc& loc) const; //allow comparison with another loc object.
         bool operator!= (const loc& loc) const; //allow comparison with another loc object.
         bool operator< (const loc& other) const;
         operator bool() const; //check if the loc object is well-defined.
-    
+
         int send(char opcode, uint64_t requestor, const std::vector<std::string>& args={});
         //sends an instruction with this element passed as the location to act on.
 
@@ -93,7 +101,7 @@ class session : public loc {
     protected:
         void incrementReferenceCount(hipe_loc location);
         //increments our local reference count for the location
-    
+
         void decrementReferenceCount(hipe_loc location);
         //decrmements local reference count for a particular location, or frees the location
         //if its reference count is zero.
@@ -227,7 +235,7 @@ inline loc loc::firstChild() {
     hipe_instruction_clear(&instruction);
     return loc(location, _session);
 }
-    
+
 inline loc loc::lastChild() {
 //return the last child node of this element.
     hipe_send(*_session, HIPE_OP_GET_LAST_CHILD, 0, location, 0, 0);
@@ -248,7 +256,7 @@ inline loc loc::nextSibling() {
     hipe_instruction_clear(&instruction);
     return loc(location, _session);
 }
-    
+
 inline loc loc::prevSibling() {
     hipe_send(*_session, HIPE_OP_GET_PREV_SIBLING, 0, location, 0, 0);
     hipe_instruction instruction;
@@ -258,14 +266,14 @@ inline loc loc::prevSibling() {
     hipe_instruction_clear(&instruction);
     return loc(location, _session);
 }
-        
+
 inline loc::operator hipe_loc() const { //allow casting to a hipe_loc variable for use with hipe API C functions.
     return location;
 }
 
 inline int loc::send(char opcode, uint64_t requestor, const std::vector<std::string>& args) {
 //sends an instruction with this element passed as the location to act on.
-        
+
     int result;
     hipe_instruction instruction;
     hipe_instruction_init(&instruction);
@@ -308,4 +316,3 @@ inline bool loc::operator< (const loc& other) const {
 
 
 };//end of hipe:: namespace
-

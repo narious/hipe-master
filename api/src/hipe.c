@@ -34,15 +34,19 @@
 #include <sys/un.h> /*for struct sockaddr_un*/
 
 #define READ_BUFFER_SIZE 128 /*this choice is arbitrary.*/
-/* Defines the size (in bytes) of the read buffer into which instruction data is read in from the display server.
- * Data read in a single read operation may correspond to one or more instructions, or even a fragment of a single
- * large instruction. A larger value of READ_BUFFER_SIZE will allow more data to be read in a single read operation,
- * but there is no guarantee that the hiped display server process will often send large chunks of data at once.
- * A smaller value of READ_BUFFER_SIZE will require more consecutive read operations to read in the same data, but
- * will process incoming data with greater regularity when there is a large stream of data incoming.
- */
+/* Defines the size (in bytes) of the read buffer into which instruction data is
+ * read in from the display server. Data read in a single read operation may
+ * correspond to one or more instructions, or even a fragment of a single
+ * large instruction. A larger value of READ_BUFFER_SIZE will allow more data to
+ * be read in a single read operation, but there is no guarantee that the
+ * hiped display server process will often send large chunks of data at once.
+ * A smaller value of READ_BUFFER_SIZE will require more consecutive read
+ * operations to read in the same data, but will process incoming data with
+ * greater regularity when there is a large stream of data incoming. */
 
-#define MAX_READS 50 /*the maximum number of consecutive read operations that can be completed without a return.*/
+#define MAX_READS 50
+/*the maximum number of consecutive read operations that can be completed
+ *without a return.*/
 
 struct _hipe_session { /*all session-specific state variables go here!*/
     int connection_fd; /*File descriptor for the connection, or -1 when disconnected.*/
@@ -57,23 +61,23 @@ struct _hipe_session { /*all session-specific state variables go here!*/
 };
 
 int read_to_queue(hipe_session session, int blocking);
-/*blocking or nonblocking read from server. Receives the number of characters available in the connection's
-  input buffer, and begins assembling them into an instruction.
-*/
+/*blocking or nonblocking read from server. Receives the number of characters
+ *available in the connection's input buffer, and begins assembling them into an
+ *instruction. */
 
-void hipe_session_init(struct _hipe_session* obj) { /*contructor for a _hype_session struct instance.*/
+void hipe_session_init(struct _hipe_session* obj) {
+/*contructor for a _hype_session struct instance.*/
     instruction_encoder_init(&obj->outgoingInstruction);
     instruction_decoder_init(&obj->incomingInstruction);
     obj->oldestInstruction = 0;
     obj->newestInstruction = 0;
 }
 
-void hipe_session_clear(struct _hipe_session* obj) { /*destructor for a _hype_session struct instance.*/
+void hipe_session_clear(struct _hipe_session* obj) {
+/*destructor for a _hype_session struct instance.*/
     instruction_encoder_clear(&obj->outgoingInstruction);
     instruction_decoder_clear(&obj->incomingInstruction);
 }
-
-
 
 void hipe_disconnect(hipe_session session) {
 /* Private function to close a session's server connection without freeing the server struct.
@@ -87,7 +91,6 @@ void hipe_disconnect(hipe_session session) {
     close(session->connection_fd);
     session->connection_fd = -1;
 }
-
 
 hipe_session hipe_open_session(const char* host_key, const char* socket_path, const char* key_path, const char* clientName) {
 /*connect to the host socket. A custom socket file path may be specified.
@@ -120,7 +123,7 @@ hipe_session hipe_open_session(const char* host_key, const char* socket_path, co
 
     if(host_key) { /*host key specified by user*/
         strncpy(key, host_key, 200);
-    } else if(getenv("HIPE_HOSTKEY")) { /*key specified by environment [note: each key can only be used once.]*/
+    } else if(getenv("HIPE_HOSTKEY")) { /*key specified by environment [NB: each key can only be used once.]*/
         strncpy(key, getenv("HIPE_HOSTKEY"), 200);
     } else { /*need to load a key from the given key_path.*/
         FILE* keyfile;
@@ -202,7 +205,7 @@ int hipe_send_instruction(hipe_session session, hipe_instruction instruction)
 
     instruction_encoder_encodeinstruction(&session->outgoingInstruction, instruction);
     /*send the instruction over the connection.*/
-    err = send(session->connection_fd, session->outgoingInstruction.encoded_output, 
+    err = send(session->connection_fd, session->outgoingInstruction.encoded_output,
                session->outgoingInstruction.encoded_length, MSG_NOSIGNAL);
 
     if(err == -1) hipe_disconnect(session);
@@ -215,12 +218,13 @@ short hipe_next_instruction(hipe_session session, hipe_instruction* instruction_
 {
     short result;
 
-    hipe_instruction_clear(instruction_ret); /*clear any previous instruction so that the user doesn't have to.*/
-   
+    hipe_instruction_clear(instruction_ret);
+    /*clear any previous instruction so that the user doesn't have to.*/
+
     while(!session->oldestInstruction) {
     /*Only read something new from server if the queue is empty.*/
         result = read_to_queue(session, blocking);
-        if(!blocking && result == 0) return 0; 
+        if(!blocking && result == 0) return 0;
         else if(result == -1) { /* Not connected to server */
             instruction_ret->opcode = HIPE_OP_SERVER_DENIED;
             return -1;
@@ -231,7 +235,7 @@ short hipe_next_instruction(hipe_session session, hipe_instruction* instruction_
     *instruction_ret = *(session->oldestInstruction); /*shallow copy*/
     if(session->oldestInstruction == session->newestInstruction)
         session->newestInstruction = 0; /* if this was the only waiting instruction, reflect the now empty state of queue */
-    free(session->oldestInstruction);                 /*shallow clear. Any args now exist in instruction_ret only.*/
+    free(session->oldestInstruction);   /*shallow clear. Any args now exist in instruction_ret only.*/
     session->oldestInstruction = instruction_ret->next;
     instruction_ret->next = 0;
 
@@ -240,11 +244,13 @@ short hipe_next_instruction(hipe_session session, hipe_instruction* instruction_
 
 
 int read_to_queue(hipe_session session, int blocking)
-/*If blocking is set, the function will not return until at least a partial instruction has been read.
- *This function processes zero or more complete instructions before it returns. It then adds these
- *to the session's incoming instruction queue.
+/*If blocking is set, the function will not return until at least a partial
+ *instruction has been read. This function processes zero or more complete
+ *instructions before it returns. It then adds these to the session's incoming
+ *instruction queue.
  *
- * Returns the number of completed instructions read into the session queue (if any), or -1 on error.
+ *Returns the number of completed instructions read into the session queue (if
+ *any), or -1 on error.
  */
 {
     if(session->connection_fd == -1) return -1; /*not connected*/
@@ -364,7 +370,6 @@ short hipe_await_instruction(hipe_session session, hipe_instruction* instruction
     }
 }
 
-
 int hipe_send(hipe_session session, char opcode, uint64_t requestor, hipe_loc location, int n_args, ...) {
     int result;
     hipe_instruction instruction;
@@ -389,5 +394,3 @@ int hipe_send(hipe_session session, char opcode, uint64_t requestor, hipe_loc lo
     //hipe_instruction_clear(&instruction);
     return result;
 }
-
-
