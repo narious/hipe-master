@@ -357,11 +357,11 @@ short hipe_await_instruction(hipe_session session, hipe_instruction* instruction
         }
 
         /* need to fetch more instructions */
-        while(fetched_instructions == 0) {
+        do {
             fetched_instructions = read_to_queue(session, 1);
             if(fetched_instructions < 0) /*bad. handle error.*/
                 return -1;
-        }
+        } while(fetched_instructions == 0);
 
         if(previous)
             current = previous->next;

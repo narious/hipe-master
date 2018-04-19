@@ -7,6 +7,11 @@ HIPE: Hypertext Pipe
 VERSION INFORMATION
 -------------------
 
+v1.02 beta -- 19 Apr 2018
+
+Fixed a longstanding bug in await_instruction that caused the calling client
+to hang at random.
+
 v1.01 beta -- 7 Jan 2018
 
 - HIPE_OP_GET_SCROLL_GEOMETRY instruction has been added.
@@ -34,9 +39,6 @@ TODO:
 
 - Reduce reliance on Qt to enable future porting to other toolkits. Use POSIX socket functions rather than
   those provided by Qt.
-- Fix bug: A lot of HIPE_OP_GET_GEOMETRY requests in quick succession (alternated with other instructions)
-  can cause the client to hang on the call to hipe_await_instruction() for a reply that doesn't eventuate.
-  This scenario also causes the CPU to go to 100%, suggesting the blocking syscalls aren't running optimally.
 - Add security: sanitise canvas operations to prevent arbitrary code causing performance instability.
 
 
