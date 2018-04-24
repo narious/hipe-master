@@ -32,6 +32,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <sys/un.h> /*for struct sockaddr_un*/
+#include <pthread.h>
 
 #define READ_BUFFER_SIZE 128 /*this choice is arbitrary.*/
 /* Defines the size (in bytes) of the read buffer into which instruction data is
@@ -51,6 +52,9 @@
 struct _hipe_session { /*all session-specific state variables go here!*/
     int connection_fd; /*File descriptor for the connection, or -1 when disconnected.*/
 
+    pthread_mutex_t send_lock; //this mutex is used to make sending outgoing
+    //instructions threadsafe.
+
     char readBuffer[READ_BUFFER_SIZE];
     instruction_encoder outgoingInstruction;
     instruction_decoder incomingInstruction;
@@ -69,6 +73,7 @@ void hipe_session_init(struct _hipe_session* obj) {
 /*contructor for a _hype_session struct instance.*/
     instruction_encoder_init(&obj->outgoingInstruction);
     instruction_decoder_init(&obj->incomingInstruction);
+    pthread_mutex_init(&obj->send_lock, NULL);
     obj->oldestInstruction = 0;
     obj->newestInstruction = 0;
 }
@@ -77,6 +82,7 @@ void hipe_session_clear(struct _hipe_session* obj) {
 /*destructor for a _hype_session struct instance.*/
     instruction_encoder_clear(&obj->outgoingInstruction);
     instruction_decoder_clear(&obj->incomingInstruction);
+    pthread_mutex_destroy(&obj->send_lock);
 }
 
 void hipe_disconnect(hipe_session session) {
@@ -196,12 +202,16 @@ hipe_session hipe_open_session(const char* host_key, const char* socket_path, co
 }
 
 
-int hipe_send_instruction(hipe_session session, hipe_instruction instruction)
+int hipe_send_instruction(hipe_session session, hipe_instruction instruction) {
 /*encode and transmit an instruction.*/
-{
     ssize_t err;
-
     if(session->connection_fd == -1) return -1; //not connected.
+
+    pthread_mutex_lock(&session->send_lock);
+    //enforce atomicity so that two threads can send instructions without
+    //messing up the encoding. Note that receiving instructions is NOT
+    //thread safe, so only one thread should require and be checking for
+    //replies.
 
     instruction_encoder_encodeinstruction(&session->outgoingInstruction, instruction);
     /*send the instruction over the connection.*/
@@ -209,6 +219,7 @@ int hipe_send_instruction(hipe_session session, hipe_instruction instruction)
                session->outgoingInstruction.encoded_length, MSG_NOSIGNAL);
 
     if(err == -1) hipe_disconnect(session);
+    pthread_mutex_unlock(&session->send_lock);
 
     return 0; /*success*/
 }

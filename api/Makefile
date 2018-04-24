@@ -3,7 +3,7 @@ AR?=ar
 
 all: api
 api:
-	cd build && $(CC) -c -g -O2 -Wall ../src/*.c
+	cd build && $(CC) -c -g -O2 -Wall ../src/*.c -lpthread
 	$(AR) -rsc build/libhipe.a build/*.o
 clean:
 	rm -v build/*.o
