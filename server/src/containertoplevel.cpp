@@ -18,6 +18,7 @@
 
 #include "containertoplevel.h"
 #include "connection.h"
+#include "icondata.h"
 #include <QWebView>
 #include <QWebFrame>
 #include <QSizePolicy>
@@ -37,6 +38,9 @@ ContainerTopLevel::ContainerTopLevel(Connection* bridge, std::string clientName)
     connect(frame, SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(frameCleared()));
     //frame->addToJavaScriptWindowObject("c",this);
     //make this container object accessible to the webview frame via javascript.
+
+    //set default toplevel icon to Hipe icon in case run in a desktop environment.
+    setIcon((char*) hipeicon_rootless128_png, hipeicon_rootless128_png_len);
 }
 
 ContainerTopLevel::~ContainerTopLevel() {

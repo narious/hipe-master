@@ -1,4 +1,4 @@
-/*  Copyright (c) 2015 Daniel Kos, General Development Systems
+/*  Copyright (c) 2018 Daniel Kos, General Development Systems
 
     This program is free software: you can redistribute it and/or modify
     it under the terms of the GNU General Public License as published by
@@ -35,11 +35,11 @@ private:
     T** data; //data is an array of T arrays
     short capacityMsb; //capacity of the most-significant-bit array
     short sizeMsb; //most significant bit position in the currently allocated array size. E.g. sizeMsb==0 means 2^0==1
-    
+
     //returns the place of the most significant bit of the binary representation of num
     //with the least significant bit represented as zero (2^0 = 1)
     //if num==0, -1 is returned.
-    short msbOf(size_t num) { 
+    short msbOf(size_t num) {
         short msbExponent = -1;
         while(num) {
             num >>= 1;
@@ -60,7 +60,7 @@ public:
         ExpArray(); //just make a new blank array for now.
         //TODO: make a proper copy.
     }
-    
+
     ~ExpArray() {
         while(sizeMsb>=0) shrink();
         free(data);
@@ -73,18 +73,18 @@ public:
     size_t shrunkSize() { //returns what the size() will become if the array is shrunk with shrink()
         return ((1<<(sizeMsb-1))<<1) - 1; //same form as size() with sizeMsb decremented
     }
-    
+
     void grow() { //approximately double the array size
         if(sizeMsb == capacityMsb) //need to grow the data array-of-arrays to add the next array
             data = (T**) realloc(data, (++capacityMsb+1) * sizeof(T));
         sizeMsb++;
         data[sizeMsb] = new T[1<<sizeMsb]();
     }
-    
+
     void shrink() { //approximately halve the array size
         delete[] data[sizeMsb--];
     }
-    
+
     //elements numbered from [1]. Element [0] makes no sense in the context of this data structure.
     //the 'by reference' return allows this to be used for both accessing and assigning values.
     T& operator[](size_t i) {
@@ -92,7 +92,7 @@ public:
         i &= ~(1<<msb); //remove most significant bit
         return data[msb][i];
     }
-    
+
 };
 
 
