@@ -112,7 +112,7 @@ Container* requestContainerFromKey(std::string key, std::string clientName, uint
 Connection* identifyFromFrame(QWebFrame* frame)
 {
     std::lock_guard<std::recursive_mutex> guard(mActiveConnections);
-    for(auto& elmnt : activeConnections) { 
+    for(auto& elmnt : activeConnections) {
     //each element is a pair of <int descriptor, Connection*>
         if(!elmnt.second->container) continue;
         if(elmnt.second->container->frame == frame)
@@ -148,7 +148,7 @@ void incomingSocketThread() {
     fd_set fds_to_watch;
     int max_fd;
     std::unique_lock<std::recursive_mutex> guard(mActiveConnections, std::defer_lock);
-    //will lock this later to ensure mutual exclusion when accessing activeConnection map.    
+    //will lock this later to ensure mutual exclusion when accessing activeConnection map.
 
     while(true) {
         //fill the fd_set with all the socket descriptors we want to look for data on...
@@ -172,7 +172,7 @@ void incomingSocketThread() {
             //A client may have disconnected but not yet been cleaned up by the service function.
                 usleep(20000); //we don't know how long until the next service cycle, but there's no point
                 //burning CPU cycles to spin this error repeatedly until then. Wait a short time; order of ~10ms.
-                continue; 
+                continue;
             }
             return; //error
         }
@@ -184,7 +184,7 @@ void incomingSocketThread() {
             int clientFD = accept(serverFD, NULL, NULL);
             new Connection(clientFD);
         }
-        
+
         guard.lock();  //check for file descriptors of active connections...
         for(auto& elmnt : activeConnections) {
             if(FD_ISSET(elmnt.first, &fds_to_watch)) {
@@ -229,8 +229,8 @@ int main(int argc, char *argv[])
             std::cout << "--random (file path)\n\tUse a hardware random device (e.g. /dev/random), for key generation.\n";
             std::cout << "--silent\n\tOnly critical error messages will be printed to the error console.\n";
             std::cout << "--socket (file path)\n\tCreate server socket file with a custom path and filename.\n";
-            std::cout << "--stylesheet (file path)\n\tLoad a CSS file to provide default global styling to all clients.\n";
-            std::cout << "-h, --help\n\tDisplay this help information.\n";
+            std::cout << "--css (file path)\n\tLoad a CSS file to provide default global styling to all clients.\n";
+            std::cout << "-h, --help\n\tOutput this help information.\n";
             return 0;
         } else if(thisArg.compare("--socket")==0) {
             //next arg must be present.
@@ -253,10 +253,10 @@ int main(int argc, char *argv[])
                 return 1;
             }
             keyFileArg = argv[i];
-        } else if(thisArg.compare("--stylesheet")==0) {
+        } else if(thisArg.compare("--css")==0) {
             //next arg must be present.
             if(++i == argc) {
-                std::cerr << "Argument not optional. Try '" << argv[0] << " --help' for usage information\n";
+                std::cerr << "Argument not optional. Try '" << argv[0] << " --help' for usage information. [--stylesheet ...]\n";
                 return 1;
             }
             stylesheetArg = argv[i];
@@ -275,8 +275,10 @@ int main(int argc, char *argv[])
     if(stylesheetArg.size()) { //load the stylesheet into a string
         std::ifstream cssFile(stylesheetArg);
         if(!cssFile.is_open()) {
-            std::cout << "hiped: Could not open stylesheet file.\n";
+            std::cerr << "hiped: Could not open stylesheet file.\n";
             return 1;
+        } else if(verbose) {
+            std::cerr << "hiped: Using CSS stylesheet at " << stylesheetArg << "\n";
         }
         std::stringstream buffer;
         buffer << cssFile.rdbuf();

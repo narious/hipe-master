@@ -7,6 +7,10 @@ HIPE: Hypertext Pipe
 VERSION INFORMATION
 -------------------
 
+v1.03 beta -- 24 Apr 2018
+
+Sending instructions to the server is now an atomic operation.
+
 v1.02 beta -- 19 Apr 2018
 
 Fixed a longstanding bug in await_instruction that caused the calling client
