@@ -51,6 +51,7 @@
 
 std::string uid;
 bool verbose;
+bool fillscreen;
 int serverFD;
 KeyList* topLevelKeyList;
 std::string keyFilePath; //path and filename to store next available top-level key in.
@@ -213,6 +214,7 @@ int main(int argc, char *argv[])
     uid = userid.str();
     randomDevice = ""; //unless overridden by --random argument, default behaviour is used.
     verbose = true;
+    fillscreen = false;
 
     Sanitation::init();
 
@@ -225,11 +227,12 @@ int main(int argc, char *argv[])
         std::string thisArg = argv[i];
         if(thisArg.compare("--help")==0 || thisArg.compare("-h")==0) { //print help text then exit normally.
             std::cout << "Usage: " << argv[0] << " [options]\nOptions:\nHipe display server\n\n";
+            std::cout << "--css (file path)\n\tLoad a CSS file to provide default global styling to all clients.\n";
+            std::cout << "--fill\n\tTop level frames fill the entire screen.\n";
             std::cout << "--keyfile (file path)\n\tCreate top-level host key file with a custom path and filename.\n";
             std::cout << "--random (file path)\n\tUse a hardware random device (e.g. /dev/random), for key generation.\n";
             std::cout << "--silent\n\tOnly critical error messages will be printed to the error console.\n";
             std::cout << "--socket (file path)\n\tCreate server socket file with a custom path and filename.\n";
-            std::cout << "--css (file path)\n\tLoad a CSS file to provide default global styling to all clients.\n";
             std::cout << "-h, --help\n\tOutput this help information.\n";
             return 0;
         } else if(thisArg.compare("--socket")==0) {
@@ -262,6 +265,8 @@ int main(int argc, char *argv[])
             stylesheetArg = argv[i];
         } else if(thisArg.compare("--silent")==0) {
             verbose = false;
+        } else if(thisArg.compare("--fill")==0) {
+            fillscreen = true;
         } else if(thisArg[0] == '-') {
             std::cerr << "Unrecognised option: " << thisArg << "\nTry '" << argv[0] << " --help' for usage information\n";
             return 1;

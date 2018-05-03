@@ -19,6 +19,7 @@
 #include "containertoplevel.h"
 #include "connection.h"
 #include "icondata.h"
+#include "main.hpp"
 #include <QWebView>
 #include <QWebFrame>
 #include <QSizePolicy>
@@ -89,8 +90,14 @@ WebWindow::WebWindow(Container* cc)
     this->cc = cc;
 
     setWindowTitle("Hipe client");
-    move(0,0); //in the absense of a window manager, this is a 'root' window that fills the screen.
-    resize(QApplication::desktop()->screenGeometry().width(), QApplication::desktop()->screenGeometry().height());
+
+    if(fillscreen) {
+    //in the absense of a window manager, this is a 'root' window that fills
+    //the screen.
+        move(0,0);
+        resize(QApplication::desktop()->screenGeometry().width(),
+                        QApplication::desktop()->screenGeometry().height());
+    }
 
     webView = new WebView();
     webView->setRenderHint(QPainter::Antialiasing);
