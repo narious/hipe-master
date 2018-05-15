@@ -5,7 +5,8 @@ HIPE INSTALLATION SUMMARY
 =======================================
 
 The server process is a Qt application. To build the server, follow the 
-instructions in the ./server directory.
+instructions in the ./server directory, or refer to the online documentation
+at http://hipe.tech.
 
 The display server can be deployed in a variety of ways depending on the 
 target system. See the installaction instructions in the ./server directory 

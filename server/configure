@@ -1,0 +1,2 @@
+#!/bin/sh
+(qmake -makefile ./src/hiped.pro) && echo "Now run make to build the hiped executable."
