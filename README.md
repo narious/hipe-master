@@ -2,10 +2,14 @@ HIPE: Hypertext Pipe
 ====================
 
 * For full documentation visit the project homepage at http://hipe.tech
-
+* See INSTALL.txt for further installation instructions which may supplement the information on the website.
 
 VERSION INFORMATION
 -------------------
+
+v1.04 beta -- 15 May 2018
+
+Documentation cleanup and various bug-fixes.
 
 v1.03 beta -- 24 Apr 2018
 

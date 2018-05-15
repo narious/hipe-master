@@ -1,7 +1,28 @@
+HIPE INSTALLATION SUMMARY
+
+
+1. BUILD AND INSTALL THE DISPLAY SERVER
+=======================================
+
 The server process is a Qt application. To build the server, follow the 
 instructions in the ./server directory.
+
+The display server can be deployed in a variety of ways depending on the 
+target system. See the installaction instructions in the ./server directory 
+for more information.
+
+2. INSTALL THE API
+=======================================
 
 The API is an ordinary C library with minimal dependencies. To build and 
 install the API, see the instructions in the ./api/ directory. You may need 
 to edit the makefile if your distribution doesn't follow typical Debian-style 
 filesystem layout.
+
+3. TEST THE INSTALLATION
+=======================================
+
+The Hipe API includes multiple test applications. These can be compiled 
+once the API has been installed on the target system. They will function 
+properly if the display server is running correctly.
+
