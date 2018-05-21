@@ -98,11 +98,11 @@ int main(int argc, char** argv)
 
     //Apply initial styling rules
     hipe_send(session, HIPE_OP_ADD_STYLE_RULE, 0,0, 2, "body", "height:100%; margin:0; background-color:grey;padding:1% 1% 0 1%; overflow:hidden;");
-    hipe_send(session, HIPE_OP_ADD_STYLE_RULE, 0,0, 2, "button", "height:100%; width:100%; display:block; font-size:large; color: black; background-color:dimgrey; box-shadow:-1px -1px 1px cyan; border-color:cadetblue; border-radius:3px; border-width:1px;");
+    hipe_send(session, HIPE_OP_ADD_STYLE_RULE, 0,0, 2, "button", "height:100%; width:100%; display:block; font-size:large; color: black; background-color:dimgrey; box-shadow:-1px -1px 1px cyan; border-color:cadetblue; border-radius:3px; border-width:1px;font-size:170%;");
     hipe_send(session, HIPE_OP_ADD_STYLE_RULE, 0,0, 2, "button:active", "background-color:grey");
     hipe_send(session, HIPE_OP_ADD_STYLE_RULE, 0,0, 2, "table", "position:absolute;");
     hipe_send(session, HIPE_OP_ADD_STYLE_RULE, 0,0, 2, "td", "width:25%");
-    hipe_send(session, HIPE_OP_ADD_STYLE_RULE, 0,0, 2, "#mantissa", "text-align:right; border:inset 2px; border-radius:5px; background-color:aquamarine");
+    hipe_send(session, HIPE_OP_ADD_STYLE_RULE, 0,0, 2, "#mantissa", "text-align:right; border:inset 2px; border-radius:5px; background-color:aquamarine;font-size:150%;");
 
     //Specify initial window layout
     hipe_send(session, HIPE_OP_APPEND_TAG, 0, 0, 1, "table");
