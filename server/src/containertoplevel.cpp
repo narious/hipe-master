@@ -128,7 +128,10 @@ QWebElement WebWindow::initBoilerplate(std::string html)
 //RETURNS: the <body> element in the HTML boilerplate, where content can now be placed.
 {
     webView->setHtml(html.c_str());
-    show(); //Now we're ready to show the window on the screen.
+    if(fillscreen) //Now we're ready to show the window on the screen.
+        showFullScreen();
+    else
+        show();
 
     initYet = true;
     QWebElement we = webView->page()->mainFrame()->documentElement();
