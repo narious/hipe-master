@@ -369,6 +369,18 @@ void Container::receiveInstruction(hipe_instruction instruction)
         if(target) { //send the instruction to the destination.
             target->receiveMessage(HIPE_OP_MESSAGE, requestor, std::string(instruction.arg[0],instruction.arg_length[0]), std::string(instruction.arg[1], instruction.arg_length[1]), sourceframe);
         }
+    } else if(instruction.opcode == HIPE_OP_GET_CONTENT) {
+        //get inner content of (extract data from) location.
+        std::string contentStr;
+        if(arg[0] == "0" || arg[0] == "") { //default: unformatted/plain text
+            std::string contentStr = location.evaluateJavaScript("this.textContent;").toString().toStdString();
+        } else if(arg[0] == "1") { //html-formatted content requested from element.
+            std::string contentStr = location.evaluateJavaScript("this.innerHTML;").toString().toStdString();
+        } else if(arg[0] == "2") {
+            std::string contentStr = location.evaluateJavaScript("this.innerText;").toString().toStdString();
+        }
+        client->sendInstruction(HIPE_OP_CONTENT_RETURN, instruction.requestor,
+                                           instruction.location, {contentStr});
     }
 }
 
