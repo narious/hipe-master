@@ -373,11 +373,11 @@ void Container::receiveInstruction(hipe_instruction instruction)
         //get inner content of (extract data from) location.
         std::string contentStr;
         if(arg[0] == "0" || arg[0] == "") { //default: unformatted/plain text
-            std::string contentStr = location.evaluateJavaScript("this.textContent;").toString().toStdString();
+            contentStr = location.evaluateJavaScript("this.textContent;").toString().toStdString();
         } else if(arg[0] == "1") { //html-formatted content requested from element.
-            std::string contentStr = location.evaluateJavaScript("this.innerHTML;").toString().toStdString();
+            contentStr = location.evaluateJavaScript("this.innerHTML;").toString().toStdString();
         } else if(arg[0] == "2") {
-            std::string contentStr = location.evaluateJavaScript("this.innerText;").toString().toStdString();
+            contentStr = location.evaluateJavaScript("this.innerText;").toString().toStdString();
         }
         client->sendInstruction(HIPE_OP_CONTENT_RETURN, instruction.requestor,
                                            instruction.location, {contentStr});
