@@ -50,7 +50,10 @@ extern "C" {
 
 #define HIPE_OP_APPEND_TAG         4
 /* append a tag element inside the tag given by location, or inside body if location==0.
- * arg[0] is the tag type, arg[1] is an optional identifier for the tag */
+ * arg[0] is the tag type, 
+ * arg[1] is an optional identifier for the tag 
+ * arg[2] is an optional argument. If "1" is passed here, the server will send back a
+ * HIPE_OP_LOCATION_RETURN instruction with the location of the newly created tag. */
 
 #define HIPE_OP_ATTRIBUTE_RETURN   5
 /* arg[0] is the name of the attribute and arg[1] is the retrieved value */

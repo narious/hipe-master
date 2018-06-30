@@ -89,6 +89,16 @@ void Container::receiveInstruction(hipe_instruction instruction)
             if(!locationSpecified) setBody(newTagString, false);
             else location.appendInside(newTagString.c_str());
         }
+        if(instruction.arg_length[2]) {
+        //if the optional arg[2] is "1", we automatically bundle in a 
+        //'get last child' request, so the user can create a tag and get its location
+        //in one go.
+            arg[2] = std::string(instruction.arg[2], instruction.arg_length[2]);
+            if(arg[2] == "1") {
+                client->sendInstruction(HIPE_OP_LOCATION_RETURN, 
+                     instruction.requestor, getIndexOfElement(location.lastChild()));
+            }
+        }
     } else if(instruction.opcode == HIPE_OP_SET_TEXT) {
         arg[0] = Sanitation::sanitisePlainText(arg[0], (bool)(arg[1]=="1"));
         if(!locationSpecified) setBody(arg[0]);
@@ -127,7 +137,8 @@ void Container::receiveInstruction(hipe_instruction instruction)
             if(arg[0]=="value") { //workaround for updating input boxes after creation
                 location.evaluateJavaScript(QString("this.value='") + Sanitation::sanitisePlainText(arg[1]).c_str() + "';");
             } else {
-                location.setAttribute(arg[0].c_str(), Sanitation::sanitisePlainText(arg[1]).c_str());
+                //location.setAttribute(arg[0].c_str(), Sanitation::sanitisePlainText(arg[1]).c_str());
+                location.evaluateJavaScript(QString("this.setAttribute(\"") + arg[0].c_str() + "\",\"" + Sanitation::sanitisePlainText(arg[1]).c_str() + "\");");
             }
         }
     } else if(instruction.opcode == HIPE_OP_SET_STYLE) {
@@ -378,6 +389,8 @@ void Container::receiveInstruction(hipe_instruction instruction)
             contentStr = location.evaluateJavaScript("this.innerHTML;").toString().toStdString();
         } else if(arg[0] == "2") {
             contentStr = location.evaluateJavaScript("this.innerText;").toString().toStdString();
+        } else if(arg[0] == "3") { //some form elements require data to be read via a value attribute
+            contentStr = location.evaluateJavaScript("this.value;").toString().toStdString();
         }
         client->sendInstruction(HIPE_OP_CONTENT_RETURN, instruction.requestor,
                                            instruction.location, {contentStr});
