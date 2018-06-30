@@ -1,4 +1,4 @@
-/*  Copyright (c) 2017 Daniel Kos, General Development Systems
+/*  Copyright (c) 2018 Daniel Kos, General Development Systems
 
     Permission is hereby granted, free of charge, to any person obtaining a copy
     of this software and associated documentation files (the "Software"), to deal
@@ -76,7 +76,7 @@ class loc {
         loc lastChild(); //return the last child element of this element.
         loc nextSibling(); //return the element that follows this one at the current level.
         loc prevSibling(); //return the element that precedes this one at the current level.
-
+        
         operator hipe_loc() const; //allow casting to a hipe_loc variable for use with hipe API C functions.
         bool operator== (hipe_loc) const; //allow comparison with hipe_loc location handle.
         bool operator== (const loc& loc) const; //allow comparison with another loc object.
@@ -87,6 +87,9 @@ class loc {
         int send(char opcode, uint64_t requestor, const std::vector<std::string>& args={});
         //sends an instruction with this element passed as the location to act on.
 
+        loc appendAndGetTag(uint64_t requestor, std::string type, std::string id="");
+        //convenience function to append a tag to this element and wait for its
+        //location to be returned.
 };
 
 
@@ -259,6 +262,16 @@ inline loc loc::nextSibling() {
 
 inline loc loc::prevSibling() {
     hipe_send(*_session, HIPE_OP_GET_PREV_SIBLING, 0, location, 0, 0);
+    hipe_instruction instruction;
+    hipe_instruction_init(&instruction);
+    hipe_await_instruction(*_session, &instruction, HIPE_OP_LOCATION_RETURN);
+    hipe_loc location = instruction.location;
+    hipe_instruction_clear(&instruction);
+    return loc(location, _session);
+}
+
+inline loc appendAndGetTag(std::string type, std::string id) {
+    hipe_send(*_session, HIPE_OP_APPEND_TAG, 0, location, type.c_str(), id.c_str(), "1", 0);
     hipe_instruction instruction;
     hipe_instruction_init(&instruction);
     hipe_await_instruction(*_session, &instruction, HIPE_OP_LOCATION_RETURN);
