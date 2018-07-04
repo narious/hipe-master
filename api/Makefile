@@ -13,8 +13,8 @@ install:
 	cp src/hipe.h src/hipe_instruction.h /usr/local/include
 	cp src/hipe.hpp /usr/local/include/hipe
 testing:
-	(cd test && $(CC) clock.c -o clock -lhipe)
-	(cd test && $(CC) calc.c -o calc -lhipe)
-	(cd test && $(CC) jpegviewer.c -o jpegviewer -lhipe)
-	(cd test && $(CC) quadrant.c -o quadrant -lhipe)
-	(cd test && $(CC) canvas.c -o canvas -lhipe)
+	(cd test && $(CC) clock.c -o hipe-clock -lhipe)
+	(cd test && $(CC) calc.c -o hipe-calc -lhipe)
+	(cd test && $(CC) jpegviewer.c -o hipe-jpegviewer -lhipe)
+	(cd test && $(CC) quadrant.c -o hipe-quadrant -lhipe)
+	(cd test && $(CC) canvas.c -o hipe-canvas -lhipe)
