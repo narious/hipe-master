@@ -47,7 +47,7 @@ Connection::~Connection()
     delete container;
 }
 
-void Connection::sendInstruction(char opcode, int64_t requestor, int64_t location, const std::vector<std::string>& args)
+void Connection::sendInstruction(char opcode, uint64_t requestor, uint64_t location, const std::vector<std::string>& args)
 {
     hipe_instruction instruction;
     hipe_instruction_init(&instruction);

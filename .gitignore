@@ -9,11 +9,11 @@ server/src/hiped.pro.user
 server/src/hiped.pro.user.*
 api/build/*.o
 api/build/*.a
-api/test/calc
+api/test/hipe-calc
 api/test/calc.c~
-api/test/clock
-api/test/jpegviewer
-api/test/quadrant
-api/test/canvas
+api/test/hipe-clock
+api/test/hipe-jpegviewer
+api/test/hipe-quadrant
+api/test/hipe-canvas
 *.swp
 README

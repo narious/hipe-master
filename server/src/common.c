@@ -119,15 +119,15 @@ void decodeInstructionPreamble(const char* preamble, char* opcode, uint64_t* req
     unsigned int pos=1;
     unsigned short p;
     for(p=0; p<8; p++) {
-        *requestor |= ((unsigned char)preamble[pos++]) << (8*p);
+        *requestor |= ((uint64_t)(unsigned char)preamble[pos++]) << (8*p);
     }
     for(p=0; p<8; p++) {
-        *location |= ((unsigned char)preamble[pos++]) << (8*p);
+        *location |= ((uint64_t)(unsigned char)preamble[pos++]) << (8*p);
     }
 
     for(i=0; i<HIPE_NARGS; i++)
         for(p=0; p<_HIPE_ARG_WIDTH; p++) {
-            arglen[i] |= ((unsigned char)preamble[pos++]) << (8*p);
+            arglen[i] |= ((uint64_t)(unsigned char)preamble[pos++]) << (8*p);
         }
 }
 
@@ -203,5 +203,3 @@ void instruction_encoder_encodeinstruction(instruction_encoder* obj, hipe_instru
     }
     obj->encoded_length = pos;
 }
-
-
