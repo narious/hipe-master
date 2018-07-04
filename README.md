@@ -7,6 +7,10 @@ HIPE: Hypertext Pipe
 VERSION INFORMATION
 -------------------
 
+v1.05 beta -- 4 July 2018
+
+New instructions and instruction arguments added.
+
 v1.04 beta -- 15 May 2018
 
 Documentation cleanup and various bug-fixes.
