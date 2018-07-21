@@ -10,6 +10,7 @@ VERSION INFORMATION
 v1.06 beta -- 21 July 2018
 
 Important bug fix release.
+Test programs now conveniently installable to help verify a working Hipe environment.
 
 v1.05 beta -- 4 July 2018
 
