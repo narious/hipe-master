@@ -18,3 +18,5 @@ testing:
 	(cd test && $(CC) jpegviewer.c -o hipe-jpegviewer -lhipe)
 	(cd test && $(CC) quadrant.c -o hipe-quadrant -lhipe)
 	(cd test && $(CC) canvas.c -o hipe-canvas -lhipe)
+install-tests:
+	cp test/hipe-* /usr/local/bin

@@ -46,3 +46,13 @@ To run test application:
 * Ensure an instance of the server process is currently running
 
 * Run the compiled test application in ./test/
+
+To install the test applications:
+---------------------------------
+
+It can be useful to install the test applications so you can verify
+that Hipe is working correctly with the convenience of typing
+hipe-clock (or hipe-calc, etc.) from the command line without needing to
+look for these in the source tree. Simply run the following:
+
+$ sudo make install-tests
