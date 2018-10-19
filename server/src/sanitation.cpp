@@ -146,6 +146,7 @@ void Sanitation::init()
                         "checked",
                         "cols",
                         "colspan",
+                        "contenteditable",
                         "coords",
                         "dir",
                         "disabled",
