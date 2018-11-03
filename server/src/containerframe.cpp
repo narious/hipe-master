@@ -24,6 +24,11 @@
 
 ContainerFrame::ContainerFrame(Connection* bridge, std::string clientName, QWebFrame* frame, Container* parent) : Container(bridge, clientName) {
     initYet = false;
+
+    //Disable network access and link navigation:
+    frame->page()->networkAccessManager()->setNetworkAccessible(QNetworkAccessManager::NotAccessible);
+    frame->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
+
     this->frame = frame;
     this->parent = parent;
     connect(frame, SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(frameCleared()));
