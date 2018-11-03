@@ -37,6 +37,7 @@
 #include <sys/un.h>
 #include <QWebSettings>
 #include <QLocalServer>
+#include <QPixmap>
 #include "connectionmanager.h"
 #include "containertoplevel.h"
 #include "keylist.h"
@@ -47,7 +48,7 @@
 #include <thread>
 #include <mutex>
 #include <signal.h>
-
+#include "brokenimg.h"
 
 std::string uid;
 bool verbose;
@@ -217,6 +218,16 @@ int main(int argc, char *argv[])
     fillscreen = false;
 
     Sanitation::init();
+
+    //set some global policies
+    QWebSettings::globalSettings()->setAttribute(QWebSettings::LocalContentCanAccessFileUrls, false);
+    QWebSettings::globalSettings()->setAttribute(QWebSettings::JavascriptEnabled, true);
+    //set default icon for corrupt/broken image tags.
+    QPixmap brokenImgIcon;
+    brokenImgIcon.loadFromData((const uchar*) brokenImgData, (uint) brokenImgDataLen);
+    QWebSettings::globalSettings()->setWebGraphic(QWebSettings::MissingImageGraphic, brokenImgIcon);
+    QWebSettings::globalSettings()->setWebGraphic(QWebSettings::MissingPluginGraphic, brokenImgIcon);
+
 
     //Parse command line options ad-hoc to avoid platform dependencies.
     //(QCommandLineParser isn't backwards compatible with Qt4.)

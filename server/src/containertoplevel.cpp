@@ -104,9 +104,6 @@ WebWindow::WebWindow(Container* cc)
     setCentralWidget(webView);
 
     //Disable network access and link navigation:
-    webView->page()->settings()->setAttribute(QWebSettings::LocalContentCanAccessFileUrls, false);
-    webView->page()->settings()->setAttribute(QWebSettings::JavascriptEnabled, true); //is there a way to get events without javascript?
-
     webView->page()->networkAccessManager()->setNetworkAccessible(QNetworkAccessManager::NotAccessible);
     webView->page()->setLinkDelegationPolicy(QWebPage::DelegateAllLinks);
 
