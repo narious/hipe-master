@@ -564,7 +564,7 @@ size_t Container::addReferenceableElement(const QWebElement& w)
             return i;
         }
     }
-    //no space available. Grow the array.
+    //no space available. Grow the array by 1 and initialise the new element.
     size_t i = referenceableElement.size()+1;
     referenceableElement.setSize(i);
     firstFreeElementAfter = i;
@@ -579,7 +579,16 @@ void Container::removeReferenceableElement(size_t i)
     referenceableElement[i] = nullptr;
     if(i < firstFreeElementAfter) firstFreeElementAfter = i;
 
-    //TODO: shrink the array if the last element was removed.
+    if(i==referenceableElement.size()) {
+    //might be an opportunity to truncate the array if one or more elements
+    //at the end are now vacant.
+        while(!referenceableElement[i])
+            i--;
+        referenceableElement.setSize(i);
+        //shrink the array if the last element was removed. (The underlying
+        //class then optimises this to avoid too much actual resizing.)
+    }
+
 }
 
 QWebElement Container::getReferenceableElement(size_t i)

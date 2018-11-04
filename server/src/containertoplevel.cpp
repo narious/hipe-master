@@ -34,6 +34,7 @@
 //system-level windows instead of frames managed by other clients.
 
 ContainerTopLevel::ContainerTopLevel(Connection* bridge, std::string clientName) : Container(bridge, clientName) {
+    initYet = false;
     w = new WebWindow(this);
     frame = w->webView->page()->mainFrame();
     connect(frame, SIGNAL(javaScriptWindowObjectCleared()), this, SLOT(frameCleared()));
@@ -58,7 +59,7 @@ void ContainerTopLevel::setTitle(std::string newTitle) {
 }
 
 void ContainerTopLevel::setBody(std::string newBodyHtml, bool overwrite) {
-    if(!w->wasInitYet()) {
+    if(!initYet) {
         webElement = w->initBoilerplate(
             std::string("<html><head><style>")
             + stylesheet
@@ -66,6 +67,7 @@ void ContainerTopLevel::setBody(std::string newBodyHtml, bool overwrite) {
             "<body onkeydown=\"c.receiveKeyEventOnBody(false, event.which);\" onkeyup=\"c.receiveKeyEventOnBody(true, event.which);\">"
             "</body></html>"
         ); //initialiser. If ommitted, resource images won't display (!)
+        initYet = true;
         webElement.removeAllChildren();
     }
     if(overwrite) {
@@ -80,7 +82,7 @@ void ContainerTopLevel::setBody(std::string newBodyHtml, bool overwrite) {
 
 void ContainerTopLevel::applyStylesheet() {
 
-    if(!w->wasInitYet()) return;
+    if(!initYet) return;
     //no-op. Styles will be applied in the <head> when setBody is called.
 
     //appending new style rules after </head> is not supposed to be valid, but we might get away with it.
@@ -99,7 +101,6 @@ void ContainerTopLevel::setIcon(const char* imgData, size_t length)
 
 WebWindow::WebWindow(Container* cc)
 {
-    initYet = false;
     this->cc = cc;
 
     setWindowTitle("Hipe client");
@@ -126,12 +127,6 @@ WebWindow::WebWindow(Container* cc)
     //This should reduce a little flicker (e.g. white background appears for an instant before being restyled.)
 }
 
-bool WebWindow::wasInitYet()
-//used to check if the webview object was initialised with boilerplate code yet.
-{
-    return initYet;
-}
-
 QWebElement WebWindow::initBoilerplate(std::string html)
 //If at least the boilerplate "<html><head></head><body></body></html>" is not specified,
 //WebKit doesn't behave itself, for example Qt resource images do not display.
@@ -143,7 +138,6 @@ QWebElement WebWindow::initBoilerplate(std::string html)
     else
         show();
 
-    initYet = true;
     QWebElement we = webView->page()->mainFrame()->documentElement();
 
     return we.lastChild(); //body tag becomes the webElement in the base class.

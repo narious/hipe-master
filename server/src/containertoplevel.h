@@ -40,14 +40,12 @@ class WebWindow : public QMainWindow {
 public:
     WebWindow(Container* cc);
 
-    bool wasInitYet();
     QWebElement initBoilerplate(std::string html);
 
     WebView* webView;
     QPalette pal;
 
 private:
-    bool initYet; //becomes true once boilerplate html has been set.
     Container* cc;
 public slots:
     void resizeEvent(QResizeEvent *);
@@ -73,6 +71,8 @@ protected:
     void setBody(std::string newBodyHtml, bool overwrite=true);
     void applyStylesheet();
     void setIcon(const char* imgData, size_t length);
+
+    bool initYet; //becomes true once boilerplate html has been set.
 };
 
 #endif // CLIENTWINDOW_H

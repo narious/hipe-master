@@ -130,11 +130,13 @@ private:
     //when an element is created, we store its location as an element number here, then share the element number
     //(not a QWebElement--dangerous!) with the client.
     size_t addReferenceableElement(const QWebElement&);
-    size_t firstFreeElementAfter=1; //store the location of the first free element, or a smaller element number, to speed insertions.
+    size_t firstFreeElementAfter=1;
+    //store the location of the first free element, or a smaller element number, to speed insertions.
     void removeReferenceableElement(size_t);
     QWebElement getReferenceableElement(size_t); //resolve a reference integer.
     size_t findReferenceableElement(QWebElement);
-    size_t getIndexOfElement(QWebElement); //finds corresponding index, or adds it if it has not been allocated an index yet.
+    size_t getIndexOfElement(QWebElement);
+    //finds corresponding index, or adds it if it has not been allocated an index yet.
 
     //flags to handle keyup/down events on body as a special case (since this event needs to propagate to the framing manager for special window manipulation keys)
     bool reportKeydownOnBody=false; //has the client requested keydown events on the body element?
