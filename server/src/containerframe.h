@@ -24,8 +24,8 @@
 class ContainerFrame : public Container {
 
 //Lifetime:
-//Created when a client is granted a connection to an existing iframe with a valid hostkey as determined
-//by the parent container.
+//Created when a client is granted a connection to an existing iframe with a
+//valid hostkey as determined by the parent container.
 
 public:
     ContainerFrame(Connection* client, std::string clientName, QWebFrame* frame, Container* parent); //object is not created until an iframe is actually assigned to a client.

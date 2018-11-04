@@ -74,7 +74,8 @@ void instruction_decoder_feed(instruction_decoder* obj, char c)
         if(obj->instruction_chars_read == PREAMBLE_LENGTH) { /*Preamble complete.*/
             decodeInstructionPreamble(obj->preamble, &obj->output.opcode, &obj->output.requestor,
                                       &obj->output.location, obj->output.arg_length);
-            hipe_instruction_alloc(&(obj->output)); /* allocate memory in the instruction based on lengths read. */
+            hipe_instruction_alloc(&(obj->output));
+            /* allocate memory in the instruction based on lengths read. */
 
             /*now ready to read args.*/
         }
@@ -100,14 +101,16 @@ short instruction_decoder_iscomplete(instruction_decoder* obj)
 }
 
 void decodeInstructionPreamble(const char* preamble, char* opcode, uint64_t* requestor, hipe_loc* location, uint64_t arglen[])
-/*preamble is an array of characters of length PREAMBLE_LENGTH that have been read into the array.
+/*preamble is an array of characters of length PREAMBLE_LENGTH that have been
+ *read into the array.
  *They are the initial fixed-length preamble of the instruction.
- *Returns everything except the two variable-length arguments, but returns their lengths so they
- *can be read in separately.
+ *Returns everything except the two variable-length arguments, but returns
+ *their lengths so they can be read in separately.
  *PRECONDITION: preamble is an array of 17 characters, forming the start of an instruction, that have been read over a connection.
  *POSTCONDITION: reference arguments opcode, location, arg1len and arg2len will be populated
  *with values extracted from preamble.
- *AFTER RETURN: please read the two arguments separately using the returned lengths arg1len and arg2len. The instruction is terminated
+ *AFTER RETURN: please read the two arguments separately using the returned
+ *lengths arg1len and arg2len. The instruction is terminated
  *by reading the full lengths of the arguments.*/
 {
     *requestor=0; *location=0;

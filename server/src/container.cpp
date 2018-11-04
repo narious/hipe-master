@@ -43,7 +43,10 @@ Container::Container(Connection* bridge, std::string clientName) : QObject()
     //keyup/keydown events on the body element are treated as a special case,
     //since they might need to be propagated to a parent tag.
 
-    stylesheet = globalStyleRules.c_str(); //initialise our stylesheet rules to any global rules that have been loaded in from a CSS file.
+    stylesheet = globalStyleRules.c_str();
+    //initialise our stylesheet rules to any global rules that have been loaded
+    //in from a CSS file.
+
     stylesheet += " ";
 }
 
@@ -53,10 +56,11 @@ Container::~Container()
 }
 
 void Container::receiveInstruction(hipe_instruction instruction)
-//POLICY NOTES: Qt's webkit DOM functions require QStrings extensively. However we prefer to avoid
-//coupling our application too closely to Qt due to the Qt Company's neglect of webkit bindings.
-//THEREFORE, use C++11 standard types where possible, and only convert to QString type where absolutely
-//necessary.
+//POLICY NOTES: Qt's webkit DOM functions require QStrings extensively. However
+//we prefer to avoid coupling our application too closely to Qt due to the
+//Qt Company's neglect of webkit bindings.
+//THEREFORE, use C++11 standard types where possible/efficient to do so,
+//and only convert to QString type where it is necessary to do so.
 {
     std::string arg[HIPE_NARGS];
     arg[0] = std::string(instruction.arg[0], instruction.arg_length[0]);
@@ -86,16 +90,16 @@ void Container::receiveInstruction(hipe_instruction instruction)
                 newTagString += "\"";
             }
             newTagString += "></" + arg[0] + ">";
-            if(!locationSpecified) setBody(newTagString, false);
+            if(!locationSpecified) setBody(newTagString, false /*append mode*/);
             else location.appendInside(newTagString.c_str());
         }
         if(instruction.arg_length[2]) {
-        //if the optional arg[2] is "1", we automatically bundle in a 
+        //if the optional arg[2] is "1", we automatically bundle in a
         //'get last child' request, so the user can create a tag and get its location
         //in one go.
             arg[2] = std::string(instruction.arg[2], instruction.arg_length[2]);
             if(arg[2] == "1") {
-                client->sendInstruction(HIPE_OP_LOCATION_RETURN, 
+                client->sendInstruction(HIPE_OP_LOCATION_RETURN,
                      instruction.requestor, getIndexOfElement(location.lastChild()));
             }
         }
@@ -399,9 +403,10 @@ void Container::receiveInstruction(hipe_instruction instruction)
 
 void Container::containerClosed()
 //Called when the container is requested to be closed by the user.
-//(We need to disconnect the connection to the client and free all the associated resources of this instance.)
-//This function sends a message to the client to request disconnection at the client's end.
-//The client needs to check for this message and deal with it.
+//(We need to disconnect the connection to the client and free all the
+//associated resources of this instance.)
+//This function sends a message to the client to request disconnection at the
+//client's end. The client needs to check for this message and deal with it.
 {
     //client->deleteLater();
     client->sendInstruction(HIPE_OP_FRAME_CLOSE, 0, 0);
@@ -499,7 +504,8 @@ void Container::keyEventOnChildFrame(QWebFrame* origin, bool keyUp, QString keyc
         }
     }
 
-    //Determine if an onkeydown/onkeyup attribute is attached to this element. Fire off an event if so.
+    //Determine if an onkeydown/onkeyup attribute is attached to this element.
+    //Fire off an event if so.
     if(keyUp && childFrame.hasAttribute("onkeyup"))
         client->sendInstruction(HIPE_OP_EVENT, 0 /*fixme: how can we find out the requestor?*/, location, {"keyup", keycode.toStdString()});
     else if(!keyUp && childFrame.hasAttribute("onkeydown"))
@@ -538,7 +544,9 @@ void Container::_receiveKeyEventOnBody(bool keyUp, QString keycode)
 
 void Container::frameCleared() {
     frame->addToJavaScriptWindowObject("c", this);
-    //From Qt website: "If you want to ensure that your QObjects remain accessible after loading a new URL, you should add them in a slot connected to the javaScriptWindowObjectCleared() signal."
+    //From Qt website: "If you want to ensure that your QObjects remain
+    //accessible after loading a new URL, you should add them in a slot
+    //connected to the javaScriptWindowObjectCleared() signal."
 }
 
 void Container::frameDestroyed()
@@ -576,14 +584,21 @@ void Container::removeReferenceableElement(size_t i)
 
 QWebElement Container::getReferenceableElement(size_t i)
 {
-    if(i>referenceableElement.size() || !referenceableElement[i]) return QWebElement(); //todo:terminate the client instead! Like with a general protection fault.
-    else if(i == 0) return QWebElement(); //there is no zeroth element. Reserve it to mean 'not applicable'.
-    else return *referenceableElement[i];
+    if(i>referenceableElement.size() || !referenceableElement[i]) {
+        return QWebElement();
+        //TODO:terminate the client instead! Like with a general protection fault.
+    } else if(i == 0) {
+        return QWebElement();
+        //there is no zeroth element. Reserve it to mean 'not applicable'.
+    } else {
+        return *referenceableElement[i];
+    }
 }
 
 size_t Container::findReferenceableElement(QWebElement we) {
     if(we.isNull()) return 0;
-    for(size_t i=referenceableElement.size(); i>=1; i--) { //count down so that the last-added reference is more likely to be checked first.
+    for(size_t i=referenceableElement.size(); i>=1; i--) {
+    //count down so that the last-added reference is more likely to be checked first.
         if(referenceableElement[i] && *(referenceableElement[i])==we)
             return i;
     }
@@ -594,8 +609,11 @@ size_t Container::getIndexOfElement(QWebElement location)
 {
     size_t locElement = 0;
     if(!location.isNull()) {
-        locElement = findReferenceableElement(location); //check if the element is already on the list
-        if(!locElement) locElement = addReferenceableElement(location); //if not, add it.
+        locElement = findReferenceableElement(location);
+        //check if the element is already on the list
+
+        if(!locElement) locElement = addReferenceableElement(location);
+        //if not, add it.
     }
     return locElement;
 }

@@ -22,8 +22,11 @@
 
 class Connection;
 
-extern std::string uid; //string-format of UID number of the Unix user that owns this hiped instance.
-extern std::string randomDevice; //random number device path (e.g. /dev/random). If empty, default behaviour is used.
+extern std::string uid;
+//string-format of UID number of the Unix user that owns this hiped instance.
+
+extern std::string randomDevice;
+//random number device path (e.g. /dev/random). If empty, default behaviour is used.
 
 extern bool verbose;
 //verbose mode (unless overridden by --silent arg) means success messages are
@@ -34,7 +37,8 @@ extern bool fillscreen;
 //resized to fill the entire screen. This is useful when running in a bare X
 //session without a window manager.
 
-extern int serverFD; //the socket descriptor in which we listen for new client connection requests.
+extern int serverFD;
+//the socket descriptor in which we listen for new client connection requests.
 
 //self-registration functions for connections to call when they are created/destructed.
 void registerConnection(Connection*, int fd);
@@ -45,5 +49,10 @@ extern KeyList* topLevelKeyList;
 extern std::string keyFilePath; //path and filename to store next available top-level key in.
 
 void makeNewTopLevelKeyFile();
-Connection* identifyFromFrame(QWebFrame* frame); //identify a connection from its DOM frame element.
-Container* requestContainerFromKey(std::string key, std::string clientName, uint64_t pid, Connection* c);
+
+Connection* identifyFromFrame(QWebFrame* frame);
+//identify a connection from its DOM frame element.
+
+Container* requestContainerFromKey(
+    std::string key, std::string clientName, uint64_t pid, Connection* c
+);

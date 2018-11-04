@@ -65,9 +65,12 @@ public:
     virtual void setTitle(std::string newTitle)=0;
     virtual void setIcon(const char* imgData, size_t length)=0;
     virtual void setBody(std::string newBodyHtml, bool overwrite=true)=0;
-    virtual void applyStylesheet()=0; //apply stylesheet after changes. If <body> was not opened yet (!initYet)
-    //then this is a no-op as styling gets applied when setBody is called. Otherwise, this call causes a <style>
-    //tag to be appended inside the <body> tag; which is not strictly valid practice but should do the trick.
+
+    virtual void applyStylesheet()=0;
+    //apply stylesheet after changes. If <body> was not opened yet (!initYet)
+    //then this is a no-op as styling gets applied when setBody is called.
+    //Otherwise, this call causes a <style> tag to be appended inside the
+    //<body> tag; which is not technically valid HTML but should do the trick.
 
     void containerClosed();
 
@@ -83,18 +86,20 @@ public:
     void receiveMessage(char opcode, int64_t requestor, std::string arg1, std::string arg2, QWebFrame* sender, bool propagateToParent=false);
     //called by another container object to transmit an instruction (e.g. HIPE_OP_MESSAGE)
     //from a direct parent/child frame's client to this container's client.
-    //sender should be used only if sender is a child of the recipient. If it's the parent, this should be indicated
-    //by passing a nullptr.
-    //This can also be used to transmit events across frame boundaries (the parent will see the event as originating
-    //from the client frame element.
+    //sender should be used only if sender is a child of the recipient. If it's
+    //the parent, this should be indicated by passing a nullptr.
+    //This can also be used to transmit events across frame boundaries
+    //(the parent will see the event as originating from the client frame element).
 
     void keyEventOnChildFrame(QWebFrame* origin, bool keyUp, QString keycode);
     //if keyup is false, it was a keydown event.
-    //This function is called from a child container instructing this container that a keyup/keydown event has
-    //occurred on the body element of this frame (or has propagated from a child frame of *that* frame).
-    //The event should be propagated up to the top level so the framing manager can intercept global keyboard shortcuts.
-    //It should also trigger a simulated event on the frame to this client, if this client has bound onkeydown/onkeyup
-    //attributes to this frame.
+    //This function is called from a child container instructing this container
+    //that a keyup/keydown event has occurred on the body element of this frame
+    //(or has propagated from a child frame of *that* frame).
+    //The event should be propagated up to the top level so the framing manager
+    //can intercept global keyboard shortcuts.
+    //It should also trigger a simulated event on the frame to this client,
+    //if this client has bound onkeydown/onkeyup attributes to this frame.
 
     virtual Container* getParent()=0; //returns the parent container, or nullptr if it's a top level container.
 
@@ -118,8 +123,9 @@ protected slots:
     void frameDestroyed(); //conneected to the QWebFrame's destroyed() signal.
 public slots:
 private:
-    ///This block of variables/functions provides pointer protection of web element references so a handle
-    ///(array element number) can safely be given to external processes, and invalid references can be detected.
+    ///This block of variables/functions provides pointer protection of web
+    ///element references so a handle (array element number) can safely be given
+    ///to external processes, and invalid references can be detected.
     AutoExpArray<QWebElement*> referenceableElement;
     //when an element is created, we store its location as an element number here, then share the element number
     //(not a QWebElement--dangerous!) with the client.
@@ -137,7 +143,10 @@ private:
     uint64_t keyUpOnBodyRequestor=0;
 
     KeyList* keyList;
-    std::list<FrameData> subFrames; //table of subframes, mapping web element of an iframe to its corresponding child frame object and host-key (if assigned).
+
+    std::list<FrameData> subFrames;
+    //table of subframes, mapping web element of an iframe to its corresponding
+    //child frame object and host-key (if assigned).
 
 
 };

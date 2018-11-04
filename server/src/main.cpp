@@ -222,6 +222,8 @@ int main(int argc, char *argv[])
     //set some global policies
     QWebSettings::globalSettings()->setAttribute(QWebSettings::LocalContentCanAccessFileUrls, false);
     QWebSettings::globalSettings()->setAttribute(QWebSettings::JavascriptEnabled, true);
+    QWebSettings::globalSettings()->setAttribute(QWebSettings::PrivateBrowsingEnabled, true);
+
     //set default icon for corrupt/broken image tags.
     QPixmap brokenImgIcon;
     brokenImgIcon.loadFromData((const uchar*) brokenImgData, (uint) brokenImgDataLen);

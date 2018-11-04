@@ -66,7 +66,8 @@ private:
     //QLocalSocket* con;
     int clientFD; //socket descriptor of the connection.
 
-    char readBuffer[READ_BUFFER_SIZE]; //where we put characters that have been read in over the connection.
+    char readBuffer[READ_BUFFER_SIZE];
+    //where we put characters that have been read in over the connection.
 
     instruction_decoder currentInstruction;
 

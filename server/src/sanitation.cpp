@@ -183,11 +183,14 @@ void Sanitation::init()
 }
 
 std::string Sanitation::sanitisePlainText(std::string input, bool convertLayout)
-//Processes input string, replaces special HTML characters like < with their equivalent nonfunctional
-//representations, like &lt;. This is used to prevent HTML injection attacks.
-//And a bonus feature (if convertLayout set): '\n' and '\r' will be replaced by <br/> and <p/> respectively. This makes inserting
-//line breaks in Hipe a lot less painful - just put actual line feeds (CRs for parags) in any text to be appended.
-//Tabs can also be entered using '\t' -- they are replaced with the appropriate HTML character entity.
+//Processes input string, replaces special HTML characters like < with their
+//equivalent nonfunctional representations, like &lt;. This is used to prevent
+//HTML injection attacks.
+//And a bonus feature (if convertLayout set): '\n' and '\r' will be replaced by
+//<br/> and <p/> respectively. This makes inserting line breaks in Hipe a lot
+//less painful - just put actual line feeds (CRs for parags) in any text to be
+//appended. Tabs can also be entered using '\t' -- they are replaced with an
+//analogous HTML character entity for a wider-than-usual space.
 {
     std::string output;
     for(size_t i=0; i<input.size(); i++) {
@@ -215,6 +218,7 @@ std::string Sanitation::sanitisePlainText(std::string input, bool convertLayout)
 
 std::string Sanitation::toBase64(const std::string& binaryData) {
     QByteArray b64qData = QByteArray(binaryData.data(), binaryData.size()).toBase64();
+    //Qt provides a nice convenience function here.
     return std::string(b64qData.data(), b64qData.size());
 }
 
@@ -228,7 +232,7 @@ std::string Sanitation::toLower(const char* text, size_t length) {
 
 bool Sanitation::isAllowedAttribute(std::string input)
 //returns true iff use of the tag attribute is permitted by Hipe.
-//List of attributes obtained from https://www.w3.org/TR/html4/index/attributes.html
+//List of attributes adapted from https://www.w3.org/TR/html4/index/attributes.html
 //This is a whitelist of safe attributes that the user can use freely without special instructions.
 {
     if(attrWhitelist.find(input) != attrWhitelist.end())

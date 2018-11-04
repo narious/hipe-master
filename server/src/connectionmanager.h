@@ -23,7 +23,8 @@
 #include <QTimer>
 class Connection;
 
-//The name 'connection manager' is no longer relevant. This class manages some Qt events.
+//The name 'connection manager' is no longer relevant. This class manages some
+//Qt events.
 
 class ConnectionManager : public QLocalServer
 {
