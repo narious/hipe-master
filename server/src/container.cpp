@@ -68,7 +68,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
     uint64_t requestor = instruction.requestor;
     bool locationSpecified = (bool) instruction.location;
     QWebElement location = locationSpecified ? getReferenceableElement(instruction.location)
-                                             : webElement;
+                                             : webElement; //may need to update this after calling setBody!!
 
 
     if(instruction.opcode == HIPE_OP_CLEAR) {
@@ -90,7 +90,10 @@ void Container::receiveInstruction(hipe_instruction instruction)
                 newTagString += "\"";
             }
             newTagString += "></" + arg[0] + ">";
-            if(!locationSpecified) setBody(newTagString, false /*append mode*/);
+            if(!locationSpecified) {
+                setBody(newTagString, false /*append mode*/);
+                location = webElement; //webElement may have been redefined in setBody().
+            }
             else location.appendInside(newTagString.c_str());
         }
         if(instruction.arg_length[2]) {
@@ -99,8 +102,10 @@ void Container::receiveInstruction(hipe_instruction instruction)
         //in one go.
             arg[2] = std::string(instruction.arg[2], instruction.arg_length[2]);
             if(arg[2] == "1") {
+                QWebElement newElement;
+                newElement = location.lastChild();  //FIXME: this sometimes returns a .isNull() element.
                 client->sendInstruction(HIPE_OP_LOCATION_RETURN,
-                     instruction.requestor, getIndexOfElement(location.lastChild()));
+                     instruction.requestor, getIndexOfElement(newElement));
             }
         }
     } else if(instruction.opcode == HIPE_OP_SET_TEXT) {
