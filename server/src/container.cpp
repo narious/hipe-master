@@ -55,6 +55,17 @@ Container::~Container()
     delete keyList;
 }
 
+void Container::applyStylesheet() {
+
+    if(!initYet) return;
+    //no-op. Styles will be applied in the <head> when setBody is called.
+
+    //appending new style rules after </head> is not supposed to be valid, but we might get away with it.
+    webElement.appendInside(QString("<style>") + stylesheet.c_str() + "</style>");
+    stylesheet = ""; //clear after application.
+}
+
+
 void Container::receiveInstruction(hipe_instruction instruction)
 //POLICY NOTES: Qt's webkit DOM functions require QStrings extensively. However
 //we prefer to avoid coupling our application too closely to Qt due to the

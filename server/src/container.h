@@ -66,7 +66,7 @@ public:
     virtual void setIcon(const char* imgData, size_t length)=0;
     virtual void setBody(std::string newBodyHtml, bool overwrite=true)=0;
 
-    virtual void applyStylesheet()=0;
+    void applyStylesheet();
     //apply stylesheet after changes. If <body> was not opened yet (!initYet)
     //then this is a no-op as styling gets applied when setBody is called.
     //Otherwise, this call causes a <style> tag to be appended inside the
@@ -109,6 +109,8 @@ protected:
     Connection* client;
     QWebElement webElement;
     std::string stylesheet; //build up the stylesheet before we apply it.
+    bool initYet; //becomes true once boilerplate html has been set.
+
 
 signals:
     void receiveGuiEvent(quint64 location, quint64 requestor, QString event, QString detail);

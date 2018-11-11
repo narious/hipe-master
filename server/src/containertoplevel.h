@@ -59,7 +59,6 @@ class ContainerTopLevel : public Container
 {
 
 public:
-
     explicit ContainerTopLevel(Connection*, std::string clientName);
     ~ContainerTopLevel();
 
@@ -69,10 +68,8 @@ private:
 protected:
     void setTitle(std::string newTitle);
     void setBody(std::string newBodyHtml, bool overwrite=true);
-    void applyStylesheet();
     void setIcon(const char* imgData, size_t length);
 
-    bool initYet; //becomes true once boilerplate html has been set.
 };
 
 #endif // CLIENTWINDOW_H

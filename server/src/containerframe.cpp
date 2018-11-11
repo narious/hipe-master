@@ -68,14 +68,6 @@ void ContainerFrame::setBody(std::string newBodyHtml, bool overwrite)
     else webElement.appendInside(newBodyHtml.c_str()); //c_str() conversion is adequate since any binary data will be in safe base64 encoding.
 }
 
-void ContainerFrame::applyStylesheet() {
-    if(!initYet) return; //no-op. Styles will be applied in the <head> when setBody is called.
-
-    //appending new style rules after </head> is not supposed to be valid, but we might get away with it.
-    webElement.appendInside(QString("<style>") + stylesheet.c_str() + "</style>");
-    stylesheet = ""; //clear after application.
-}
-
 void ContainerFrame::setTitle(std::string newTitle)
 {
     parent->receiveSubFrameEvent(HIPE_FRAME_EVENT_TITLE_CHANGED, frame, newTitle);

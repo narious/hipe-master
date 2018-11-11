@@ -34,12 +34,10 @@ public:
     Container* getParent();
 
     void setBody(std::string newBodyHtml, bool overwrite=true);
-    void applyStylesheet();
 protected:
     void setTitle(std::string newTitle);
     void setIcon(const char* imgData, size_t length);
 private:
-    bool initYet;
     Container* parent;
 };
 

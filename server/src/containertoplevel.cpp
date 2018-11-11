@@ -80,16 +80,6 @@ void ContainerTopLevel::setBody(std::string newBodyHtml, bool overwrite) {
     }
 }
 
-void ContainerTopLevel::applyStylesheet() {
-
-    if(!initYet) return;
-    //no-op. Styles will be applied in the <head> when setBody is called.
-
-    //appending new style rules after </head> is not supposed to be valid, but we might get away with it.
-    webElement.appendInside(QString("<style>") + stylesheet.c_str() + "</style>");
-    stylesheet = ""; //clear after application.
-}
-
 void ContainerTopLevel::setIcon(const char* imgData, size_t length)
 {
     QPixmap iconData;
