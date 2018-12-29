@@ -85,6 +85,9 @@ void Container::receiveInstruction(hipe_instruction instruction)
     if(instruction.opcode == HIPE_OP_CLEAR) {
         if(!locationSpecified) setBody("",true);
         else location.setInnerXml("");
+    } else if(instruction.opcode == HIPE_OP_DELETE) {
+        if(locationSpecified)
+            location.removeFromDocument(); //Qt doc says this also makes location a 'null element'
     } else if(instruction.opcode == HIPE_OP_APPEND_TAG) {
         arg[0] = Sanitation::sanitisePlainText(arg[0]);
         arg[1] = Sanitation::sanitisePlainText(arg[1]);

@@ -50,8 +50,8 @@ extern "C" {
 
 #define HIPE_OP_APPEND_TAG         4
 /* append a tag element inside the tag given by location, or inside body if location==0.
- * arg[0] is the tag type, 
- * arg[1] is an optional identifier for the tag 
+ * arg[0] is the tag type,
+ * arg[1] is an optional identifier for the tag
  * arg[2] is an optional argument. If "1" is passed here, the server will send back a
  * HIPE_OP_LOCATION_RETURN instruction with the location of the newly created tag. */
 
@@ -248,20 +248,24 @@ extern "C" {
  *direction only, leave the unwanted argument unspecified.
  */
 
- #define HIPE_OP_GET_CONTENT       47
- /*Requests inner content of location; either flattened to unformatted plain
-  *text or formatted to HTML (if arg[0] == "1" or "2"). Response is sent back from the
-  *server as a HIPE_OP_CONTENT_RETURN instruction.
-  * arg[0] == 0 -- unformatted plain text (default)
-  * arg[0] == 1 -- contents formatted to HTML
-  * arg[0] == 2 -- contents returned as formatted plain text (line breaks etc.)
-  */
+#define HIPE_OP_GET_CONTENT       47
+/*Requests inner content of location; either flattened to unformatted plain
+ *text or formatted to HTML (if arg[0] == "1" or "2"). Response is sent back from the
+ *server as a HIPE_OP_CONTENT_RETURN instruction.
+ * arg[0] == 0 -- unformatted plain text (default)
+ * arg[0] == 1 -- contents formatted to HTML
+ * arg[0] == 2 -- contents returned as formatted plain text (line breaks etc.)
+ */
 
- #define HIPE_OP_CONTENT_RETURN    48
- /*Sent to client in response to a HIPE_OP_GET_CONTENT request. arg[0] contains
-  *the requested content. requestor contains whatever was passed to the initial
-  *request. Await this instruction after making a HIPE_OP_GET_CONTENT request.
-  */
+#define HIPE_OP_CONTENT_RETURN    48
+/*Sent to client in response to a HIPE_OP_GET_CONTENT request. arg[0] contains
+ *the requested content. requestor contains whatever was passed to the initial
+ *request. Await this instruction after making a HIPE_OP_GET_CONTENT request.
+ */
+
+#define HIPE_OP_DELETE 49
+/*Request that the location itself be removed from the document.
+ */
 
 /*--------------*/
 
