@@ -117,7 +117,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
             arg[2] = std::string(instruction.arg[2], instruction.arg_length[2]);
             if(arg[2] == "1") {
                 QWebElement newElement;
-                newElement = location.lastChild();  //FIXME: this sometimes returns a .isNull() element.
+                newElement = location.lastChild();
                 client->sendInstruction(HIPE_OP_LOCATION_RETURN,
                      instruction.requestor, getIndexOfElement(newElement));
             }
@@ -367,18 +367,17 @@ void Container::receiveInstruction(hipe_instruction instruction)
             remove(snapshotFile.toStdString().c_str()); //delete the temporary file.
         }
     } else if(instruction.opcode == HIPE_OP_USE_CANVAS) {
+        arg[0] = Sanitation::sanitiseCanvasInstruction(arg[0]);
         webElement.evaluateJavaScript(QString("canvascontext=document.getElementById(\"")
                                       + location.attribute("id") + "\").getContext(\"" + arg[0].c_str() + "\");");
-        //TODO: sanitise arg[0] against e.g. quotation marks.
-        //Don't allow parentheses or semicolons.
     } else if(instruction.opcode == HIPE_OP_CANVAS_ACTION) {
+        arg[0] = Sanitation::sanitiseCanvasInstruction(arg[0]);
+        arg[1] = Sanitation::sanitiseCanvasInstruction(arg[1]);
         webElement.evaluateJavaScript(QString("canvascontext.") + arg[0].c_str() + "(" + arg[1].c_str() + ");");
-        //TODO sanitise arg[0] and arg[1] against javascript injections.
-        //Don't allow parentheses or semicolons.
     } else if(instruction.opcode == HIPE_OP_CANVAS_SET_PROPERTY) {
+        arg[0] = Sanitation::sanitiseCanvasInstruction(arg[0]);
+        arg[1] = Sanitation::sanitiseCanvasInstruction(arg[1]);
         webElement.evaluateJavaScript(QString("canvascontext.") + arg[0].c_str() + "=" + arg[1].c_str() + ";");
-        //TODO sanitise arg[0] and arg[1] against javascript injections.
-        //Don't allow parentheses, semicolons, etc.
     } else if(instruction.opcode == HIPE_OP_SET_ICON) {
         setIcon(instruction.arg[0], instruction.arg_length[0]);
     } else if(instruction.opcode == HIPE_OP_REMOVE_ATTRIBUTE) {

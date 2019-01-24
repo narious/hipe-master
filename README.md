@@ -7,6 +7,11 @@ HIPE: Hypertext Pipe
 VERSION INFORMATION
 -------------------
 
+1.07  beta -- 24 Jan 2019
+
+Multiple new instructions, sanitisation of canvas instructions to prevent arbitrary
+code execution.
+
 v1.06 beta -- 21 July 2018
 
 Important bug fix release.
@@ -54,10 +59,9 @@ From 1.0:
 
 TODO:
 
-- Reduce reliance on Qt to enable future porting to other toolkits. Use POSIX socket functions rather than
-  those provided by Qt.
-- Add security: sanitise canvas operations to prevent arbitrary code causing performance instability.
-
+- More robust memory management
+- A transparent PING instruction to allow the hipe display server to identify nonresponsive applications based on when the application last checked for new instructions. Such information could then be passed to (or managed entirely by) the framing manager.
+- More flexible DOM manipulation operations, e.g. compliment append with prepend operations.
 
 
 GETTING THE LATEST VERSION

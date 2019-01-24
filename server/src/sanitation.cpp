@@ -216,6 +216,20 @@ std::string Sanitation::sanitisePlainText(std::string input, bool convertLayout)
     return output;
 }
 
+std::string Sanitation::sanitiseCanvasInstruction(std::string input) {
+//removes parentheses, braces and semicolons from strings intended as canvas instructions.
+//This prevents injections of arbitrary javascript code, which can degrade systemwide
+//performance among other things.
+//If sanitation fails for any reason, the whole string is rejected.
+
+    for(size_t i=0; i<input.size(); i++) {
+        if(input[i] == '(') return "";
+        else if(input[i] == ')') return "";
+        else if(input[i] == ';') return "";
+    }
+    return input;
+}
+
 std::string Sanitation::toBase64(const std::string& binaryData) {
     QByteArray b64qData = QByteArray(binaryData.data(), binaryData.size()).toBase64();
     //Qt provides a nice convenience function here.

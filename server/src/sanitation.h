@@ -39,6 +39,8 @@ public:
     static std::string sanitisePlainText(std::string input, bool convertLayout=false);
     //convert HTML syntactical characters in input into harmless escaped character entities.
 
+    static std::string sanitiseCanvasInstruction(std::string input);
+
     static std::string toBase64(const std::string& binaryData);
     static std::string toLower(const char* text, size_t size); //convert to lowercase
     static bool isAllowedAttribute(std::string input);
