@@ -13,7 +13,7 @@
 
 
 ConnectionManager::ConnectionManager(QObject *parent) :
-    QLocalServer(parent)
+    QObject(parent)
 {
     timer = new QTimer();
     timer->connect(timer, SIGNAL(timeout()), this, SLOT(timerEvent()));

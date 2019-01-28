@@ -19,14 +19,13 @@
 #ifndef SERVER_H
 #define SERVER_H
 
-#include <QLocalServer>
 #include <QTimer>
 class Connection;
 
 //The name 'connection manager' is no longer relevant. This class manages some
 //Qt events.
 
-class ConnectionManager : public QLocalServer
+class ConnectionManager : public QObject
 {
     Q_OBJECT
 public:

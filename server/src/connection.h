@@ -32,7 +32,6 @@
 #define READ_BUFFER_SIZE 256 //128 //this choice is arbitrary.
 
 #include <QObject>
-#include <QLocalSocket>
 #include <queue>
 #include "common.h"
 #include "container.h"
@@ -43,7 +42,6 @@ class Connection
 private:
     bool connected = true;
 public:
-    //explicit Connection(QLocalSocket* con, QObject *parent = 0);
     Connection(int clientFD);
     ~Connection();
 
@@ -63,7 +61,6 @@ public:
 
     void _readyRead();
 private:
-    //QLocalSocket* con;
     int clientFD; //socket descriptor of the connection.
 
     char readBuffer[READ_BUFFER_SIZE];

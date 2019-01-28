@@ -36,7 +36,6 @@
 #include <sys/socket.h>
 #include <sys/un.h>
 #include <QWebSettings>
-#include <QLocalServer>
 #include <QPixmap>
 #include "connectionmanager.h"
 #include "containertoplevel.h"
