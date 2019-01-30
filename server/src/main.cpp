@@ -349,11 +349,6 @@ int main(int argc, char *argv[])
         return 1;
     }
 
-/*    if(!connectionManager.listen(serverFD)) {
-        std::cerr << "hiped: Couldn't open socket.\n";
-        return 1;
-    }
-*/
     if(verbose)
         std::cerr << "hiped: Listening on " << socketFile << "\n";
 

@@ -1,4 +1,4 @@
-/*  Copyright (c) 2016-2018 Daniel Kos, General Development Systems
+/*  Copyright (c) 2016-2019 Daniel Kos, General Development Systems
 
     This file is part of Hipe.
 
@@ -38,7 +38,8 @@ ContainerFrame::ContainerFrame(Connection* bridge, std::string clientName, QWebF
 ContainerFrame::~ContainerFrame()
 {
     if(frame) frame->setHtml(""); //clear the frame's contents if it still exists.
-    parent->receiveSubFrameEvent(HIPE_FRAME_EVENT_CLIENT_DISCONNECTED, frame, "");
+    if(parent)
+        parent->receiveSubFrameEvent(HIPE_FRAME_EVENT_CLIENT_DISCONNECTED, frame, "");
 }
 
 Container* ContainerFrame::getParent()
@@ -48,6 +49,7 @@ Container* ContainerFrame::getParent()
 
 void ContainerFrame::setBody(std::string newBodyHtml, bool overwrite)
 {
+    if(!parent) return;
     if(!initYet) {
         frame->setHtml(QString("<html><head><style>") + stylesheet.c_str() + "</style><script>var canvascontext;</script></head><body onkeydown=\"c.receiveKeyEventOnBody(false, event.which);\" onkeyup=\"c.receiveKeyEventOnBody(true, event.which);\"></body></html>");
         stylesheet = ""; //clear already-applied stylesheet data.
@@ -70,10 +72,12 @@ void ContainerFrame::setBody(std::string newBodyHtml, bool overwrite)
 
 void ContainerFrame::setTitle(std::string newTitle)
 {
+    if(!parent) return;
     parent->receiveSubFrameEvent(HIPE_FRAME_EVENT_TITLE_CHANGED, frame, newTitle);
 }
 
 void ContainerFrame::setIcon(const char* imgData, size_t length)
 {
+    if(!parent) return;
     parent->receiveSubFrameEvent(HIPE_FRAME_EVENT_ICON_CHANGED, frame, std::string(imgData, length));
 }
