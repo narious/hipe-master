@@ -40,15 +40,13 @@ Connection::~Connection()
 //this happens in the main thread, in the service cycle.
 {
     disconnect(); //mark as disconnected if not already done.
-
-    shutdown(clientFD, SHUT_RDWR);
-    close(clientFD);
     instruction_decoder_clear(&currentInstruction);
     delete container;
 }
 
 void Connection::sendInstruction(char opcode, uint64_t requestor, uint64_t location, const std::vector<std::string>& args)
 {
+    if(!connected) return;
     hipe_instruction instruction;
     hipe_instruction_init(&instruction);
     instruction.opcode = opcode;
@@ -130,6 +128,8 @@ bool Connection::service() {
 
 void Connection::disconnect() {
     connected = false;
+    shutdown(clientFD, SHUT_RDWR);
+    close(clientFD);
 }
 
 void Connection::_readyRead()
