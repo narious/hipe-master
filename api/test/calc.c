@@ -102,7 +102,7 @@ int main(int argc, char** argv)
     hipe_send(session, HIPE_OP_ADD_STYLE_RULE, 0,0, 2, "button:active", "background-color:grey");
     hipe_send(session, HIPE_OP_ADD_STYLE_RULE, 0,0, 2, "table", "position:absolute;");
     hipe_send(session, HIPE_OP_ADD_STYLE_RULE, 0,0, 2, "td", "width:25%");
-    hipe_send(session, HIPE_OP_ADD_STYLE_RULE, 0,0, 2, "#mantissa", "text-align:right; border:inset 2px; border-radius:5px; background-color:aquamarine;font-size:150%;");
+    hipe_send(session, HIPE_OP_ADD_STYLE_RULE, 0,0, 2, "#mantissa", "text-align:right; border:inset 2px; border-radius:5px; background-color:aquamarine;color:black;font-size:150%;");
 
     //Specify initial window layout
     hipe_send(session, HIPE_OP_APPEND_TAG, 0, 0, 1, "table");
