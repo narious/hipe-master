@@ -42,5 +42,5 @@ HEADERS += main.hpp \
     hipe_instruction.h \
     sanitation.h
 
-QMAKE_CXXFLAGS += -std=c++11 -O2 -pthread
+QMAKE_CXXFLAGS += -std=c++11 -Ofast -pthread
 LIBS += -pthread
