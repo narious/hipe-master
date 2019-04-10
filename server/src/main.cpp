@@ -289,6 +289,51 @@ int main(int argc, char *argv[])
 
     a.setQuitOnLastWindowClosed(false);
 
+    //CUSTOM FONT PREFERENCES...
+    //Load font preferences if available (hard-coded path: /etc/hipe/fontprefs)
+    FILE* fontPrefs = fopen("/etc/hipe/fontprefs", "r");
+    if(fontPrefs) { //if file exists and is readable...
+    //The format for fontprefs file is as follows:
+    //[fontfamily]:first-preference,secondpreference,etc.
+    //e.g. serif:times,Century schoolbook
+    //1 generic font family per line from the following categories:
+    //standard, fixed, serif, sans, cursive, fantasy
+
+        int errcode = 0;
+        char *genericFamily, *actualFontValue;
+        while((errcode = fscanf(fontPrefs, " %m[^:]:%m[^\n]", &genericFamily, &actualFontValue))!=EOF) {
+            if(errcode < 2) continue;
+            QWebSettings::FontFamily category;
+            if(strcmp(genericFamily, "standard") == 0)
+                category = QWebSettings::StandardFont;
+            else if(strcmp(genericFamily, "fixed") == 0)
+                category = QWebSettings::FixedFont;
+            else if(strcmp(genericFamily, "serif") == 0)
+                category = QWebSettings::SerifFont;
+            else if(strcmp(genericFamily, "sans") == 0)
+                category = QWebSettings::SansSerifFont;
+            else if(strcmp(genericFamily, "cursive") == 0)
+                category = QWebSettings::CursiveFont;
+            else if(strcmp(genericFamily, "fantasy") == 0)
+                category = QWebSettings::FantasyFont;
+            else
+                goto skipFontSetting;
+            QWebSettings::globalSettings()->setFontFamily(category, actualFontValue);
+            skipFontSetting:
+
+            //since using dynamic allocation in fscanf, need to free these
+            //after each iteration. It is not worth considering the cases
+            //where a malformed file results in one being allocated but not the
+            //other, as the lost memory would be on par with loading the extra code
+            //needed to handle it.
+            free(genericFamily);
+            free(actualFontValue);
+        }
+
+        fclose(fontPrefs);
+    }
+
+
     if(stylesheetArg.size()) { //load the stylesheet into a string
         std::ifstream cssFile(stylesheetArg);
         if(!cssFile.is_open()) {
