@@ -570,7 +570,9 @@ void Container::frameCleared() {
 void Container::frameDestroyed()
 {
     frame = nullptr;
-    delete client;
+    //delete client; //not here -causes 'circular' cleanup.
+    client->disconnect();  //the connection will now be cleaned up in next cycle.
+    //in turn, the defunct connection will destroy this container object.
 }
 
 size_t Container::addReferenceableElement(const QWebElement& w)

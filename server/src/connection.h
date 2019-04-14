@@ -26,6 +26,10 @@
 /// - Discards itself when connection is closed.
 /// - Makes requests to ContainerManager, and exchanges instructions with a container object provided by same.
 
+//OWNERSHIP:
+//The connection owns the on-screen container object. It is responsible for
+//deleting the container object when destroyed.
+
 #ifndef CONNECTION_H
 #define CONNECTION_H
 

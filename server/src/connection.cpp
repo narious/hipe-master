@@ -90,6 +90,7 @@ void Connection::sendInstruction(hipe_instruction& instruction)
 
 void Connection::runInstruction(hipe_instruction* instruction)
 {
+    if(!connected) return;
     if(instruction->opcode == HIPE_OP_REQUEST_CONTAINER) {
         //requestor contains the claimed pid of the connecting process.
         container = requestContainerFromKey(std::string(instruction->arg[0],
@@ -122,6 +123,7 @@ bool Connection::service() {
         runInstruction(hi);
         hipe_instruction_clear(hi);
         delete hi;
+        if(!connected) return false;
     }
     return true; //this was a productive call.
 }
