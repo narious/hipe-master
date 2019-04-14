@@ -267,6 +267,21 @@ extern "C" {
 /*Request that the location itself be removed from the document.
  */
 
+#define HIPE_OP_CARAT_POSITION 50
+/*Sets the position of the text entry carat in an input element such as a
+ *<textarea> tag.
+ * arg[0] == character index of cursor within element
+ * arg[1] == character index of the end of the selection, or same as arg[0]
+ * if text is not selected.
+ * Note: additional arguments may be added in future if deemed necessary.
+ */
+
+#define HIPE_OP_GET_CARAT_POSITION 51
+/*Requests the sever to send the client a HIPE_OP_CARAT_POSITION instruction
+ *containing the *current* state of the input element.
+ */
+
+
 /*--------------*/
 
 #define HIPE_FRAME_EVENT_CLIENT_CONNECTED    1 //arg[1] is client name

@@ -7,6 +7,10 @@ HIPE: Hypertext Pipe
 VERSION INFORMATION
 -------------------
 
+1.08 beta -- 14 Apr 2019
+
+Numerous bug fixes. Added carat manipulation instructions for accessing and manipulating selections in text input elements.
+
 1.07  beta -- 24 Jan 2019
 
 Multiple new instructions, sanitisation of canvas instructions to prevent arbitrary

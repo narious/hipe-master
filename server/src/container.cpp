@@ -416,6 +416,17 @@ void Container::receiveInstruction(hipe_instruction instruction)
         }
         client->sendInstruction(HIPE_OP_CONTENT_RETURN, instruction.requestor,
                                            instruction.location, {contentStr});
+    } else if(instruction.opcode == HIPE_OP_CARAT_POSITION) {
+        //set the selection start/end position...
+        arg[0] = Sanitation::sanitisePlainText(arg[0]); //selection start
+        arg[1] = Sanitation::sanitisePlainText(arg[1]); //selection end, if specified
+        if(!arg[1].size()) arg[1] = arg[0]; //if unspecified, end=start means cursor without selection.
+        location.evaluateJavaScript(QString("this.setSelectionRange(")+arg[0].c_str()+","+arg[1].c_str()+");");
+    } else if(instruction.opcode == HIPE_OP_GET_CARAT_POSITION) {
+        std::string selStart, selEnd;
+        selStart = location.evaluateJavaScript("this.selectionStart;").toString().toStdString();
+        selEnd = location.evaluateJavaScript("this.selectionEnd;").toString().toStdString();
+        client->sendInstruction(HIPE_OP_CARAT_POSITION, instruction.requestor, instruction.location, {selStart, selEnd});
     }
 }
 
