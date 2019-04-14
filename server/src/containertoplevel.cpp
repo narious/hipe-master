@@ -64,7 +64,7 @@ void ContainerTopLevel::setBody(std::string newBodyHtml, bool overwrite) {
             std::string("<html><head><style>")
             + stylesheet
             + "</style><script>var canvascontext;</script></head>"
-            "<body onkeydown=\"c.receiveKeyEventOnBody(false, event.which);\" onkeyup=\"c.receiveKeyEventOnBody(true, event.which);\">"
+            "<body onkeydown=\"c.receiveKeyEventOnBody(false, event.which);\" onkeyup=\"c.receiveKeyEventOnBody(true, event.which);\" ondragstart=\"return false\">"
             "</body></html>"
         ); //initialiser. If ommitted, resource images won't display (!)
         initYet = true;
