@@ -232,7 +232,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
         }
         if(instruction.arg_length[1]) { //top offset
             int topVal = std::stoi(arg[1]);
-            location.evaluateJavaScript(QString("this.scrollLeft +=") + topVal + ";");
+            location.evaluateJavaScript(QString("this.scrollTop +=") + topVal + ";");
         }
     } else if(instruction.opcode == HIPE_OP_SCROLL_TO) {
         if(instruction.arg_length[0]) { //left offset
@@ -241,7 +241,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
         }
         if(instruction.arg_length[1]) { //top offset
             int topVal = std::stoi(arg[1]);
-            location.evaluateJavaScript(QString("this.scrollLeft =") + topVal + ";");
+            location.evaluateJavaScript(QString("this.scrollTop =") + topVal + ";");
         }
     } else if(instruction.opcode == HIPE_OP_GET_ATTRIBUTE) {
         QString attrVal;
