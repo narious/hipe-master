@@ -63,6 +63,8 @@ public:
     ~ContainerTopLevel();
 
     Container* getParent();
+
+    bool findText(std::string userQuery, bool searchBackwards, bool wrapAtEnd, bool caseSensitive);
 private:
     WebWindow* w;
 protected:

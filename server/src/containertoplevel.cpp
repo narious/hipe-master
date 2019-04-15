@@ -34,6 +34,7 @@
 //system-level windows instead of frames managed by other clients.
 
 ContainerTopLevel::ContainerTopLevel(Connection* bridge, std::string clientName) : Container(bridge, clientName) {
+    isTopLevel = true;
     initYet = false;
     w = new WebWindow(this);
     frame = w->webView->page()->mainFrame();
@@ -86,6 +87,15 @@ void ContainerTopLevel::setIcon(const char* imgData, size_t length)
     iconData.loadFromData((const uchar*) imgData, (uint) length);
     QIcon icon(iconData);
     w->setWindowIcon(icon);
+}
+
+bool ContainerTopLevel::findText(std::string userQuery, bool searchBackwards, bool wrapAtEnd, bool caseSensitive) {
+    QWebPage::FindFlags flags = 0;
+    if(searchBackwards) flags |= QWebPage::FindBackward;
+    if(wrapAtEnd)       flags |= QWebPage::FindWrapsAroundDocument;
+    if(caseSensitive)   flags |= QWebPage::FindCaseSensitively;
+    flags |= QWebPage::HighlightAllOccurrences;
+    return w->webView->findText(userQuery.c_str(), flags);
 }
 
 

@@ -281,6 +281,12 @@ extern "C" {
  *containing the *current* state of the input element.
  */
 
+#define HIPE_OP_FIND_TEXT 52
+/*Searches for the next instance of a text string in the entire client-frame
+ *hierarchy, in the style of a web browser's 'find on page' feature.
+ *Matches are selected for the user.
+ *For security reasons, only functional for the top-level frame.
+ */
 
 /*--------------*/
 

@@ -111,7 +111,8 @@ protected:
     std::string stylesheet; //build up the stylesheet before we apply it.
     bool initYet; //becomes true once boilerplate html has been set.
 
-
+    bool isTopLevel = false; //some instructions are only permitted to be carried out
+    //by the top level frame.
 signals:
     void receiveGuiEvent(quint64 location, quint64 requestor, QString event, QString detail);
     //signal called from within the QWebView object (via Javascript), each time a user interaction takes place.

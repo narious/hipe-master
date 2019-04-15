@@ -19,6 +19,7 @@
 #include "container.h"
 #include "connection.h"
 #include "containerframe.h"
+#include "containertoplevel.h"
 #include "sanitation.h"
 #include "main.hpp"
 
@@ -82,13 +83,9 @@ void Container::receiveInstruction(hipe_instruction instruction)
                                              : webElement; //may need to update this after calling setBody!!
 
 
-    if(instruction.opcode == HIPE_OP_CLEAR) {
-        if(!locationSpecified) setBody("",true);
-        else location.setInnerXml("");
-    } else if(instruction.opcode == HIPE_OP_DELETE) {
-        if(locationSpecified)
-            location.removeFromDocument(); //Qt doc says this also makes location a 'null element'
-    } else if(instruction.opcode == HIPE_OP_APPEND_TAG) {
+    //check instructions in order of most common. A map would also be useful here.
+
+    if(instruction.opcode == HIPE_OP_APPEND_TAG) { //This is by far the most common instruction. Check first.
         arg[0] = Sanitation::sanitisePlainText(arg[0]);
         arg[1] = Sanitation::sanitisePlainText(arg[1]);
         if(Sanitation::isAllowedTag(arg[0])) { //eliminate forbidden tags.
@@ -122,6 +119,12 @@ void Container::receiveInstruction(hipe_instruction instruction)
                      instruction.requestor, getIndexOfElement(newElement));
             }
         }
+    } else if(instruction.opcode == HIPE_OP_CLEAR) {
+        if(!locationSpecified) setBody("",true);
+        else location.setInnerXml("");
+    } else if(instruction.opcode == HIPE_OP_DELETE) {
+        if(locationSpecified)
+            location.removeFromDocument(); //Qt doc says this also makes location a 'null element'
     } else if(instruction.opcode == HIPE_OP_SET_TEXT) {
         arg[0] = Sanitation::sanitisePlainText(arg[0], (bool)(arg[1]=="1"));
         if(!locationSpecified) setBody(arg[0]);
@@ -427,6 +430,13 @@ void Container::receiveInstruction(hipe_instruction instruction)
         selStart = location.evaluateJavaScript("this.selectionStart;").toString().toStdString();
         selEnd = location.evaluateJavaScript("this.selectionEnd;").toString().toStdString();
         client->sendInstruction(HIPE_OP_CARAT_POSITION, instruction.requestor, instruction.location, {selStart, selEnd});
+    } else if(instruction.opcode == HIPE_OP_FIND_TEXT) {
+        if(isTopLevel) { //only the top level frame can use this instruction due
+        //to a limitation in Qt; there is no findText() method for individual frames.
+            ((ContainerTopLevel*)this)->findText(arg[0], false,false,false);
+            //TODO: add support for search direction args, etc.
+            //e.g. arg[1] might contain "bi" for 'backwards, case insensitive'
+        }
     }
 }
 
