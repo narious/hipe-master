@@ -318,7 +318,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
     } else if(instruction.opcode == HIPE_OP_TOGGLE_CLASS) {
         location.toggleClass(arg[0].c_str());
     } else if(instruction.opcode == HIPE_OP_SET_FOCUS) {
-        location.setFocus();
+        location.evaluateJavaScript("this.focus()");
     } else if(instruction.opcode == HIPE_OP_TAKE_SNAPSHOT) {
         if(Sanitation::toLower(arg[0].c_str(), arg[0].size()) == "pdf") { //vector screenshot.
             QPrinter pdfGen(QPrinter::ScreenResolution);
