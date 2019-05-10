@@ -204,7 +204,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
         if(arg[0] == "keydown" && !locationSpecified) { //keydown on body element is a special case.
             reportKeydownOnBody=true;
             keyDownOnBodyRequestor=instruction.requestor;
-        } else if(arg[1] == "keydown" && !locationSpecified) { //keyup on body element is a special case.
+        } else if(arg[0] == "keyup" && !locationSpecified) { //keyup on body element is a special case.
             reportKeyupOnBody=true;
             keyUpOnBodyRequestor=instruction.requestor;
         } else
