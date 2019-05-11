@@ -229,22 +229,59 @@ void Container::receiveInstruction(hipe_instruction instruction)
         client->sendInstruction(HIPE_OP_GEOMETRY_RETURN, instruction.requestor, instruction.location,
                                     {left, top, width, height});
     } else if(instruction.opcode == HIPE_OP_SCROLL_BY) {
-        if(instruction.arg_length[0]) { //left offset
-            int leftVal = std::stoi(arg[0]);
-            location.evaluateJavaScript(QString("this.scrollLeft +=") + leftVal + ";");
+        //if arg[2] is "%", then the units are percentage of scroll track. Otherwise
+        //units are pixels of positive offet at the top-left of the viewable area.
+        bool percentage = false;
+        if(instruction.arg_length[2] || instruction.arg[2][0] == '%')
+            percentage = true;
+
+        if(instruction.arg_length[0]) { //left offset which may have decimal places if zoomed in.
+            try {
+                float leftVal = std::stof(arg[0]); //may throw exception if invalid.
+                if(!percentage)
+                    location.evaluateJavaScript(QString("this.scrollLeft+=") + QString::number(leftVal) + ";");
+                else
+                    location.evaluateJavaScript(QString("this.scrollLeft+=") + QString::number(leftVal)
+                            + "/(this.scrollWidth - this.clientWidth);" );
+            } catch(...) {} //just do nothing on error.
         }
         if(instruction.arg_length[1]) { //top offset
-            int topVal = std::stoi(arg[1]);
-            location.evaluateJavaScript(QString("this.scrollTop +=") + topVal + ";");
+            try {
+                float topVal = std::stof(arg[1]); //may throw exception if invalid.
+                if(!percentage)
+                    location.evaluateJavaScript(QString("this.scrollTop+=") + QString::number(topVal) + ";");
+                else
+                    location.evaluateJavaScript(QString("this.scrollTop+=") + QString::number(topVal)
+                            + "/(this.scrollHeight - this.clientHeight);" );
+            } catch(...) {} //just do nothing on error.
         }
     } else if(instruction.opcode == HIPE_OP_SCROLL_TO) {
-        if(instruction.arg_length[0]) { //left offset
-            int leftVal = std::stoi(arg[0]);
-            location.evaluateJavaScript(QString("this.scrollLeft =") + leftVal + ";");
+
+        //if arg[2] is "%", then the units are percentage of scroll track. Otherwise
+        //units are pixels of positive offet at the top-left of the viewable area.
+        bool percentage = false;
+        if(instruction.arg_length[2] || instruction.arg[2][0] == '%')
+            percentage = true;
+
+        if(instruction.arg_length[0]) { //left offset which may have decimal places if zoomed in.
+            try {
+                float leftVal = std::stof(arg[0]); //may throw exception if invalid.
+                if(!percentage)
+                    location.evaluateJavaScript(QString("this.scrollLeft=") + QString::number(leftVal) + ";");
+                else
+                    location.evaluateJavaScript(QString("this.scrollLeft=") + QString::number(leftVal)
+                            + "/(this.scrollWidth - this.clientWidth);" );
+            } catch(...) {} //just do nothing on error.
         }
         if(instruction.arg_length[1]) { //top offset
-            int topVal = std::stoi(arg[1]);
-            location.evaluateJavaScript(QString("this.scrollTop =") + topVal + ";");
+            try {
+                float topVal = std::stof(arg[1]); //may throw exception if invalid.
+                if(!percentage)
+                    location.evaluateJavaScript(QString("this.scrollTop=") + QString::number(topVal) + ";");
+                else
+                    location.evaluateJavaScript(QString("this.scrollTop=") + QString::number(topVal)
+                            + "/(this.scrollHeight - this.clientHeight);" );
+            } catch(...) {} //just do nothing on error.
         }
     } else if(instruction.opcode == HIPE_OP_GET_ATTRIBUTE) {
         QString attrVal;

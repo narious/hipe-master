@@ -246,6 +246,8 @@ extern "C" {
  *(_BY) amount. arg[0] is the horizontal pixel offset to scroll to (or by).
  *arg[1] is the vertical pixel offset to scroll to (or by) To scroll in one
  *direction only, leave the unwanted argument unspecified.
+ *arg[2] can be specified as "%" in which case a percentage of the scroll track
+ *is used. Otherwise scrolling is in pixels.
  */
 
 #define HIPE_OP_GET_CONTENT       47
