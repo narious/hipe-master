@@ -240,7 +240,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
         //if arg[2] is "%", then the units are percentage of scroll track. Otherwise
         //units are pixels of positive offet at the top-left of the viewable area.
         bool percentage = false;
-        if(instruction.arg_length[2] || instruction.arg[2][0] == '%')
+        if(instruction.arg_length[2] && instruction.arg[2][0] == '%')
             percentage = true;
 
         if(instruction.arg_length[0]) { //left offset which may have decimal places if zoomed in.
@@ -268,7 +268,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
         //if arg[2] is "%", then the units are percentage of scroll track. Otherwise
         //units are pixels of positive offet at the top-left of the viewable area.
         bool percentage = false;
-        if(instruction.arg_length[2] || instruction.arg[2][0] == '%')
+        if(instruction.arg_length[2] && instruction.arg[2][0] == '%')
             percentage = true;
 
         if(instruction.arg_length[0]) { //left offset which may have decimal places if zoomed in.
