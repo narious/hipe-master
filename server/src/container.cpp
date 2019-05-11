@@ -250,7 +250,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
                     location.evaluateJavaScript(QString("this.scrollLeft+=") + QString::number(leftVal) + ";");
                 else
                     location.evaluateJavaScript(QString("this.scrollLeft+=") + QString::number(leftVal)
-                            + "/(this.scrollWidth - this.clientWidth);" );
+                            + "*(this.scrollWidth - this.clientWidth)/100.0;" );
             } catch(...) {} //just do nothing on error.
         }
         if(instruction.arg_length[1]) { //top offset
@@ -260,7 +260,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
                     location.evaluateJavaScript(QString("this.scrollTop+=") + QString::number(topVal) + ";");
                 else
                     location.evaluateJavaScript(QString("this.scrollTop+=") + QString::number(topVal)
-                            + "/(this.scrollHeight - this.clientHeight);" );
+                            + "*(this.scrollHeight - this.clientHeight)/100.0;" );
             } catch(...) {} //just do nothing on error.
         }
     } else if(instruction.opcode == HIPE_OP_SCROLL_TO) {
@@ -278,7 +278,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
                     location.evaluateJavaScript(QString("this.scrollLeft=") + QString::number(leftVal) + ";");
                 else
                     location.evaluateJavaScript(QString("this.scrollLeft=") + QString::number(leftVal)
-                            + "/(this.scrollWidth - this.clientWidth);" );
+                            + "*(this.scrollWidth - this.clientWidth)/100.0;" );
             } catch(...) {} //just do nothing on error.
         }
         if(instruction.arg_length[1]) { //top offset
@@ -288,7 +288,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
                     location.evaluateJavaScript(QString("this.scrollTop=") + QString::number(topVal) + ";");
                 else
                     location.evaluateJavaScript(QString("this.scrollTop=") + QString::number(topVal)
-                            + "/(this.scrollHeight - this.clientHeight);" );
+                            + "*(this.scrollHeight - this.clientHeight)/100.0;" );
             } catch(...) {} //just do nothing on error.
         }
     } else if(instruction.opcode == HIPE_OP_GET_ATTRIBUTE) {
