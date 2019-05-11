@@ -290,6 +290,13 @@ extern "C" {
  *For security reasons, only functional for the top-level frame.
  */
 
+#define HIPE_OP_ADD_FONT 53
+/*Adds a @fontface style rule to the document
+ *arg[0] == the name to be used to specify the font face in subsequent styling
+ *arg[1] == the mime type for the font data (e.g. "application/x-font-woff")
+ *arg[2] == the raw font file data itself.
+ */
+
 /*--------------*/
 
 #define HIPE_FRAME_EVENT_CLIENT_CONNECTED    1 //arg[1] is client name

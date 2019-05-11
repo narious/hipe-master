@@ -137,6 +137,14 @@ void Container::receiveInstruction(hipe_instruction instruction)
         if(Sanitation::isAllowedCSS(arg[0]) && Sanitation::isAllowedCSS(arg[1]))
             stylesheet += arg[0] + "{" + arg[1] + "}\n";
         applyStylesheet();
+    } else if(instruction.opcode == HIPE_OP_ADD_FONT) {
+        //arg[0] is font family name, arg[1] is mime type, arg[2] is raw data.
+        if(Sanitation::isAllowedCSS(arg[0]) && Sanitation::isAllowedCSS(arg[1]))
+            stylesheet += "@fontface {font-family:\"" + arg[0] + "\"; src:url(\"data:"
+                    + arg[1] + ";base64,"
+                    + Sanitation::toBase64(std::string(instruction.arg[2],instruction.arg_length[2]))
+                    + "\");}\n";
+        applyStylesheet();
     } else if(instruction.opcode == HIPE_OP_SET_TITLE) {
         setTitle(arg[0]);
     } else if(instruction.opcode == HIPE_OP_GET_FIRST_CHILD) {
