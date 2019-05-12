@@ -207,7 +207,7 @@ void incomingSocketThread() {
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
-    a.setApplicationName("hiped");
+    a.setApplicationName("Hipe display server");
     a.setApplicationVersion("v0 beta. Check README.md for more specific info.");
 
     std::stringstream userid; userid << getuid();
