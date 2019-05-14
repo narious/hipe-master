@@ -297,6 +297,24 @@ extern "C" {
  *arg[2] == the raw font file data itself.
  */
 
+#define HIPE_OP_AUDIOVIDEO_STATE 54
+/*If sent from the client to the server, modifies the state of an <audio> or
+ *<video> tag. If received, this is in response to a ..._GET_AUDIOVIDEO_STATE
+ *request and reflects the current status of the media element
+ *arg[0] == the current playback position (in seconds) and the total duration (in seconds)
+ *          separated by a ','. When setting the current playback position, it is
+            sufficient to specify the desired position without the total duration.
+ *arg[1] == the playback speed (1 == normal speed)
+ *arg[2] == the playing/paused status. ("1" or "0")
+ *arg[3] == the playback volume (fraction of 1.0)
+ *--nonrequired arguments can be left empty.
+ */
+
+#define HIPE_OP_GET_AUDIOVIDEO_STATE 55
+/*Requests a HIPE_OP_AUDIOVIDEO_STATE instruction containing the current state
+ *of an <audio> or <video> tag.
+ */
+
 /*--------------*/
 
 #define HIPE_FRAME_EVENT_CLIENT_CONNECTED    1 //arg[1] is client name

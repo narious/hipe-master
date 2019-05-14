@@ -482,6 +482,53 @@ void Container::receiveInstruction(hipe_instruction instruction)
             //TODO: add support for search direction args, etc.
             //e.g. arg[1] might contain "bi" for 'backwards, case insensitive'
         }
+    } else if(instruction.opcode == HIPE_OP_GET_AUDIOVIDEO_STATE) {
+        std::string position = location.evaluateJavaScript("this.currentTime+','+this.duration;").toString().toStdString();
+        //stores the position in the <audio>/<video> tag in the format
+        //"currentTime,totalTime" where both times are in seconds, and separated
+        //by a comma. When the user sends this data, they can ommit the total time,
+        //which will be ignored.
+
+        std::string speed = location.evaluateJavaScript("this.playbackRate;").toString().toStdString();
+
+        bool playing = location.evaluateJavaScript("(!this.paused || this.currentTime);").toBool();
+        //condition based on:https://stackoverflow.com/questions/9437228/html5-check-if-audio-is-playing
+        //If playing is false, the element may be paused, ended or waiting for playback to begin.
+
+        std::string volume = location.evaluateJavaScript("this.voume;").toString().toStdString();
+
+        client->sendInstruction(HIPE_OP_AUDIOVIDEO_STATE, instruction.requestor,
+                instruction.location, {position, speed, (playing?"1":"0"), volume});
+
+    } else if(instruction.opcode == HIPE_OP_AUDIOVIDEO_STATE) {
+        float argValue;
+
+        //if arg[0] is non-null, parse the new playback position as the first "%f" in the string.
+        if(sscanf(arg[0].c_str(), "%f", &argValue) == 1) {
+            location.evaluateJavaScript(QString("this.currentTime=")+QString::number(argValue)+";");
+        }
+
+        //if arg[1] is non-null, take the playback speed as a float.
+        if(sscanf(arg[1].c_str(), "%f", &argValue) == 1) {
+            location.evaluateJavaScript(QString("this.playbackRate=")+QString::number(argValue)+";");
+        }
+
+        //if arg[2] is "1" call play() and if "0" then pause().
+        if(instruction.arg_length[2]) {  //arg is specified.
+            if(instruction.arg[2][0]=='1')
+                location.evaluateJavaScript("this.play();");
+            else if(instruction.arg[2][0]=='0')
+                location.evaluateJavaScript("this.pause();");
+        }
+
+        //if arg[3] is non-null, take volume as a float.
+        if(instruction.arg_length[3]) {
+            arg[3] = std::string(instruction.arg[3],instruction.arg_length[3]);
+            if(sscanf(arg[3].c_str(), "%f", &argValue) == 1)
+                location.evaluateJavaScript(QString("this.volume=")+QString::number(argValue)+";");
+        }
+
+
     }
 }
 
