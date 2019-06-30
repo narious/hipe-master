@@ -64,9 +64,9 @@ public:
     void disconnect();
 
     void _readyRead();
+
 private:
     int clientFD; //socket descriptor of the connection.
-
     pid_t clientPID;
 
     char readBuffer[READ_BUFFER_SIZE];
