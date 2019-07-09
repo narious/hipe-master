@@ -1,4 +1,4 @@
-/*  Copyright (c) 2016-2018 Daniel Kos, General Development Systems
+/*  Copyright (c) 2016-2019 Daniel Kos, General Development Systems
 
     This file is part of Hipe.
 
@@ -26,6 +26,7 @@
 #include <QWebFrame>
 #include <QWebPage>
 #include <QPrinter>
+#include <QInputDialog>
 #include <stdio.h>
 
 std::string Container::globalStyleRules="";
@@ -447,8 +448,8 @@ void Container::receiveInstruction(hipe_instruction instruction)
             target = getParent();
             sourceframe = webElement.webFrame();
         }
-        if(target) { //send the instruction to the destination.
-            target->receiveMessage(HIPE_OP_MESSAGE, requestor, std::string(instruction.arg[0],instruction.arg_length[0]), std::string(instruction.arg[1], instruction.arg_length[1]), sourceframe);
+        if(target) { //send the instruction to the destination. (at top level, target is nullptr)
+            target->receiveMessage(HIPE_OP_MESSAGE, requestor, {std::string(instruction.arg[0],instruction.arg_length[0]), std::string(instruction.arg[1], instruction.arg_length[1])}, sourceframe);
         }
     } else if(instruction.opcode == HIPE_OP_GET_CONTENT) {
         //get inner content of (extract data from) location.
@@ -527,8 +528,82 @@ void Container::receiveInstruction(hipe_instruction instruction)
             if(sscanf(arg[3].c_str(), "%f", &argValue) == 1)
                 location.evaluateJavaScript(QString("this.volume=")+QString::number(argValue)+";");
         }
+    } else if(instruction.opcode == HIPE_OP_DIALOG) {
+        Container* target = getParent();
 
+        if(!target) { //we are the top level. Dialog is handled here directly
+            QStringList items;
+            QString separator = "⸻";
+            //what if the user selects a separator? Treat it the same as a Cancel.
 
+            if(instruction.arg_length[2]) { //if choices are specified (technically required)
+                arg[2] = std::string(instruction.arg[2],instruction.arg_length[2]);
+                QString choiceLines = arg[2].c_str();
+                items = choiceLines.split("\n");
+
+                //blank lines should contain a separator string.
+                for(QString& s : items) {
+                    if(s == "")
+                        s = separator;
+                }
+            }
+
+            bool ok;
+            QString item = QInputDialog::getItem(NULL, arg[0].c_str() /*title*/,
+                arg[1].c_str() /*prompt*/, items, 0, false, &ok);
+
+            if(ok && item != separator) { //dialog wasn't cancelled
+                //find the index+1 of the choice selected...
+                for(int i=0; i<items.size(); i++) {
+                    if(items[i] == item) {
+                        std::string itemIndexStr = std::to_string(i+1);
+                        client->sendInstruction(HIPE_OP_DIALOG_RETURN, requestor,
+                                0, {item.toStdString(), itemIndexStr});
+                        break;
+                    }
+                }
+            } else { //cancelled
+                client->sendInstruction(HIPE_OP_DIALOG_RETURN, requestor, 0, {"","0"});
+            }
+        } else { //relay to parent node.
+            if(instruction.arg_length[2]) arg[2]=std::string(instruction.arg[2],instruction.arg_length[2]);
+            else arg[2] = "";
+            if(instruction.arg_length[3]) arg[3]=std::string(instruction.arg[3],instruction.arg_length[3]);
+            else arg[3] = "";
+
+            target->receiveMessage(HIPE_OP_DIALOG, requestor, {arg[0],arg[1],
+                std::string(instruction.arg[2],instruction.arg_length[2]),
+                std::string(instruction.arg[3],instruction.arg_length[3])},
+                webElement.webFrame(), false);
+            //this sends the instruction to the parent's client.
+        }
+    } else if(instruction.opcode == HIPE_OP_DIALOG_RETURN) {
+        if(locationSpecified) {
+        //The fact we're receiving from the client and not sending this,
+        //means a location is mandatory. We simply relay this instruction to the child frame.
+
+            Container* target = nullptr;
+            //find the relevant child frame client
+            for(FrameData& fd : subFrames) {
+                if(fd.we == location) { //found
+                    target = identifyFromFrame(fd.wf)->container; //find the corresponding container.
+                    break;
+                }
+            }
+
+            if(target) {
+                if(instruction.arg_length[2]) arg[2]=std::string(instruction.arg[2],instruction.arg_length[2]);
+                else arg[2] = "";
+                if(instruction.arg_length[3]) arg[3]=std::string(instruction.arg[3],instruction.arg_length[3]);
+                else arg[3] = "";
+
+                target->receiveMessage(HIPE_OP_DIALOG_RETURN, requestor, {arg[0],arg[1],
+                    std::string(instruction.arg[2],instruction.arg_length[2]),
+                    std::string(instruction.arg[3],instruction.arg_length[3])},
+                    nullptr, false);
+            }
+
+        }
     }
 }
 
@@ -593,7 +668,7 @@ void Container::receiveSubFrameEvent(short evtType, QWebFrame* sender, std::stri
     }
 }
 
-void Container::receiveMessage(char opcode, int64_t requestor, std::string arg1, std::string arg2, QWebFrame* sender, bool propagateToParent) {
+void Container::receiveMessage(char opcode, int64_t requestor, const std::vector<std::string>& args, /*std::string arg1, std::string arg2,*/ QWebFrame* sender, bool propagateToParent) {
 //If the sender is the parent of this frame, a nullptr should be passed as sender.
 //If the sender is a child frame, we'll resolve the child frame's location from the perspective of this frame.
 //If propagateToParent is set, all parents of this container will see this message as originating from their relevant child frame.
@@ -609,11 +684,11 @@ void Container::receiveMessage(char opcode, int64_t requestor, std::string arg1,
             }
         }
 
-    client->sendInstruction(opcode, requestor, location, {arg1, arg2});
+    client->sendInstruction(opcode, requestor, location, args);
 
     //propagate to parent (and grandparent, etc.) if flag specified.
     if(propagateToParent && getParent())
-        getParent()->receiveMessage(opcode, requestor, arg1, arg2, webElement.webFrame(), true);
+        getParent()->receiveMessage(opcode, requestor, args, webElement.webFrame(), true);
 }
 
 void Container::keyEventOnChildFrame(QWebFrame* origin, bool keyUp, QString keycode) {

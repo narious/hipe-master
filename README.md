@@ -7,6 +7,10 @@ HIPE: Hypertext Pipe
 VERSION INFORMATION
 -------------------
 
+1.09 beta -- 9 Jul 2019
+
+Numerous improvements. An instruction framework for modal dialog box implementation is now provided.
+
 1.08 beta -- 14 Apr 2019
 
 Numerous bug fixes. Added carat manipulation instructions for accessing and manipulating selections in text input elements.
