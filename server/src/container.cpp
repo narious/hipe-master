@@ -528,7 +528,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
             if(sscanf(arg[3].c_str(), "%f", &argValue) == 1)
                 location.evaluateJavaScript(QString("this.volume=")+QString::number(argValue)+";");
         }
-    } else if(instruction.opcode == HIPE_OP_DIALOG) {
+    } else if(instruction.opcode == HIPE_OP_DIALOG || instruction.opcode == HIPE_OP_DIALOG_INPUT) {
         Container* target = getParent();
 
         if(!target) { //we are the top level. Dialog is handled here directly
@@ -549,19 +549,23 @@ void Container::receiveInstruction(hipe_instruction instruction)
             }
 
             bool ok;
+            bool editable = (bool) (instruction.opcode == HIPE_OP_DIALOG_INPUT);
             QString item = QInputDialog::getItem(NULL, arg[0].c_str() /*title*/,
-                arg[1].c_str() /*prompt*/, items, 0, false, &ok);
+                arg[1].c_str() /*prompt*/, items, 0, editable, &ok);
 
             if(ok && item != separator) { //dialog wasn't cancelled
                 //find the index+1 of the choice selected...
+                std::string itemIndexStr = "";
                 for(int i=0; i<items.size(); i++) {
                     if(items[i] == item) {
-                        std::string itemIndexStr = std::to_string(i+1);
-                        client->sendInstruction(HIPE_OP_DIALOG_RETURN, requestor,
-                                0, {item.toStdString(), itemIndexStr});
+                        itemIndexStr = std::to_string(i+1);
                         break;
                     }
+                    if(itemIndexStr=="") itemIndexStr = 1; //in case of free-form text entry.
                 }
+                client->sendInstruction(HIPE_OP_DIALOG_RETURN, requestor,
+                                0, {item.toStdString(), itemIndexStr});
+
             } else { //cancelled
                 client->sendInstruction(HIPE_OP_DIALOG_RETURN, requestor, 0, {"","0"});
             }

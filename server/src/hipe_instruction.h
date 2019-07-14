@@ -333,7 +333,6 @@ extern "C" {
  *opt to retransmit the instruction up to the next level and then relay the
  *reply back to the client
  *
-  TO BE IMPLEMENTED...
  *location == when sending: 0. When receiving: the clientFrame that sent it.
  *arg[0] == Dialog title text
  *arg[1] == Dialog prompt text; multiple lines allowed.
@@ -349,15 +348,31 @@ extern "C" {
  *
  */
 
+
 #define HIPE_OP_DIALOG_RETURN 57
-/*TO BE IMPLEMENTED
- * Location: always 0 when received. When sending, use the client-frame that
+/* Location: always 0 when received. When sending, use the client-frame that
  *  awaits the response.
  *
  * Requestor: relays the value that was ued in requesting the dialog.
  * arg[0]: The text of the response chosen (or blank if cancelled)
  * arg[1]: The index (numbered from 1) or the response chosen, or 0 if cancelled.
  */
+
+
+#define HIPE_OP_DIALOG_INPUT 58
+/* An alternate version of HIPE_OP_DIALOG that allows free text input by the
+ * User.
+ * arg[0] == Dialog title text
+ * arg[1] == Dialog prompt text. Multiple lines allowed, in which case the
+ *   implementor may opt to style the final line differently as the main caption
+ *   alongside the prompt itself, with prior lines preceding as explanatory text.
+ * arg[2] == Suggested inputs, separated by newlines. The first line is the
+ *   suggested default input. If the first line is blank, the input box should
+ *   initially be empty. If the whole argument is blank, no suggestions are
+ *   provided. Suggestions should be based on recent history (e.g. 5 recent commands)
+ * arg[3] == Unicode character symbol (UTF8) for the question prompt.
+ */
+
 
 /*--------------*/
 
