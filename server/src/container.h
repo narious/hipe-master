@@ -114,13 +114,15 @@ protected:
     bool isTopLevel = false; //some instructions are only permitted to be carried out
     //by the top level frame.
 signals:
-    void receiveGuiEvent(quint64 location, quint64 requestor, QString event, QString detail);
+    void receiveGuiEvent(QString location, QString requestor, QString event, QString detail);
     //signal called from within the QWebView object (via Javascript), each time a user interaction takes place.
 
     void receiveKeyEventOnBody(bool keyUp, QString keycode);
     //signal called when a keyup (or else keydown) event happens on the body element.
 protected slots:
-    void _receiveGuiEvent(quint64 location, quint64 requestor, QString event, QString detail);
+    void _receiveGuiEvent(QString location, QString requestor, QString event, QString detail);
+    //location and requestor are to be passed as hexadecimal strings.
+
     void _receiveKeyEventOnBody(bool keyUp, QString keycode);
     void frameCleared();
     void frameDestroyed(); //conneected to the QWebFrame's destroyed() signal.

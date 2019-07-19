@@ -37,8 +37,8 @@ Container::Container(Connection* bridge, std::string clientName) : QObject()
 
     keyList = new KeyList(clientName);
 
-    connect(this, SIGNAL(receiveGuiEvent(quint64,quint64,QString,QString)),
-            this, SLOT(_receiveGuiEvent(quint64,quint64,QString,QString)));
+    connect(this, SIGNAL(receiveGuiEvent(QString,QString,QString,QString)),
+            this, SLOT(_receiveGuiEvent(QString,QString,QString,QString)));
 
     connect(this, SIGNAL(receiveKeyEventOnBody(bool,QString)),
             this, SLOT(_receiveKeyEventOnBody(bool,QString)));
@@ -202,8 +202,8 @@ void Container::receiveInstruction(hipe_instruction instruction)
     } else if(instruction.opcode == HIPE_OP_FREE_LOCATION) {
         removeReferenceableElement(instruction.location);
     } else if(instruction.opcode == HIPE_OP_EVENT_REQUEST) {
-        QString locStr = QString::number(instruction.location);
-        QString reqStr = QString::number(requestor);
+        QString locStr = QString::number(instruction.location, 16);
+        QString reqStr = QString::number(requestor, 16); //represent as hex strings
         QString evtDetailArgs;
         arg[0] = Sanitation::toLower(arg[0].c_str(), arg[0].size()); //sanitise against user overriding event attributes with uppercase equivalents.
         if(arg[0] == "mousemove" || arg[0] == "mousedown" || arg[0] == "mouseup" || arg[0] == "mouseenter" || arg[0] == "mouseleave" || arg[0] == "mouseover" || arg[0] == "mouseout")
@@ -217,7 +217,9 @@ void Container::receiveInstruction(hipe_instruction instruction)
             reportKeyupOnBody=true;
             keyUpOnBodyRequestor=instruction.requestor;
         } else
-            location.setAttribute(QString("on") + arg[0].c_str(), QString("c.receiveGuiEvent(") + locStr + "," + reqStr + ",'" + arg[0].c_str() + "'," + evtDetailArgs + ")");
+            location.setAttribute(QString("on") + arg[0].c_str(), QString("c.receiveGuiEvent('") + locStr + "','" + reqStr + "','" + arg[0].c_str() + "'," + evtDetailArgs + ")");
+            //Note: since Javascript's max integer range is only about 2^52, 64 bit numbers
+            //need to be represented as strings to avoid loss of accuracy.
     } else if(instruction.opcode == HIPE_OP_EVENT_CANCEL) {
         location.removeAttribute(QString("on") + arg[0].c_str());
         if(arg[1] == "1") { //reply requested. Send back an EVENT_CANCEL instruction to tell the client it can clean up event listeners for this event now.
@@ -728,9 +730,14 @@ void Container::keyEventOnChildFrame(QWebFrame* origin, bool keyUp, QString keyc
 }
 
 
-void Container::_receiveGuiEvent(quint64 location, quint64 requestor, QString event, QString detail)
+void Container::_receiveGuiEvent(QString location, QString requestor, QString event, QString detail)
+//location and requestor are hexadecimal string representations of uint64_t values.
 {
-    client->sendInstruction(HIPE_OP_EVENT, requestor, location, {event.toStdString(), detail.toStdString()});
+    uint64_t loc, rq;
+    bool ok;
+    loc = location.toULong(&ok, 16);
+    rq = requestor.toULong(&ok, 16);
+    client->sendInstruction(HIPE_OP_EVENT, rq, loc, {event.toStdString(), detail.toStdString()});
 }
 
 void Container::_receiveKeyEventOnBody(bool keyUp, QString keycode)
@@ -739,9 +746,9 @@ void Container::_receiveKeyEventOnBody(bool keyUp, QString keycode)
 //the event and propagate it up the client tree regardless of whether the user has asked to be notified of it.
 {
     if(keyUp && reportKeyupOnBody)
-        _receiveGuiEvent(0, keyUpOnBodyRequestor, "keyup", keycode);
+        _receiveGuiEvent("0", QString::number(keyUpOnBodyRequestor,16), "keyup", keycode);
     else if(!keyUp && reportKeydownOnBody)
-        _receiveGuiEvent(0, keyDownOnBodyRequestor, "keydown", keycode);
+        _receiveGuiEvent("0", QString::number(keyDownOnBodyRequestor,16), "keydown", keycode);
 
     // the whole point of this function is that we'll now notify the parent of the event.
     // if this frame has a onkeydown or onkeyup attribute specified in the parent, we'll fire off an event on that iframe.
