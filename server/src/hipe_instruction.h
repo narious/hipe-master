@@ -1,4 +1,4 @@
-/* Copyright (c) 2015-2018 Daniel Kos, General Development Systems
+/* Copyright (c) 2015-2019 Daniel Kos, General Development Systems
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -314,6 +314,65 @@ extern "C" {
 /*Requests a HIPE_OP_AUDIOVIDEO_STATE instruction containing the current state
  *of an <audio> or <video> tag.
  */
+
+#define HIPE_OP_DIALOG 56
+/*A dialog is a modal dialog display containing one or more forward options
+ *and a built-in ability to close (cancel) the dialog without selecting an option.
+
+ *"Modal" may be implemented with at least two possible behaviours: either
+ *(a) the user cannot interact with the client until answering or dismissing
+ *the dialog, or (b), refocusing the client (e.g. clicking outside the dialog)
+ *automatically invokes dismissal of the dialog. The sending client cannot choose
+ *this behaviour; it depends on how the message-receiver is designed.
+
+ *If sent from the top level, Hipe handles rudimentary display of the dialog,
+ *however the nominal case in a complete Hipe environment is for this to be
+ *handled by a framing manager.
+ *Otherwise, the next client up receives the instruction with the clientFrame
+ *as the location. A client may
+ *opt to retransmit the instruction up to the next level and then relay the
+ *reply back to the client
+ *
+ *location == when sending: 0. When receiving: the clientFrame that sent it.
+ *arg[0] == Dialog title text
+ *arg[1] == Dialog prompt text; multiple lines allowed.
+ *arg[2] == Choices, separated by newlines.
+ *   (The cancel choice is not specifiable and is always provided)
+ *   A separator may be specified by leaving a line blank.
+ *
+ *arg[3] == Character symbol (UTF8) for each option, separated by \n newlines.
+ *   If no symbol is required, or a separator occupies that 'slot', a blank
+ *   line should be supplied.
+ *   - An additional symbol at the end of the list specifies a symbol for
+ *     the dialog itself, e.g. "🛈"
+ *
+ */
+
+
+#define HIPE_OP_DIALOG_RETURN 57
+/* Location: always 0 when received. When sending, use the client-frame that
+ *  awaits the response.
+ *
+ * Requestor: relays the value that was ued in requesting the dialog.
+ * arg[0]: The text of the response chosen (or blank if cancelled)
+ * arg[1]: The index (numbered from 1) or the response chosen, or 0 if cancelled.
+ */
+
+
+#define HIPE_OP_DIALOG_INPUT 58
+/* An alternate version of HIPE_OP_DIALOG that allows free text input by the
+ * User.
+ * arg[0] == Dialog title text
+ * arg[1] == Dialog prompt text. Multiple lines allowed, in which case the
+ *   implementor may opt to style the final line differently as the main caption
+ *   alongside the prompt itself, with prior lines preceding as explanatory text.
+ * arg[2] == Suggested inputs, separated by newlines. The first line is the
+ *   suggested default input. If the first line is blank, the input box should
+ *   initially be empty. If the whole argument is blank, no suggestions are
+ *   provided. Suggestions should be based on recent history (e.g. 5 recent commands)
+ * arg[3] == Unicode character symbol (UTF8) for the question prompt.
+ */
+
 
 /*--------------*/
 

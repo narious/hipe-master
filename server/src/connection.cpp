@@ -26,8 +26,12 @@
 #include <unistd.h>
 #include <errno.h>
 
+#include <iostream>
+
 Connection::Connection(int clientFD)
 {
+    this->clientPID = 0; //to be obtained once data starts flowing.
+
     this->clientFD = clientFD;
     container = nullptr;
 
@@ -92,10 +96,18 @@ void Connection::runInstruction(hipe_instruction* instruction)
 {
     if(!connected) return;
     if(instruction->opcode == HIPE_OP_REQUEST_CONTAINER) {
-        //requestor contains the claimed pid of the connecting process.
+
+        //Get credentials for the client process.
+        socklen_t credLen;
+        struct ucred pidCredentials;
+        if(0==getsockopt(clientFD, SOL_SOCKET, SO_PEERCRED, &pidCredentials, &credLen)) {
+            //got client creds.
+            this->clientPID = pidCredentials.pid;
+        }
+
         container = requestContainerFromKey(std::string(instruction->arg[0],
                     instruction->arg_length[0]), std::string(instruction->arg[1],
-                    instruction->arg_length[1]), instruction->requestor, this);
+                    instruction->arg_length[1]), this->clientPID, this);
         //send the result of the container request (arg1 represents approved/denied)
         sendInstruction(HIPE_OP_CONTAINER_GRANT, 0,0, {(container ? "1":"0"),"0"}); //new client awaits this confirmation that its key has been approved.
     } else if(container) { //allow other instructions only if a container request has already been granted.

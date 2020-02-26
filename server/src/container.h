@@ -83,7 +83,7 @@ public:
     //called by a sub-frame (ContainerFrame object) of this container to indicate that
     //the frame has been modified in a way that should be reported to the framing client.
 
-    void receiveMessage(char opcode, int64_t requestor, std::string arg1, std::string arg2, QWebFrame* sender, bool propagateToParent=false);
+    void receiveMessage(char opcode, int64_t requestor, const std::vector<std::string>& args, QWebFrame* sender, bool propagateToParent=false);
     //called by another container object to transmit an instruction (e.g. HIPE_OP_MESSAGE)
     //from a direct parent/child frame's client to this container's client.
     //sender should be used only if sender is a child of the recipient. If it's
@@ -114,13 +114,15 @@ protected:
     bool isTopLevel = false; //some instructions are only permitted to be carried out
     //by the top level frame.
 signals:
-    void receiveGuiEvent(quint64 location, quint64 requestor, QString event, QString detail);
+    void receiveGuiEvent(QString location, QString requestor, QString event, QString detail);
     //signal called from within the QWebView object (via Javascript), each time a user interaction takes place.
 
     void receiveKeyEventOnBody(bool keyUp, QString keycode);
     //signal called when a keyup (or else keydown) event happens on the body element.
 protected slots:
-    void _receiveGuiEvent(quint64 location, quint64 requestor, QString event, QString detail);
+    void _receiveGuiEvent(QString location, QString requestor, QString event, QString detail);
+    //location and requestor are to be passed as hexadecimal strings.
+
     void _receiveKeyEventOnBody(bool keyUp, QString keycode);
     void frameCleared();
     void frameDestroyed(); //conneected to the QWebFrame's destroyed() signal.

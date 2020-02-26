@@ -64,8 +64,10 @@ public:
     void disconnect();
 
     void _readyRead();
+
 private:
     int clientFD; //socket descriptor of the connection.
+    pid_t clientPID;
 
     char readBuffer[READ_BUFFER_SIZE];
     //where we put characters that have been read in over the connection.
