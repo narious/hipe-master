@@ -582,7 +582,11 @@ void Container::receiveSubFrameEvent(short evtType, QWebFrame* sender, std::stri
                     return; //no change to foreground colour.
             }
 
-            client->sendInstruction(HIPE_OP_FRAME_EVENT, sf.requestor, findReferenceableElement(sf.we),
+            if(evtType == HIPE_FRAME_EVENT_CLIENT_CONNECTED) //this event has an extra detail arg: the process ID.
+                client->sendInstruction(HIPE_OP_FRAME_EVENT, sf.requestor, findReferenceableElement(sf.we),
+                                    {evtTypeString, detail, std::to_string(sf.pid)});
+            else
+                client->sendInstruction(HIPE_OP_FRAME_EVENT, sf.requestor, findReferenceableElement(sf.we),
                                     {evtTypeString, detail});
 
             if(evtType == HIPE_FRAME_EVENT_CLIENT_DISCONNECTED)
