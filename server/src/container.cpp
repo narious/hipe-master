@@ -633,7 +633,7 @@ Container* Container::requestNew(std::string key, std::string clientName, uint64
                 fd.clientName = clientName;
                 fd.title = clientName;
                 fd.pid = pid;
-                receiveSubFrameEvent(HIPE_FRAME_EVENT_CLIENT_CONNECTED, fd.wf, std::to_string(fd.pid));
+                receiveSubFrameEvent(HIPE_FRAME_EVENT_CLIENT_CONNECTED, fd.wf, clientName);
                 return (Container*) new ContainerFrame(c, clientName, fd.wf, this);
             }
         }
