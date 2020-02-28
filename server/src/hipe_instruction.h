@@ -176,10 +176,11 @@ extern "C" {
 #define HIPE_OP_SET_FOCUS          33
 /* Keyboard-focuses the element at location */
 
-#define HIPE_OP_SET_BACKGROUND_SRC 34
-/* Applies a background image to the element at location.
- * arg[0] is the binary contents of the media file.
- * arg[1] is the mime type of the binary data.
+#define HIPE_OP_SET_STYLE_SRC 34
+/* Applies a background image or other property to the element at location.
+ * arg[0] is the CSS property (e.g. background-image)
+ * arg[1] is the binary contents of the media file.
+ * arg[2] is the mime type of the binary data.
  */
 
 #define HIPE_OP_TAKE_SNAPSHOT      35

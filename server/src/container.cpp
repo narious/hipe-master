@@ -78,6 +78,8 @@ void Container::receiveInstruction(hipe_instruction instruction)
     std::string arg[HIPE_NARGS];
     arg[0] = std::string(instruction.arg[0], instruction.arg_length[0]);
     arg[1] = std::string(instruction.arg[1], instruction.arg_length[1]);
+    //if an operation needs additional instructions, initialise these explicitly in the same way.
+
     uint64_t requestor = instruction.requestor;
     bool locationSpecified = (bool) instruction.location;
     QWebElement location = locationSpecified ? getReferenceableElement(instruction.location)
@@ -309,9 +311,11 @@ void Container::receiveInstruction(hipe_instruction instruction)
     } else if(instruction.opcode == HIPE_OP_SET_SRC) {
         std::string dataURI = std::string("data:") + arg[1] + ";base64," + Sanitation::toBase64(arg[0]);
         location.setAttribute("src", dataURI.c_str());
-    } else if(instruction.opcode == HIPE_OP_SET_BACKGROUND_SRC) {
-        std::string dataURI = std::string("data:") + arg[1] + ";base64," + Sanitation::toBase64(arg[0]);
-        location.setStyleProperty("background-image", QString("url(\"") + dataURI.c_str() + "\")");
+    } else if(instruction.opcode == HIPE_OP_SET_STYLE_SRC) {
+        arg[2] = std::string(instruction.arg[2], instruction.arg_length[2]);
+        std::string dataURI = std::string("data:") + arg[2] + ";base64," + Sanitation::toBase64(arg[1]);
+        if(Sanitation::isAllowedCSS(arg[0]))
+            location.setStyleProperty(arg[0].c_str(), QString("url(\"") + dataURI.c_str() + "\")");
     } else if(instruction.opcode == HIPE_OP_ADD_STYLE_RULE_SRC) {
         std::string dataURI = std::string("data:image/png;base64,") + Sanitation::toBase64(arg[1]);
         if(Sanitation::isAllowedCSS(arg[0]))

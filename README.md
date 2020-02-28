@@ -7,6 +7,13 @@ HIPE: Hypertext Pipe
 VERSION INFORMATION
 -------------------
 
+1.10 beta -- 28 Feb 2020
+
+Attempted to commit some fixes that were not in the tree.
+Replaced the old HIPE_OP_SET_BACKGROUND_SRC operation with a more general HIPE_OP_SET_STYLE_SRC
+operation (can be used with the "background-image" style attribute for the same functionality.
+Since the old instruction has been removed, existing code that used this operation should be modified.
+
 1.09 beta -- 9 Jul 2019
 
 Numerous improvements. An instruction framework for modal dialog box implementation is now provided.
