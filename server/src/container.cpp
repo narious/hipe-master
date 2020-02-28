@@ -739,8 +739,8 @@ void Container::_receiveGuiEvent(QString location, QString requestor, QString ev
 {
     uint64_t loc, rq;
     bool ok;
-    loc = location.toULong(&ok, 16);
-    rq = requestor.toULong(&ok, 16);
+    loc = location.toULongLong(&ok, 16); //LongLong conversion seems necessary on some distros to prevent truncation.
+    rq = requestor.toULongLong(&ok, 16);
     client->sendInstruction(HIPE_OP_EVENT, rq, loc, {event.toStdString(), detail.toStdString()});
 }
 
