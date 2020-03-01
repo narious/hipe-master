@@ -104,6 +104,8 @@ void Connection::runInstruction(hipe_instruction* instruction)
             //got client creds.
             this->clientPID = pidCredentials.pid;
         }
+        if(!clientPID) //fallback to self-reported PID if above approach fails.
+            this->clientPID = instruction->requestor;
 
         container = requestContainerFromKey(std::string(instruction->arg[0],
                     instruction->arg_length[0]), std::string(instruction->arg[1],
