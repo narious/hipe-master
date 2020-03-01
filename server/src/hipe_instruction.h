@@ -181,6 +181,8 @@ extern "C" {
  * arg[0] is the CSS property (e.g. background-image)
  * arg[1] is the binary contents of the media file.
  * arg[2] is the mime type of the binary data.
+ * arg[3] is an optional suffix value: some CSS properties take an additional parameter, e.g.
+ *        background may take a source image, followed by "repeat-x repeat-y" or similar.
  */
 
 #define HIPE_OP_TAKE_SNAPSHOT      35

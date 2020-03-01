@@ -312,10 +312,12 @@ void Container::receiveInstruction(hipe_instruction instruction)
         std::string dataURI = std::string("data:") + arg[1] + ";base64," + Sanitation::toBase64(arg[0]);
         location.setAttribute("src", dataURI.c_str());
     } else if(instruction.opcode == HIPE_OP_SET_STYLE_SRC) {
-        arg[2] = std::string(instruction.arg[2], instruction.arg_length[2]);
+        arg[2] = std::string(instruction.arg[2], instruction.arg_length[2]); //mime type
+        arg[3] = std::string(instruction.arg[2], instruction.arg_length[2]); //supplementary value as suffix.
+
         std::string dataURI = std::string("data:") + arg[2] + ";base64," + Sanitation::toBase64(arg[1]);
         if(Sanitation::isAllowedCSS(arg[0]))
-            location.setStyleProperty(arg[0].c_str(), QString("url(\"") + dataURI.c_str() + "\")");
+            location.setStyleProperty(arg[0].c_str(), QString("url(\"") + dataURI.c_str() + "\")" + arg[3].c_str());
     } else if(instruction.opcode == HIPE_OP_ADD_STYLE_RULE_SRC) {
         std::string dataURI = std::string("data:image/png;base64,") + Sanitation::toBase64(arg[1]);
         if(Sanitation::isAllowedCSS(arg[0]))
