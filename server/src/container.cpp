@@ -629,6 +629,14 @@ void Container::receiveInstruction(hipe_instruction instruction)
         //return the contents of the selection...
         client->sendInstruction(HIPE_OP_CONTENT_RETURN, instruction.requestor,
                                            instruction.location, {selectedText});
+    } else if(instruction.opcode == HIPE_OP_CLIPBOARD_ACTION) {
+        if(isTopLevel) {
+            if(arg[0] == "x") {
+            } else if(arg[0] == "c") {
+            } else if(arg[0] == "v") {
+            } else if(arg[0] == "V") {
+            }
+        }
     }
 }
 
