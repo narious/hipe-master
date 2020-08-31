@@ -98,6 +98,10 @@ bool ContainerTopLevel::findText(std::string userQuery, bool searchBackwards, bo
     return w->webView->findText(userQuery.c_str(), flags);
 }
 
+std::string ContainerTopLevel::getGlobalSelection(bool asHtml) {
+    if(!asHtml) return w->webView->selectedText().toStdString();
+    else return w->webView->selectedHtml().toStdString();
+}
 
 WebWindow::WebWindow(Container* cc)
 {

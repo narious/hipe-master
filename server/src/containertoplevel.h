@@ -65,6 +65,8 @@ public:
     Container* getParent();
 
     bool findText(std::string userQuery, bool searchBackwards, bool wrapAtEnd, bool caseSensitive);
+    std::string getGlobalSelection(bool asHtml);
+    //if asHtml is false, the selection is returned as plain text.
 private:
     WebWindow* w;
 protected:

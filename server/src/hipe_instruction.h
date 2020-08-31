@@ -377,6 +377,14 @@ extern "C" {
  */
 
 
+#define HIPE_OP_GET_SELECTION 59
+/* Returns selected text in the current frame, or in all frames (top-level
+ * frame only can request this). Selection is returned as plain text.
+ * Response is sent back from the server as a HIPE_OP_CONTENT_RETURN instruction.
+ * arg[0] == 0 -- get selection in current frame (default)
+ * arg[0] == '1' -- get global selection (returns empty string if not the top-level element).
+ */
+
 /*--------------*/
 
 #define HIPE_FRAME_EVENT_CLIENT_CONNECTED    1 //arg[1] is client name

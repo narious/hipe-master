@@ -616,6 +616,19 @@ void Container::receiveInstruction(hipe_instruction instruction)
             }
 
         }
+    } else if(instruction.opcode == HIPE_OP_GET_SELECTION) {
+        std::string selectedText = ""; //if nothing is selected, or the functionality is
+        //outside the client's purview to see, a blank string will be returned.
+        if(arg[0] == "1") { //a top-level window has requested the global selection.
+            if(isTopLevel) {
+                selectedText = ((ContainerTopLevel*)this)->getGlobalSelection(false);
+            }
+        } else { //get local (this frame's) selection using javascript.
+            selectedText = location.evaluateJavaScript("document.getSelection();").toString().toStdString();
+        }
+        //return the contents of the selection...
+        client->sendInstruction(HIPE_OP_CONTENT_RETURN, instruction.requestor,
+                                           instruction.location, {selectedText});
     }
 }
 
