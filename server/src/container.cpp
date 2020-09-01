@@ -1,4 +1,4 @@
-/*  Copyright (c) 2016-2019 Daniel Kos, General Development Systems
+/*  Copyright (c) 2016-2020 Daniel Kos, General Development Systems
 
     This file is part of Hipe.
 
@@ -631,11 +631,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
                                            instruction.location, {selectedText});
     } else if(instruction.opcode == HIPE_OP_CLIPBOARD_ACTION) {
         if(isTopLevel) {
-            if(arg[0] == "x") {
-            } else if(arg[0] == "c") {
-            } else if(arg[0] == "v") {
-            } else if(arg[0] == "V") {
-            }
+            ((ContainerTopLevel*)this)->triggerClipboardAction(arg[0][0]);
         }
     }
 }

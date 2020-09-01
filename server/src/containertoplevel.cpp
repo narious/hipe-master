@@ -1,4 +1,4 @@
-/*  Copyright (c) 2015-2018 Daniel Kos, General Development Systems
+/*  Copyright (c) 2015-2020 Daniel Kos, General Development Systems
 
     This file is part of Hipe.
 
@@ -101,6 +101,25 @@ bool ContainerTopLevel::findText(std::string userQuery, bool searchBackwards, bo
 std::string ContainerTopLevel::getGlobalSelection(bool asHtml) {
     if(!asHtml) return w->webView->selectedText().toStdString();
     else return w->webView->selectedHtml().toStdString();
+}
+
+void ContainerTopLevel::triggerClipboardAction(char action) {
+//the action to be done is specified by a char: 'x', 'c', 'v' or 'V'
+    switch(action) {
+    case 'x': //cut
+        w->webView->page()->triggerAction(QWebPage::Cut);
+        break;
+    case 'c': //copy
+        w->webView->page()->triggerAction(QWebPage::Copy);
+        break;
+    case 'v': //paste matching destination formatting
+        w->webView->page()->triggerAction(QWebPage::PasteAndMatchStyle);
+        break;
+    case 'V': //paste preserving source formatting
+        w->webView->page()->triggerAction(QWebPage::Paste);
+        break;
+    }
+
 }
 
 WebWindow::WebWindow(Container* cc)

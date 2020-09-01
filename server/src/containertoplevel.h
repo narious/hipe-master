@@ -1,4 +1,4 @@
-/*  Copyright (c) 2015-2018 Daniel Kos, General Development Systems
+/*  Copyright (c) 2015-2020 Daniel Kos, General Development Systems
 
     This file is part of Hipe.
 
@@ -67,6 +67,8 @@ public:
     bool findText(std::string userQuery, bool searchBackwards, bool wrapAtEnd, bool caseSensitive);
     std::string getGlobalSelection(bool asHtml);
     //if asHtml is false, the selection is returned as plain text.
+
+    void triggerClipboardAction(char action);
 private:
     WebWindow* w;
 protected:
