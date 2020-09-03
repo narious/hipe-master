@@ -624,7 +624,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
                 selectedText = ((ContainerTopLevel*)this)->getGlobalSelection(false);
             }
         } else { //get local (this frame's) selection using javascript.
-            selectedText = location.evaluateJavaScript("document.getSelection();").toString().toStdString();
+            selectedText = location.evaluateJavaScript("document.getSelection().toString();").toString().toStdString();
         }
         //return the contents of the selection...
         client->sendInstruction(HIPE_OP_CONTENT_RETURN, instruction.requestor,
