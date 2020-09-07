@@ -629,9 +629,9 @@ void Container::receiveInstruction(hipe_instruction instruction)
         //return the contents of the selection...
         client->sendInstruction(HIPE_OP_CONTENT_RETURN, instruction.requestor,
                                            instruction.location, {selectedText});
-    } else if(instruction.opcode == HIPE_OP_CLIPBOARD_ACTION) {
+    } else if(instruction.opcode == HIPE_OP_EDIT_ACTION) {
         if(isTopLevel) {
-            ((ContainerTopLevel*)this)->triggerClipboardAction(arg[0][0]);
+            ((ContainerTopLevel*)this)->triggerEditAction(arg[0][0]);
         }
     }
 }

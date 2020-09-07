@@ -386,14 +386,18 @@ extern "C" {
  */
 
 
-#define HIPE_OP_CLIPBOARD_ACTION 60
-/* Performs a cut/copy/paste operation on text the user has selected. This operation will
+#define HIPE_OP_EDIT_ACTION 60
+/* Performs a cut/copy/paste or other edit operation on text the user has selected. This operation will
  * succeed or fail silently; there is no response from the server.
  * It can only be carried out by a top-level frame; if the selection or insertion point exists in a child of this frame, it will be carried out on behalf of that child frame.
  * arg[0] == "x" -- attempts to perform a cut operation on selected text
  * arg[0] == "c" -- performs a copy operation on selected text
  * arg[0] == "v" -- performs a paste operation (matching destination formatting)
  * arg[0] == "V" -- performs a paste operation preserving source formatting.
+ * arg[0] == "b" -- toggles bold if applicable
+ * arg[0] == "i" -- italic
+ * arg[0] == "u" -- underline
+ * arg[0] == "k" -- strikethrough
  */
 
 /*--------------*/

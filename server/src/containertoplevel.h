@@ -68,7 +68,7 @@ public:
     std::string getGlobalSelection(bool asHtml);
     //if asHtml is false, the selection is returned as plain text.
 
-    void triggerClipboardAction(char action);
+    void triggerEditAction(char action);
 private:
     WebWindow* w;
 protected:

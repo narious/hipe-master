@@ -103,7 +103,7 @@ std::string ContainerTopLevel::getGlobalSelection(bool asHtml) {
     else return w->webView->selectedHtml().toStdString();
 }
 
-void ContainerTopLevel::triggerClipboardAction(char action) {
+void ContainerTopLevel::triggerEditAction(char action) {
 //the action to be done is specified by a char: 'x', 'c', 'v' or 'V'
     switch(action) {
     case 'x': //cut
@@ -117,6 +117,32 @@ void ContainerTopLevel::triggerClipboardAction(char action) {
         break;
     case 'V': //paste preserving source formatting
         w->webView->page()->triggerAction(QWebPage::Paste);
+        break;
+
+    case 'b': //bold toggle
+        w->webView->page()->triggerAction(QWebPage::ToggleBold);
+        break;
+    case 'i': //italic toggle
+        w->webView->page()->triggerAction(QWebPage::ToggleItalic);
+        break;
+    case 'u': //underline toggle
+        w->webView->page()->triggerAction(QWebPage::ToggleUnderline);
+        break;
+    case 'k': //strikethrough toggle
+        w->webView->page()->triggerAction(QWebPage::ToggleStrikethrough);
+        break;
+
+    case 'l': //left align
+        w->webView->page()->triggerAction(QWebPage::AlignLeft);
+        break;
+    case 'e': //center align
+        w->webView->page()->triggerAction(QWebPage::AlignCenter);
+        break;
+    case 'r': //right align
+        w->webView->page()->triggerAction(QWebPage::AlignRight);
+        break;
+    case 'j': //justified align
+        w->webView->page()->triggerAction(QWebPage::AlignJustified);
         break;
     }
 
