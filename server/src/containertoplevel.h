@@ -68,6 +68,7 @@ public:
     std::string getGlobalSelection(bool asHtml);
     //if asHtml is false, the selection is returned as plain text.
 
+    char editActionStatus(char action);
     void triggerEditAction(char action);
 private:
     WebWindow* w;

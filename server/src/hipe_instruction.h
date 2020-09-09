@@ -400,6 +400,13 @@ extern "C" {
  * arg[0] == "k" -- strikethrough
  */
 
+#define HIPE_OP_EDIT_STATUS 61
+/* Used for checking which edit actions are available (applicable to the
+ * currently selected content or focused element). Takes a string of characters
+ * (character codes used for HIPE_OP_EDIT_ACTION) and returns a corresponding
+ * string of status characters.
+ */
+
 /*--------------*/
 
 

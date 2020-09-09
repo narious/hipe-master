@@ -103,6 +103,24 @@ std::string ContainerTopLevel::getGlobalSelection(bool asHtml) {
     else return w->webView->selectedHtml().toStdString();
 }
 
+char ContainerTopLevel::editActionStatus(char action) {
+//for a particular action (e.g. 'x' is cut, 'i' is italic toggle, etc.
+//returns a char to indicate the status of that action:
+//'0' -- available and not toggled
+//'1' -- available and toggled
+//'e' -- not enabled/not applicable in current context
+//'?' -- available and in fuzzy toggle state -- (not currently implemented)
+//The returned status will depend on what element the user currently has
+//focused and whether the user has selected content.
+
+    bool enabled=false, toggled=false; 
+
+
+
+    return '?'; //default catch-all
+
+}
+
 void ContainerTopLevel::triggerEditAction(char action) {
 //the action to be done is specified by a char: 'x', 'c', 'v' or 'V'
     switch(action) {
