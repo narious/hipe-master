@@ -77,6 +77,10 @@ protected:
     void setBody(std::string newBodyHtml, bool overwrite=true);
     void setIcon(const char* imgData, size_t length);
 
+    QAction* getEditQtAction(char action);
+    //utility function to convert our hipe EDIT action codes (e.g. 'x'==cut, 'c'==copy)
+    //into a pointer to the corresponding QAction object with methods to trigger that
+    //action and check its toggle state.
 };
 
 #endif // CLIENTWINDOW_H

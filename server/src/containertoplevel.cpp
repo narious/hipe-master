@@ -28,6 +28,7 @@
 #include <QDesktopWidget>
 #include <QApplication>
 #include <QPixmap>
+#include <QAction>
 
 //a client window wraps a WebView (from QGraphicsWebView) object.
 //At the top level, clients that request new frames are granted
@@ -113,57 +114,47 @@ char ContainerTopLevel::editActionStatus(char action) {
 //The returned status will depend on what element the user currently has
 //focused and whether the user has selected content.
 
-    bool enabled=false, toggled=false; 
-
-
-
-    return '?'; //default catch-all
-
+    auto actionObj = getEditQtAction(action);
+    if(!actionObj->isEnabled()) return 'e'; //not enabled
+    if(actionObj->isChecked()) return '1';
+    else return 0;
 }
 
 void ContainerTopLevel::triggerEditAction(char action) {
 //the action to be done is specified by a char: 'x', 'c', 'v' or 'V'
+    auto actionObj = getEditQtAction(action);
+    if(actionObj) actionObj->trigger();
+}
+
+QAction* ContainerTopLevel::getEditQtAction(char action) {
     switch(action) {
     case 'x': //cut
-        w->webView->page()->triggerAction(QWebPage::Cut);
-        break;
+        return w->webView->page()->action(QWebPage::Cut);
     case 'c': //copy
-        w->webView->page()->triggerAction(QWebPage::Copy);
-        break;
+        return w->webView->page()->action(QWebPage::Copy);
     case 'v': //paste matching destination formatting
-        w->webView->page()->triggerAction(QWebPage::PasteAndMatchStyle);
-        break;
+        return w->webView->page()->action(QWebPage::PasteAndMatchStyle);
     case 'V': //paste preserving source formatting
-        w->webView->page()->triggerAction(QWebPage::Paste);
-        break;
-
+        return w->webView->page()->action(QWebPage::Paste);
     case 'b': //bold toggle
-        w->webView->page()->triggerAction(QWebPage::ToggleBold);
-        break;
+        return w->webView->page()->action(QWebPage::ToggleBold);
     case 'i': //italic toggle
-        w->webView->page()->triggerAction(QWebPage::ToggleItalic);
-        break;
+        return w->webView->page()->action(QWebPage::ToggleItalic);
     case 'u': //underline toggle
-        w->webView->page()->triggerAction(QWebPage::ToggleUnderline);
-        break;
+        return w->webView->page()->action(QWebPage::ToggleUnderline);
     case 'k': //strikethrough toggle
-        w->webView->page()->triggerAction(QWebPage::ToggleStrikethrough);
-        break;
-
+        return w->webView->page()->action(QWebPage::ToggleStrikethrough);
     case 'l': //left align
-        w->webView->page()->triggerAction(QWebPage::AlignLeft);
-        break;
+        return w->webView->page()->action(QWebPage::AlignLeft);
     case 'e': //center align
-        w->webView->page()->triggerAction(QWebPage::AlignCenter);
-        break;
+        return w->webView->page()->action(QWebPage::AlignCenter);
     case 'r': //right align
-        w->webView->page()->triggerAction(QWebPage::AlignRight);
-        break;
+        return w->webView->page()->action(QWebPage::AlignRight);
     case 'j': //justified align
-        w->webView->page()->triggerAction(QWebPage::AlignJustified);
-        break;
+        return w->webView->page()->action(QWebPage::AlignJustified);
+    default:
+        return nullptr;
     }
-
 }
 
 WebWindow::WebWindow(Container* cc)
