@@ -103,6 +103,8 @@ public:
 
     virtual Container* getParent()=0; //returns the parent container, or nullptr if it's a top level container.
 
+    virtual char editActionStatus(char) {return '?';}
+
     QWebFrame* frame;
 
 protected:

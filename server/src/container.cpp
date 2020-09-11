@@ -633,6 +633,17 @@ void Container::receiveInstruction(hipe_instruction instruction)
         if(isTopLevel) {
             ((ContainerTopLevel*)this)->triggerEditAction(arg[0][0]);
         }
+    } else if(instruction.opcode == HIPE_OP_EDIT_STATUS) {
+    //for this op, the user specifies a string of edit function codes to check,
+    //e.g. "xcvbiu" to check cut,copy,paste,bold,italic,underline.
+        std::string resultingStates = "";
+        char state;
+        for(size_t i=0; i<arg[0].size(); i++) { //for each edit function to be checked
+            state = this->editActionStatus(arg[0][i]);
+            resultingStates += std::to_string(state);
+        }
+        client->sendInstruction(HIPE_OP_EDIT_STATUS, instruction.requestor,
+                                      instruction.location, {arg[0], resultingStates});
     }
 }
 

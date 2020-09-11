@@ -110,7 +110,7 @@ char ContainerTopLevel::editActionStatus(char action) {
 //'0' -- available and not toggled
 //'1' -- available and toggled
 //'e' -- not enabled/not applicable in current context
-//'?' -- available and in fuzzy toggle state -- (not currently implemented)
+//'?' -- status unavailable (applicable to non-top-level frames w/o permission)
 //The returned status will depend on what element the user currently has
 //focused and whether the user has selected content.
 
