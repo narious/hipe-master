@@ -23,6 +23,7 @@
 
 std::set<std::string> Sanitation::tagWhitelist;
 std::set<std::string> Sanitation::attrWhitelist;
+std::map<char, QWebPage::WebAction> Sanitation::editCodeMap;
 
 void Sanitation::init()
 {
@@ -184,6 +185,32 @@ void Sanitation::init()
                         "value",
                         "width"
                     };
+
+    //hipe's EDIT instructions (HIPE_OP_EDIT_ACTION and HIPE_OP_EDIT_STATUS)
+    //use character codes such as 'x' (cut), 'z' (undo), etc. to specify
+    //the actions required. These need to be converted into Qt's enumerated
+    //constants as an intermediary step to looking up the relevant QAction object(s)
+    //needed to trigger those actions.
+    editCodeMap = {     {'z', QWebPage::Undo},
+                        {'Z', QWebPage::Redo},
+                        {'a', QWebPage::SelectAll},
+
+                        {'x', QWebPage::Cut},
+                        {'c', QWebPage::Copy},
+                        {'v', QWebPage::PasteAndMatchStyle}, //match destination formatting
+                        {'V', QWebPage::Paste}, //match source formatting
+
+                        {'b', QWebPage::ToggleBold},
+                        {'i', QWebPage::ToggleItalic},
+                        {'u', QWebPage::ToggleUnderline},
+                        {'k', QWebPage::ToggleStrikethrough},
+
+                        {'l', QWebPage::AlignLeft},
+                        {'c', QWebPage::AlignCenter},
+                        {'r', QWebPage::AlignRight},
+                        {'j', QWebPage::AlignJustified}
+
+                    };
 }
 
 std::string Sanitation::sanitisePlainText(std::string input, bool convertLayout)
@@ -287,4 +314,13 @@ bool Sanitation::isAllowedCSS(std::string input)
         }
     }
     return true;
+}
+
+QWebPage::WebAction Sanitation::editCodeLookup(char code) {
+    try {
+        return editCodeMap.at(code);
+    } catch(std::out_of_range) {
+        return QWebPage::NoWebAction;
+    }
+
 }

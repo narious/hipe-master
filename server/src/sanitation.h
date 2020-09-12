@@ -1,4 +1,4 @@
-/*  Copyright (c) 2016 Daniel Kos, General Development Systems
+/*  Copyright (c) 2016-2020 Daniel Kos, General Development Systems
 
     This file is part of Hipe.
 
@@ -24,6 +24,8 @@
 
 #include <string>
 #include <set>
+#include <map>
+#include <QWebPage>
 
 class Sanitation
 {
@@ -31,6 +33,9 @@ private:
     //sets to store whitelists of allowed HTML tags and attributes.
     static std::set<std::string> tagWhitelist;
     static std::set<std::string> attrWhitelist;
+
+    //converts edit action code characters into Qt WebAction constants.
+    static std::map<char, QWebPage::WebAction> editCodeMap;
 public:
     static void init();
     //initialises whitelists and related sanitation data.
@@ -46,6 +51,9 @@ public:
     static bool isAllowedAttribute(std::string input);
     static bool isAllowedTag(std::string input);
     static bool isAllowedCSS(std::string input);
+
+    static QWebPage::WebAction editCodeLookup(char code);
+
 };
 
 #endif // SANITATION_H

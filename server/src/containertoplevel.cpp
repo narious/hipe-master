@@ -19,6 +19,7 @@
 #include "containertoplevel.h"
 #include "connection.h"
 #include "icondata.h"
+#include "sanitation.h"
 #include "main.hpp"
 #include <QWebView>
 #include <QWebFrame>
@@ -127,34 +128,7 @@ void ContainerTopLevel::triggerEditAction(char action) {
 }
 
 QAction* ContainerTopLevel::getEditQtAction(char action) {
-    switch(action) {
-    case 'x': //cut
-        return w->webView->page()->action(QWebPage::Cut);
-    case 'c': //copy
-        return w->webView->page()->action(QWebPage::Copy);
-    case 'v': //paste matching destination formatting
-        return w->webView->page()->action(QWebPage::PasteAndMatchStyle);
-    case 'V': //paste preserving source formatting
-        return w->webView->page()->action(QWebPage::Paste);
-    case 'b': //bold toggle
-        return w->webView->page()->action(QWebPage::ToggleBold);
-    case 'i': //italic toggle
-        return w->webView->page()->action(QWebPage::ToggleItalic);
-    case 'u': //underline toggle
-        return w->webView->page()->action(QWebPage::ToggleUnderline);
-    case 'k': //strikethrough toggle
-        return w->webView->page()->action(QWebPage::ToggleStrikethrough);
-    case 'l': //left align
-        return w->webView->page()->action(QWebPage::AlignLeft);
-    case 'e': //center align
-        return w->webView->page()->action(QWebPage::AlignCenter);
-    case 'r': //right align
-        return w->webView->page()->action(QWebPage::AlignRight);
-    case 'j': //justified align
-        return w->webView->page()->action(QWebPage::AlignJustified);
-    default:
-        return nullptr;
-    }
+    return w->webView->page()->action(Sanitation::editCodeLookup(action));
 }
 
 WebWindow::WebWindow(Container* cc)
