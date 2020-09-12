@@ -640,7 +640,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
         char state;
         for(size_t i=0; i<arg[0].size(); i++) { //for each edit function to be checked
             state = this->editActionStatus(arg[0][i]);
-            resultingStates += std::to_string(state);
+            resultingStates += state;
         }
         client->sendInstruction(HIPE_OP_EDIT_STATUS, instruction.requestor,
                                       instruction.location, {arg[0], resultingStates});

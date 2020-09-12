@@ -118,7 +118,7 @@ char ContainerTopLevel::editActionStatus(char action) {
     auto actionObj = getEditQtAction(action);
     if(!actionObj->isEnabled()) return 'e'; //not enabled
     if(actionObj->isChecked()) return '1';
-    else return 0;
+    else return '0';
 }
 
 void ContainerTopLevel::triggerEditAction(char action) {
