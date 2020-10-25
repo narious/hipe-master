@@ -440,7 +440,15 @@ void Container::receiveInstruction(hipe_instruction instruction)
     } else if(instruction.opcode == HIPE_OP_REMOVE_ATTRIBUTE) {
         if(Sanitation::isAllowedAttribute(arg[0]))
             location.removeAttribute(arg[0].c_str());
-    } else if(instruction.opcode == HIPE_OP_MESSAGE) {
+    } else if(instruction.opcode == HIPE_OP_MESSAGE
+            || instruction.opcode == HIPE_OP_FIFO_ADD_ABILITY
+            || instruction.opcode == HIPE_OP_FIFO_REMOVE_ABILITY
+            || instruction.opcode == HIPE_OP_FIFO_OPEN
+            || instruction.opcode == HIPE_OP_FIFO_CLOSE
+            || instruction.opcode == HIPE_OP_FIFO_ACCEPT
+            || instruction.opcode == HIPE_OP_FIFO_REJECT
+            || instruction.opcode == HIPE_OP_FIFO_DROP_PEER
+            || instruction.opcode == HIPE_OP_FIFO_GET_PEER) {
         //Determine whether we need to send the message to the parent frame or a child frame.
         Container* target = nullptr;
         QWebFrame* sourceframe = nullptr;
@@ -457,7 +465,20 @@ void Container::receiveInstruction(hipe_instruction instruction)
             sourceframe = webElement.webFrame();
         }
         if(target) { //send the instruction to the destination. (at top level, target is nullptr)
-            target->receiveMessage(HIPE_OP_MESSAGE, requestor, {std::string(instruction.arg[0],instruction.arg_length[0]), std::string(instruction.arg[1], instruction.arg_length[1])}, sourceframe);
+            target->receiveMessage(instruction.opcode, requestor, 
+                {std::string(instruction.arg[0],instruction.arg_length[0]), 
+                    std::string(instruction.arg[1], instruction.arg_length[1])}, 
+                sourceframe
+            );
+        } else if(instruction.opcode == HIPE_OP_FIFO_GET_PEER) {
+        //special case for HIPE_OP_FIFO_GET_PEER instruction where a frame tries to
+        //send it outside the top level. This would normally mean an application wishes
+        //to import or export a file but is running in a top-level window in another
+        //desktop environment. In this case, display an open/save dialog in order to
+        //give the client application a real file to work with.
+
+            //TODO! determine open or save from access mode (open unless r is not given (e.g. rw would mean open))
+
         }
     } else if(instruction.opcode == HIPE_OP_GET_CONTENT) {
         //get inner content of (extract data from) location.

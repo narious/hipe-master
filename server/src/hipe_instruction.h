@@ -407,6 +407,29 @@ extern "C" {
  * string of status characters.
  */
 
+
+#define HIPE_OP_FIFO_ADD_ABILITY 62
+#define HIPE_OP_FIFO_REMOVE_ABILITY 63
+#define HIPE_OP_FIFO_GET_PEER 64
+#define HIPE_OP_FIFO_DROP_PEER 65
+#define HIPE_OP_FIFO_OPEN 66
+#define HIPE_OP_FIFO_CLOSE 67
+#define HIPE_OP_FIFO_ACCEPT 68
+#define HIPE_OP_FIFO_REJECT 69
+/* Most of the FIFO operations have the same internal operation as the 
+ * HIPE_OP_MESSAGE instruction, since the interpretation of these instructions
+ * is left up to the framing manager rather than the hipe server itself.
+
+ * The exception is HIPE_OP_FIFO_GET_PEER which, if the application is already
+   a top-level frame, will display a system prompt for the user to select a real file
+   to open/save rather than return a FIFO resource. (FIFOs are like 'virtual files')
+
+   This allows native file open/save functionality on systems where a framing manager is
+   not used.
+ */
+
+
+
 /*--------------*/
 
 
