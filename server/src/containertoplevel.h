@@ -70,6 +70,12 @@ public:
 
     char editActionStatus(char action);
     void triggerEditAction(char action);
+
+    std::string dialog(std::string title, std::string prompt, std::string choices, 
+            bool editable, bool* cancelled);
+    //choices is newline-separated. Displays modal dialog and returns result.
+    //If the user selects cancel, the cancelled status is returned in a pointer argument.
+
 private:
     WebWindow* w;
 protected:

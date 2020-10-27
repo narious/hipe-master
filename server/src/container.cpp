@@ -26,7 +26,6 @@
 #include <QWebFrame>
 #include <QWebPage>
 #include <QPrinter>
-#include <QInputDialog>
 #include <stdio.h>
 
 std::string Container::globalStyleRules="";
@@ -560,39 +559,28 @@ void Container::receiveInstruction(hipe_instruction instruction)
         Container* target = getParent();
 
         if(!target) { //we are the top level. Dialog is handled here directly
-            QStringList items;
-            QString separator = "⸻";
-            //what if the user selects a separator? Treat it the same as a Cancel.
-
-            if(instruction.arg_length[2]) { //if choices are specified (technically required)
-                arg[2] = std::string(instruction.arg[2],instruction.arg_length[2]);
-                QString choiceLines = arg[2].c_str();
-                items = choiceLines.split("\n");
-
-                //blank lines should contain a separator string.
-                for(QString& s : items) {
-                    if(s == "")
-                        s = separator;
-                }
-            }
-
-            bool ok;
+            arg[2] = std::string(instruction.arg[2],instruction.arg_length[2]);
+            bool cancelled;
             bool editable = (bool) (instruction.opcode == HIPE_OP_DIALOG_INPUT);
-            QString item = QInputDialog::getItem(NULL, arg[0].c_str() /*title*/,
-                arg[1].c_str() /*prompt*/, items, 0, editable, &ok);
 
-            if(ok && item != separator) { //dialog wasn't cancelled
+
+            std::string userChoice = ((ContainerTopLevel*)this)->dialog(arg[0], 
+                                        arg[1], arg[2], editable, &cancelled);
+
+            if(!cancelled) { //dialog wasn't cancelled
                 //find the index+1 of the choice selected...
                 std::string itemIndexStr = "";
+                QStringList items = ((QString)(arg[2].c_str())).split("\n");
+
                 for(int i=0; i<items.size(); i++) {
-                    if(items[i] == item) {
+                    if(items[i] == ((QString)(userChoice.c_str()))) {
                         itemIndexStr = std::to_string(i+1);
                         break;
                     }
                     if(itemIndexStr=="") itemIndexStr = 1; //in case of free-form text entry.
                 }
                 client->sendInstruction(HIPE_OP_DIALOG_RETURN, requestor,
-                                0, {item.toStdString(), itemIndexStr});
+                                0, {userChoice, itemIndexStr});
 
             } else { //cancelled
                 client->sendInstruction(HIPE_OP_DIALOG_RETURN, requestor, 0, {"","0"});

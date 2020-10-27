@@ -30,6 +30,8 @@
 #include <QApplication>
 #include <QPixmap>
 #include <QAction>
+#include <QInputDialog>
+
 
 //a client window wraps a WebView (from QGraphicsWebView) object.
 //At the top level, clients that request new frames are granted
@@ -130,6 +132,41 @@ void ContainerTopLevel::triggerEditAction(char action) {
 QAction* ContainerTopLevel::getEditQtAction(char action) {
     return w->webView->page()->action(Sanitation::editCodeLookup(action));
 }
+
+std::string ContainerTopLevel::dialog(std::string title, std::string prompt, 
+                    std::string choiceLines, bool editable, bool* cancelled) {
+
+
+    QStringList items;
+    QString separator = "⸻";
+    //what if the user selects a separator? Treat it the same as a Cancel.
+
+    if(choiceLines.size()) { //if choices are specified (technically required)
+        
+        items = ((QString)(choiceLines.c_str())).split("\n");
+
+        //blank lines should contain a separator string.
+        for(QString& s : items) {
+            if(s == "")
+                s = separator;
+        }
+    }
+
+    bool ok;
+    
+    QString item = QInputDialog::getItem(NULL, QString(title.c_str()),
+        QString(prompt.c_str()), items, 0, editable, &ok);
+
+    if(ok && item != separator) {
+        *cancelled = false;
+        return item.toStdString();
+    } else {
+        *cancelled = true;
+        return "";
+    }
+
+}
+
 
 WebWindow::WebWindow(Container* cc)
 {
