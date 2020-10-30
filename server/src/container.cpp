@@ -445,8 +445,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
             || instruction.opcode == HIPE_OP_FIFO_REMOVE_ABILITY
             || instruction.opcode == HIPE_OP_FIFO_OPEN
             || instruction.opcode == HIPE_OP_FIFO_CLOSE
-            || instruction.opcode == HIPE_OP_FIFO_ACCEPT
-            || instruction.opcode == HIPE_OP_FIFO_REJECT
+            || instruction.opcode == HIPE_OP_FIFO_RESPONSE
             || instruction.opcode == HIPE_OP_FIFO_DROP_PEER
             || instruction.opcode == HIPE_OP_FIFO_GET_PEER) {
         //Determine whether we need to send the message to the parent frame or a child frame.

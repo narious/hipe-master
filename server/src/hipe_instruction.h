@@ -414,8 +414,7 @@ extern "C" {
 #define HIPE_OP_FIFO_DROP_PEER 65
 #define HIPE_OP_FIFO_OPEN 66
 #define HIPE_OP_FIFO_CLOSE 67
-#define HIPE_OP_FIFO_ACCEPT 68
-#define HIPE_OP_FIFO_REJECT 69
+#define HIPE_OP_FIFO_RESPONSE 68
 /* Most of the FIFO operations have the same internal operation as the 
  * HIPE_OP_MESSAGE instruction, since the interpretation of these instructions
  * is left up to the framing manager rather than the hipe server itself.
