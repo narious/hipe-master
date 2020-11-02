@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
     /*Determine filesize by seeking to end first.*/
     fseek(file, 0, SEEK_END);
     size_t size = ftell(file);
-    printf("File size: %li bytes.\n", size);
+    printf("File size: %li bytes.\n", (long int)size);
     rewind(file);
 
     char* data = malloc(size);
