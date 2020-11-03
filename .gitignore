@@ -15,5 +15,6 @@ api/test/hipe-clock
 api/test/hipe-jpegviewer
 api/test/hipe-quadrant
 api/test/hipe-canvas
+api/test/hipe-dialog
 *.swp
 README
