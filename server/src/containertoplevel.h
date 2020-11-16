@@ -76,6 +76,12 @@ public:
     //choices is newline-separated. Displays modal dialog and returns result.
     //If the user selects cancel, the cancelled status is returned in a pointer argument.
 
+    std::string selectFileResource(std::string defaultName, std::string metadata, std::string& accessMode);
+    //implements top-level FIFO functionality through the OS's native open/save as interface.
+    //Ordinary files are used instead of real FIFOs here.
+    //The metadata argument spans multiple lines and contains caption and file filter info,
+    //consistent with what's passed to HIPE_OP_FIFO_GET_PEER.
+
 private:
     WebWindow* w;
 protected:

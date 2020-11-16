@@ -31,6 +31,11 @@
 #include <QPixmap>
 #include <QAction>
 #include <QInputDialog>
+#include <QFileDialog>
+#include <QMessageBox>
+#include <sstream>
+
+#include <iostream>
 
 
 //a client window wraps a WebView (from QGraphicsWebView) object.
@@ -135,8 +140,6 @@ QAction* ContainerTopLevel::getEditQtAction(char action) {
 
 std::string ContainerTopLevel::dialog(std::string title, std::string prompt, 
                     std::string choiceLines, bool editable, bool* cancelled) {
-
-
     QStringList items;
     QString separator = "⸻";
     //what if the user selects a separator? Treat it the same as a Cancel.
@@ -164,7 +167,94 @@ std::string ContainerTopLevel::dialog(std::string title, std::string prompt,
         *cancelled = true;
         return "";
     }
+}
 
+
+std::string ContainerTopLevel::selectFileResource(std::string defaultName, std::string metadata, std::string& accessMode) {
+//accessModeStr will be modified by ref. to remove items not available. In particular, random seek modes are not
+//available since we are dealing with native files (not a FIFO-host) and we do not intercept such requests.
+//(The client does not know that these are native files and is thus forbidden from using calls like lseek)
+
+    //check access modes and order of precedence... Only r and w are supported.
+    bool r=false;
+    bool w=false;
+    size_t readPosition, writePosition;
+    readPosition = accessMode.find("r");
+    writePosition = accessMode.find("w");
+    if(readPosition != std::string::npos) r = true;
+    if(writePosition != std::string::npos) w = true;
+
+    bool initialRead = r && (!w || readPosition < writePosition);
+
+    if(!(r|w)) { //error, none of the specified access modes are r or w.
+        QMessageBox::information(this->w, "Error", "Required access mode not supported");
+        return "";
+    }
+    
+    //parse out the metadata...
+    std::stringstream ss(metadata); //allow reading incrementally as a stream
+    std::string caption;
+    std::getline(ss,caption); //the first line is the dialog caption. (src, dest)
+
+    //now for the remaining lines in the metadata...
+    std::string metaLine;
+    std::string qtFilterStr;
+    while(std::getline(ss,metaLine)) {
+
+        //split into 2 strings by the Colon : -- left string is extension patterns. right string is description.
+        size_t splitPosition = metaLine.find(":");
+        std::string pattern, description;
+        if(splitPosition != std::string::npos) { //":" was found
+            pattern = metaLine.substr(0,splitPosition);
+            description = metaLine.substr(splitPosition+1);
+        } else { //":" was not found.
+            pattern = metaLine; //the pattern must then be the whole thing.
+            description = "";
+        }
+
+        std::string filterEntry; //in here, compose a filter entry in the format Qt requires.
+        filterEntry = description + " (";
+
+        //for extension patterns, split by semicolons. (e.g. "bmp;jpg;jpeg;gif")
+        size_t startPosition=0; //the starting index of the next file type pattern
+        size_t endPosition;
+        do {
+            endPosition = pattern.find(";",startPosition);
+            if(endPosition == std::string::npos) endPosition = pattern.size();
+            //technically we have found end position +1 (we don't want the semicolon or end of str itself)
+
+            std::string patternSegment = pattern.substr(startPosition, endPosition-startPosition);
+
+            //stick the patternSegment into Qt format and build it into the filter.
+            filterEntry += "*." + patternSegment + " ";
+
+            //next segment will start after endPosition;
+            startPosition = endPosition+1;
+        } while(startPosition < pattern.size());
+
+        filterEntry += ")";
+
+        //ignore patterns that contain "/" -- opening a directory this way is unsupported.
+
+        //reformat back into a Qt style filter string: Description (*.aaa *.bbb);;Next filer (*.* *.abc);;...
+
+        if(qtFilterStr.size() > 0) qtFilterStr += ";;";
+        qtFilterStr += filterEntry;
+
+    }
+
+
+    QString filename;
+    if(initialRead)
+        filename = QFileDialog::getOpenFileName(this->w, caption.c_str(), defaultName.c_str(), qtFilterStr.c_str());
+    else
+        filename = QFileDialog::getSaveFileName(this->w, caption.c_str(), defaultName.c_str(), qtFilterStr.c_str());
+
+    accessMode = (r && w) ? (initialRead ? "rw" : "wr") : (r ? "r" : "w");
+
+    return filename.toStdString();
+
+    //todo: return the absolute path rather than relative to hiped's cwd
 }
 
 

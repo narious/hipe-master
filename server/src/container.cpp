@@ -28,6 +28,8 @@
 #include <QPrinter>
 #include <stdio.h>
 
+#include <iostream>
+
 std::string Container::globalStyleRules="";
 
 Container::Container(Connection* bridge, std::string clientName) : QObject()
@@ -475,7 +477,18 @@ void Container::receiveInstruction(hipe_instruction instruction)
         //desktop environment. In this case, display an open/save dialog in order to
         //give the client application a real file to work with.
 
-            //TODO! determine open or save from access mode (open unless r is not given (e.g. rw would mean open))
+            std::string accessModeStr = arg[1];
+
+            ((ContainerTopLevel*)this)->selectFileResource(arg[0],
+                       std::string(instruction.arg[2],instruction.arg_length[2]), accessModeStr);
+            //accessModeStr is modified by-reference to now reflect the actual access modes granted.
+            //(Only r and w are supported at top level)
+
+
+            //TODO: send reply to client
+            //TODO: exclude patterns with only / (directories not supported)
+
+
 
         }
     } else if(instruction.opcode == HIPE_OP_GET_CONTENT) {
