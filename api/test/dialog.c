@@ -34,7 +34,7 @@ void showTextDialog() {
 }
 
 void showFifoOpen() {
-    hipe_send(session, HIPE_OP_FIFO_GET_PEER, 0,0, 3, "untitled.txt", "r", "Open file\n*:any file\njpg;jpeg;gif:graphic");
+    hipe_send(session, HIPE_OP_FIFO_GET_PEER, 0,0, 3, "untitled.txt", "r", "Open file\n*:any file\njpg;jpeg;gif:graphic\n/:an entire directory (may not be supported)");
 }
 
 int main(int argc, char** argv)

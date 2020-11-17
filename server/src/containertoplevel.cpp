@@ -197,6 +197,7 @@ std::string ContainerTopLevel::selectFileResource(std::string defaultName, std::
     std::getline(ss,caption); //the first line is the dialog caption. (src, dest)
 
     //now for the remaining lines in the metadata...
+    bool oneGoodPattern=false; //if we have at least one supported pattern, this becomes true.
     std::string metaLine;
     std::string qtFilterStr;
     while(std::getline(ss,metaLine)) {
@@ -211,6 +212,9 @@ std::string ContainerTopLevel::selectFileResource(std::string defaultName, std::
             pattern = metaLine; //the pattern must then be the whole thing.
             description = "";
         }
+
+        if(pattern.find("/") != std::string::npos) continue; //skip whole-directory patterns--don't support here
+        else oneGoodPattern = true;
 
         std::string filterEntry; //in here, compose a filter entry in the format Qt requires.
         filterEntry = description + " (";
@@ -243,18 +247,26 @@ std::string ContainerTopLevel::selectFileResource(std::string defaultName, std::
 
     }
 
+    if(!oneGoodPattern) {
+        //if the client only wants a whole directory, like a project directory, we can't service that
+        //at the top level, since can only provide files, not 'smart' FIFOs here.
+        QMessageBox::information(this->w, "Error", "Required access type not supported");
+        return "";
+    }
+
 
     QString filename;
     if(initialRead)
         filename = QFileDialog::getOpenFileName(this->w, caption.c_str(), defaultName.c_str(), qtFilterStr.c_str());
     else
         filename = QFileDialog::getSaveFileName(this->w, caption.c_str(), defaultName.c_str(), qtFilterStr.c_str());
+    //it seems that Qt always returns the absolute path, which is exactly what we promise to give the user.
+    //(relative paths would be a problem if hiped has a different working directory to the application)
+    //(realpath() can also be used in such cases, but not required due to Qt giving us what we want.)
 
     accessMode = (r && w) ? (initialRead ? "rw" : "wr") : (r ? "r" : "w");
 
     return filename.toStdString();
-
-    //todo: return the absolute path rather than relative to hiped's cwd
 }
 
 
