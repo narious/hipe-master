@@ -144,7 +144,7 @@ std::string ContainerTopLevel::dialog(std::string title, std::string prompt,
     QString separator = "⸻";
     //what if the user selects a separator? Treat it the same as a Cancel.
 
-    if(choiceLines.size()) { //if choices are specified (technically required)
+    if(choiceLines.size()) { //if choices are specified (technically required (?))
         
         items = ((QString)(choiceLines.c_str())).split("\n");
 
@@ -153,12 +153,16 @@ std::string ContainerTopLevel::dialog(std::string title, std::string prompt,
             if(s == "")
                 s = separator;
         }
+
+    } else { //display a simpler dialog box with only an OK button (equivalent to only having cancel option)
+        QMessageBox::information(this->w, QString(title.c_str()), QString(prompt.c_str()));
+        *cancelled = true;
+        return "";
     }
 
     bool ok;
-    
     QString item = QInputDialog::getItem(NULL, QString(title.c_str()),
-        QString(prompt.c_str()), items, 0, editable, &ok);
+                        QString(prompt.c_str()), items, 0, editable, &ok);
 
     if(ok && item != separator) {
         *cancelled = false;

@@ -479,17 +479,25 @@ void Container::receiveInstruction(hipe_instruction instruction)
 
             std::string accessModeStr = arg[1];
 
-            ((ContainerTopLevel*)this)->selectFileResource(arg[0],
+            std::string filepath = ((ContainerTopLevel*)this)->selectFileResource(arg[0],
                        std::string(instruction.arg[2],instruction.arg_length[2]), accessModeStr);
             //accessModeStr is modified by-reference to now reflect the actual access modes granted.
             //(Only r and w are supported at top level)
 
-
-            //TODO: send reply to client
-            //TODO: exclude patterns with only / (directories not supported)
-
-
-
+            //separate filename and extension parts...
+            size_t strPos = filepath.rfind("/");
+            if(strPos == std::string::npos) strPos = 0; else strPos++;
+            std::string filename = filepath.substr(strPos);
+            strPos = filename.rfind("."); //isolate file extension
+            std::string fileType;
+            if(strPos != std::string::npos) {
+                fileType = filename.substr(strPos+1);
+            }
+ 
+            //send reply to client
+            this->receiveMessage(HIPE_OP_FIFO_RESPONSE, requestor, 
+                       {filepath, accessModeStr, filename, fileType}, nullptr);
+            
         }
     } else if(instruction.opcode == HIPE_OP_GET_CONTENT) {
         //get inner content of (extract data from) location.
