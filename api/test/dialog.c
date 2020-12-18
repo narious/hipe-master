@@ -27,7 +27,7 @@ hipe_loc getLoc(char* id) {
 }
 
 void showDialog() {
-    hipe_send(session, HIPE_OP_DIALOG, 0,0, 3, "Dialog title", "Dialog prompt text", "Choice A\nChoice B\n\nChoice 1\nChoice 2\nChoice 3");
+    hipe_send(session, HIPE_OP_DIALOG, 0,0, 4, "Dialog title", "Dialog prompt text", "Choice A\nChoice B\n\nChoice 1\nChoice 2\nChoice 3", "A\nB\n\n1\n2\n3");
 }
 
 void showSimpleDialog() {
