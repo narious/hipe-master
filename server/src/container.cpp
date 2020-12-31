@@ -26,6 +26,7 @@
 #include <QWebFrame>
 #include <QWebPage>
 #include <QPrinter>
+#include <QDesktopServices>
 #include <stdio.h>
 
 #include <iostream>
@@ -448,7 +449,8 @@ void Container::receiveInstruction(hipe_instruction instruction)
             || instruction.opcode == HIPE_OP_FIFO_CLOSE
             || instruction.opcode == HIPE_OP_FIFO_RESPONSE
             || instruction.opcode == HIPE_OP_FIFO_DROP_PEER
-            || instruction.opcode == HIPE_OP_FIFO_GET_PEER) {
+            || instruction.opcode == HIPE_OP_FIFO_GET_PEER
+            || instruction.opcode == HIPE_OP_OPEN_LINK) {
         //Determine whether we need to send the message to the parent frame or a child frame.
         Container* target = nullptr;
         QWebFrame* sourceframe = nullptr;
@@ -498,6 +500,9 @@ void Container::receiveInstruction(hipe_instruction instruction)
             this->receiveMessage(HIPE_OP_FIFO_RESPONSE, requestor, 
                        {filepath, accessModeStr, filename, fileType}, nullptr);
             
+        } else if(instruction.opcode == HIPE_OP_OPEN_LINK) {
+        //special case for opening URL in user's browser if already running at top level.
+            QDesktopServices::openUrl(QUrl(arg[0].c_str()));
         }
     } else if(instruction.opcode == HIPE_OP_GET_CONTENT) {
         //get inner content of (extract data from) location.

@@ -427,6 +427,11 @@ extern "C" {
    not used.
  */
 
+#define HIPE_OP_OPEN_LINK 69
+/* Used to communicate a hyperlink to the framing manager to be made available to the user
+ * Same internal logic as HIPE_OP_MESSAGE.
+ */
+
 
 
 /*--------------*/
