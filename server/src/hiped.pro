@@ -28,7 +28,8 @@ SOURCES += main.cpp \
     containertoplevel.cpp \
     hipe_instruction.c \
     common.c \
-    sanitation.cpp
+    sanitation.cpp \
+    instructionhandler.cpp
 
 HEADERS += main.hpp \
     ExpArray.hh \
@@ -40,7 +41,8 @@ HEADERS += main.hpp \
     containerframe.h \
     containertoplevel.h \
     hipe_instruction.h \
-    sanitation.h
+    sanitation.h \
+    instructionhandler.h
 
 QMAKE_CXXFLAGS += -std=c++11 -Ofast -pthread
 LIBS += -pthread

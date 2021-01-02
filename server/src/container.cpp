@@ -22,6 +22,7 @@
 #include "containertoplevel.h"
 #include "sanitation.h"
 #include "main.hpp"
+#include "instructionhandler.h"
 
 #include <QWebFrame>
 #include <QWebPage>
@@ -84,6 +85,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
 
     uint64_t requestor = instruction.requestor;
     bool locationSpecified = (bool) instruction.location;
+    //if location not specified, set it to the body element of the container.
     QWebElement location = locationSpecified ? getReferenceableElement(instruction.location)
                                              : webElement; //may need to update this after calling setBody!!
 
@@ -91,45 +93,12 @@ void Container::receiveInstruction(hipe_instruction instruction)
     //check instructions in order of most common. A map would also be useful here.
 
     if(instruction.opcode == HIPE_OP_APPEND_TAG) { //This is by far the most common instruction. Check first.
-        arg[0] = Sanitation::sanitisePlainText(arg[0]);
-        arg[1] = Sanitation::sanitisePlainText(arg[1]);
-        if(Sanitation::isAllowedTag(arg[0])) { //eliminate forbidden tags.
-            std::string newTagString = "<";
-            newTagString += arg[0];
-            if(arg[1].size()) {
-                newTagString += " id=\"" + arg[1] + "\"";
-            } else if(arg[0] == "iframe" || arg[0] == "canvas") { //these tags don't function properly without an ID. Make a random one.
-                std::string randomID = keyList->generateContainerKey();
-                keyList->claimKey(randomID); //burn through a contaner key in order to get a random string out of it.
-                newTagString += " id=\"";
-                newTagString += randomID;
-                newTagString += "\"";
-            }
-            newTagString += "></" + arg[0] + ">";
-            if(!locationSpecified) {
-                setBody(newTagString, false /*append mode*/);
-                location = webElement; //webElement may have been redefined in setBody().
-            }
-            else location.appendInside(newTagString.c_str());
-        }
-        if(instruction.arg_length[2]) {
-        //if the optional arg[2] is "1", we automatically bundle in a
-        //'get last child' request, so the user can create a tag and get its location
-        //in one go.
-            arg[2] = std::string(instruction.arg[2], instruction.arg_length[2]);
-            if(arg[2] == "1") {
-                QWebElement newElement;
-                newElement = location.lastChild();
-                client->sendInstruction(HIPE_OP_LOCATION_RETURN,
-                     instruction.requestor, getIndexOfElement(newElement));
-            }
-        }
+        arg[2] = std::string(instruction.arg[2], instruction.arg_length[2]);
+        handle_APPEND_TAG(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_CLEAR) {
-        if(!locationSpecified) setBody("",true);
-        else location.setInnerXml("");
+        handle_CLEAR(this, &instruction, locationSpecified, location);
     } else if(instruction.opcode == HIPE_OP_DELETE) {
-        if(locationSpecified)
-            location.removeFromDocument(); //Qt doc says this also makes location a 'null element'
+        handle_DELETE(this, &instruction, locationSpecified, location);
     } else if(instruction.opcode == HIPE_OP_SET_TEXT) {
         arg[0] = Sanitation::sanitisePlainText(arg[0], (bool)(arg[1]=="1"));
         if(!locationSpecified) setBody(arg[0]);
@@ -147,27 +116,19 @@ void Container::receiveInstruction(hipe_instruction instruction)
         if(Sanitation::isAllowedCSS(arg[0]) && Sanitation::isAllowedCSS(arg[1]))
             stylesheet += "@fontface {font-family:\"" + arg[0] + "\"; src:url(\"data:"
                     + arg[1] + ";base64,"
-                    + Sanitation::toBase64(std::string(instruction.arg[2],instruction.arg_length[2]))
+                    + Sanitation::toBase64(instruction.arg[2],instruction.arg_length[2])
                     + "\");}\n";
         applyStylesheet();
     } else if(instruction.opcode == HIPE_OP_SET_TITLE) {
         setTitle(arg[0]);
     } else if(instruction.opcode == HIPE_OP_GET_FIRST_CHILD) {
-        //answer the location request.
-        client->sendInstruction(HIPE_OP_LOCATION_RETURN, instruction.requestor,
-                                getIndexOfElement(location.firstChild()));
+        handle_GET_FIRST_CHILD(this, &instruction, locationSpecified, location);
     } else if(instruction.opcode == HIPE_OP_GET_LAST_CHILD) {
-        //answer the location request.
-        client->sendInstruction(HIPE_OP_LOCATION_RETURN, instruction.requestor,
-                                getIndexOfElement(location.lastChild()));
+        handle_GET_LAST_CHILD(this, &instruction, locationSpecified, location);
     } else if(instruction.opcode == HIPE_OP_GET_NEXT_SIBLING) {
-        //answer the location request.
-        client->sendInstruction(HIPE_OP_LOCATION_RETURN, instruction.requestor,
-                                getIndexOfElement(location.nextSibling()));
+        handle_GET_NEXT_SIBLING(this, &instruction, locationSpecified, location);
     } else if(instruction.opcode == HIPE_OP_GET_PREV_SIBLING) {
-        //answer the location request.
-        client->sendInstruction(HIPE_OP_LOCATION_RETURN, instruction.requestor,
-                                getIndexOfElement(location.previousSibling()));
+        handle_GET_PREV_SIBLING(this, &instruction, locationSpecified, location);
     } else if(instruction.opcode == HIPE_OP_GET_BY_ID) {
         client->sendInstruction(HIPE_OP_LOCATION_RETURN, instruction.requestor,
                                 getIndexOfElement(webElement.findFirst(QString("#") + arg[0].c_str())));
@@ -204,7 +165,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
             }
         }
     } else if(instruction.opcode == HIPE_OP_FREE_LOCATION) {
-        removeReferenceableElement(instruction.location);
+        handle_FREE_LOCATION(this, &instruction, locationSpecified, location);
     } else if(instruction.opcode == HIPE_OP_EVENT_REQUEST) {
         QString locStr = QString::number(instruction.location, 16);
         QString reqStr = QString::number(requestor, 16); //represent as hex strings
@@ -230,19 +191,9 @@ void Container::receiveInstruction(hipe_instruction instruction)
             client->sendInstruction(HIPE_OP_EVENT_CANCEL, instruction.requestor, instruction.location, {arg[0], arg[1]});
         }
     } else if(instruction.opcode == HIPE_OP_GET_GEOMETRY) {
-        std::string left = location.evaluateJavaScript("this.offsetLeft;").toString().toStdString();
-        std::string top = location.evaluateJavaScript("this.offsetTop;").toString().toStdString();
-        std::string width = location.evaluateJavaScript("this.offsetWidth;").toString().toStdString();
-        std::string height = location.evaluateJavaScript("this.offsetHeight;").toString().toStdString();
-        client->sendInstruction(HIPE_OP_GEOMETRY_RETURN, instruction.requestor, instruction.location,
-                                    {left, top, width, height});
+        handle_GET_GEOMETRY(this, &instruction, locationSpecified, location);
     } else if(instruction.opcode == HIPE_OP_GET_SCROLL_GEOMETRY) {
-        std::string left = location.evaluateJavaScript("this.scrollLeft;").toString().toStdString();
-        std::string top = location.evaluateJavaScript("this.scrollTop;").toString().toStdString();
-        std::string width = location.evaluateJavaScript("this.scrollWidth;").toString().toStdString();
-        std::string height = location.evaluateJavaScript("this.scrollHeight;").toString().toStdString();
-        client->sendInstruction(HIPE_OP_GEOMETRY_RETURN, instruction.requestor, instruction.location,
-                                    {left, top, width, height});
+        handle_GET_SCROLL_GEOMETRY(this, &instruction, locationSpecified, location);
     } else if(instruction.opcode == HIPE_OP_SCROLL_BY) {
         //if arg[2] is "%", then the units are percentage of scroll track. Otherwise
         //units are pixels of positive offet at the top-left of the viewable area.
@@ -326,37 +277,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
             stylesheet += arg[0] + "{background-image:url(\"" + dataURI + "\");}\n";
         applyStylesheet();
     } else if(instruction.opcode == HIPE_OP_GET_FRAME_KEY) {
-        //Check if the location is already represented in the frame table.
-        QString frameID = location.attribute("id"); //Need this for matching the frame.
-        bool found = false;
-        QString hostKey = "";
-        for(FrameData& fd : subFrames) {
-            if(fd.we == location) { //found
-                found = true;
-                hostKey = fd.hostkey;
-                break;
-            }
-        }
-
-        //If not, we need to match the unique ID of the iframe DOM element to its corresponding QWebFrame.
-        if(!found) {
-            hostKey = keyList->generateContainerKey().c_str();
-
-            //now traverse child frames to find the one with the same ID.
-            auto frames = webElement.webFrame()->childFrames();
-            for(QWebFrame* frame : frames) {
-                if(frame->frameName() == frameID) {
-                    found = true; //match found.
-                    subFrames.push_back({location, frame, hostKey, requestor, "", "", 0, "", ""}); //add new entry to the table.
-                    break;
-                }
-            }
-        }
-        if(frameID.size()) location.setAttribute("id", frameID); //restore any previous tag id.
-        else location.removeAttribute("id");
-
-        //return the host key to the client if element was found, else return blank string.
-        client->sendInstruction(HIPE_OP_KEY_RETURN, instruction.requestor, instruction.location, {found ? hostKey.toStdString() : ""});
+        handle_GET_FRAME_KEY(this, &instruction, locationSpecified, location);
     } else if(instruction.opcode == HIPE_OP_FRAME_CLOSE) {
         //find the relevant client
         for(FrameData& fd : subFrames) {
@@ -374,7 +295,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
     } else if(instruction.opcode == HIPE_OP_TOGGLE_CLASS) {
         location.toggleClass(arg[0].c_str());
     } else if(instruction.opcode == HIPE_OP_SET_FOCUS) {
-        location.evaluateJavaScript("this.focus()");
+        handle_SET_FOCUS(this, &instruction, locationSpecified, location);
     } else if(instruction.opcode == HIPE_OP_TAKE_SNAPSHOT) {
         if(Sanitation::toLower(arg[0].c_str(), arg[0].size()) == "pdf") { //vector screenshot.
             QPrinter pdfGen(QPrinter::ScreenResolution);
@@ -520,8 +441,8 @@ void Container::receiveInstruction(hipe_instruction instruction)
                                            instruction.location, {contentStr});
     } else if(instruction.opcode == HIPE_OP_CARAT_POSITION) {
         //set the selection start/end position...
-        arg[0] = Sanitation::sanitisePlainText(arg[0]); //selection start
-        arg[1] = Sanitation::sanitisePlainText(arg[1]); //selection end, if specified
+        arg[0] = Sanitation::sanitiseCanvasInstruction(arg[0]); //selection start
+        arg[1] = Sanitation::sanitiseCanvasInstruction(arg[1]); //selection end, if specified
         if(!arg[1].size()) arg[1] = arg[0]; //if unspecified, end=start means cursor without selection.
         location.evaluateJavaScript(QString("this.setSelectionRange(")+arg[0].c_str()+","+arg[1].c_str()+");");
     } else if(instruction.opcode == HIPE_OP_GET_CARAT_POSITION) {

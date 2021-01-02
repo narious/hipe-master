@@ -47,6 +47,7 @@ public:
     static std::string sanitiseCanvasInstruction(std::string input);
 
     static std::string toBase64(const std::string& binaryData);
+    static std::string toBase64(const char* data, size_t size);
     static std::string toLower(const char* text, size_t size); //convert to lowercase
     static bool isAllowedAttribute(std::string input);
     static bool isAllowedTag(std::string input);

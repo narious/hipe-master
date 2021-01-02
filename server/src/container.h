@@ -107,9 +107,9 @@ public:
 
     QWebFrame* frame;
 
-protected:
     Connection* client;
     QWebElement webElement;
+protected:
     std::string stylesheet; //build up the stylesheet before we apply it.
     bool initYet; //becomes true once boilerplate html has been set.
 
@@ -134,25 +134,28 @@ private:
     ///element references so a handle (array element number) can safely be given
     ///to external processes, and invalid references can be detected.
     AutoExpArray<QWebElement*> referenceableElement;
+    size_t firstFreeElementAfter=1;
+    //store the location of the first free element, or a smaller element number, to speed insertions.
+
+public:
     //when an element is created, we store its location as an element number here, then share the element number
     //(not a QWebElement--dangerous!) with the client.
     size_t addReferenceableElement(const QWebElement&);
-    size_t firstFreeElementAfter=1;
-    //store the location of the first free element, or a smaller element number, to speed insertions.
+    
     void removeReferenceableElement(size_t);
     QWebElement getReferenceableElement(size_t); //resolve a reference integer.
     size_t findReferenceableElement(QWebElement);
     size_t getIndexOfElement(QWebElement);
     //finds corresponding index, or adds it if it has not been allocated an index yet.
-
+private:
     //flags to handle keyup/down events on body as a special case (since this event needs to propagate to the framing manager for special window manipulation keys)
     bool reportKeydownOnBody=false; //has the client requested keydown events on the body element?
     bool reportKeyupOnBody=false; //has the client requested keyup events on the body element?
     uint64_t keyDownOnBodyRequestor=0; //corresponding requestors if the client requests these key events.
     uint64_t keyUpOnBodyRequestor=0;
 
+public:
     KeyList* keyList;
-
     std::list<FrameData> subFrames;
     //table of subframes, mapping web element of an iframe to its corresponding
     //child frame object and host-key (if assigned).
