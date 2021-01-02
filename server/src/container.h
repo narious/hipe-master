@@ -147,7 +147,7 @@ public:
     size_t findReferenceableElement(QWebElement);
     size_t getIndexOfElement(QWebElement);
     //finds corresponding index, or adds it if it has not been allocated an index yet.
-private:
+
     //flags to handle keyup/down events on body as a special case (since this event needs to propagate to the framing manager for special window manipulation keys)
     bool reportKeydownOnBody=false; //has the client requested keydown events on the body element?
     bool reportKeyupOnBody=false; //has the client requested keyup events on the body element?

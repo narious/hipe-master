@@ -126,100 +126,21 @@ void Container::receiveInstruction(hipe_instruction instruction)
     } else if(instruction.opcode == HIPE_OP_FREE_LOCATION) {
         handle_FREE_LOCATION(this, &instruction, locationSpecified, location);
     } else if(instruction.opcode == HIPE_OP_EVENT_REQUEST) {
-        QString locStr = QString::number(instruction.location, 16);
-        QString reqStr = QString::number(requestor, 16); //represent as hex strings
-        QString evtDetailArgs;
-        arg[0] = Sanitation::toLower(arg[0].c_str(), arg[0].size()); //sanitise against user overriding event attributes with uppercase equivalents.
-        if(arg[0] == "mousemove" || arg[0] == "mousedown" || arg[0] == "mouseup" || arg[0] == "mouseenter" || arg[0] == "mouseleave" || arg[0] == "mouseover" || arg[0] == "mouseout")
-            evtDetailArgs = "'' + event.which + ',' + event.pageX + ',' + event.pageY + ',' + (event.pageX-this.offsetLeft) + ',' + (event.pageY-this.offsetTop)";
-        else
-            evtDetailArgs = "event.which";
-        if(arg[0] == "keydown" && !locationSpecified) { //keydown on body element is a special case.
-            reportKeydownOnBody=true;
-            keyDownOnBodyRequestor=instruction.requestor;
-        } else if(arg[0] == "keyup" && !locationSpecified) { //keyup on body element is a special case.
-            reportKeyupOnBody=true;
-            keyUpOnBodyRequestor=instruction.requestor;
-        } else
-            location.setAttribute(QString("on") + arg[0].c_str(), QString("c.receiveGuiEvent('") + locStr + "','" + reqStr + "','" + arg[0].c_str() + "'," + evtDetailArgs + ")");
-            //Note: since Javascript's max integer range is only about 2^52, 64 bit numbers
-            //need to be represented as strings to avoid loss of accuracy.
+        handle_EVENT_REQUEST(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_EVENT_CANCEL) {
-        location.removeAttribute(QString("on") + arg[0].c_str());
-        if(arg[1] == "1") { //reply requested. Send back an EVENT_CANCEL instruction to tell the client it can clean up event listeners for this event now.
-            client->sendInstruction(HIPE_OP_EVENT_CANCEL, instruction.requestor, instruction.location, {arg[0], arg[1]});
-        }
+        handle_EVENT_CANCEL(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_GET_GEOMETRY) {
         handle_GET_GEOMETRY(this, &instruction, locationSpecified, location);
     } else if(instruction.opcode == HIPE_OP_GET_SCROLL_GEOMETRY) {
         handle_GET_SCROLL_GEOMETRY(this, &instruction, locationSpecified, location);
     } else if(instruction.opcode == HIPE_OP_SCROLL_BY) {
-        //if arg[2] is "%", then the units are percentage of scroll track. Otherwise
-        //units are pixels of positive offet at the top-left of the viewable area.
-        bool percentage = false;
-        if(instruction.arg_length[2] && instruction.arg[2][0] == '%')
-            percentage = true;
-
-        if(instruction.arg_length[0]) { //left offset which may have decimal places if zoomed in.
-            try {
-                float leftVal = std::stof(arg[0]); //may throw exception if invalid.
-                if(!percentage)
-                    location.evaluateJavaScript(QString("this.scrollLeft+=") + QString::number(leftVal) + ";");
-                else
-                    location.evaluateJavaScript(QString("this.scrollLeft+=") + QString::number(leftVal)
-                            + "*(this.scrollWidth - this.clientWidth)/100.0;" );
-            } catch(...) {} //just do nothing on error.
-        }
-        if(instruction.arg_length[1]) { //top offset
-            try {
-                float topVal = std::stof(arg[1]); //may throw exception if invalid.
-                if(!percentage)
-                    location.evaluateJavaScript(QString("this.scrollTop+=") + QString::number(topVal) + ";");
-                else
-                    location.evaluateJavaScript(QString("this.scrollTop+=") + QString::number(topVal)
-                            + "*(this.scrollHeight - this.clientHeight)/100.0;" );
-            } catch(...) {} //just do nothing on error.
-        }
+        arg[2] = std::string(instruction.arg[2], instruction.arg_length[2]);
+        handle_SCROLL_BY(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_SCROLL_TO) {
-
-        //if arg[2] is "%", then the units are percentage of scroll track. Otherwise
-        //units are pixels of positive offet at the top-left of the viewable area.
-        bool percentage = false;
-        if(instruction.arg_length[2] && instruction.arg[2][0] == '%')
-            percentage = true;
-
-        if(instruction.arg_length[0]) { //left offset which may have decimal places if zoomed in.
-            try {
-                float leftVal = std::stof(arg[0]); //may throw exception if invalid.
-                if(!percentage)
-                    location.evaluateJavaScript(QString("this.scrollLeft=") + QString::number(leftVal) + ";");
-                else
-                    location.evaluateJavaScript(QString("this.scrollLeft=") + QString::number(leftVal)
-                            + "*(this.scrollWidth - this.clientWidth)/100.0;" );
-            } catch(...) {} //just do nothing on error.
-        }
-        if(instruction.arg_length[1]) { //top offset
-            try {
-                float topVal = std::stof(arg[1]); //may throw exception if invalid.
-                if(!percentage)
-                    location.evaluateJavaScript(QString("this.scrollTop=") + QString::number(topVal) + ";");
-                else
-                    location.evaluateJavaScript(QString("this.scrollTop=") + QString::number(topVal)
-                            + "*(this.scrollHeight - this.clientHeight)/100.0;" );
-            } catch(...) {} //just do nothing on error.
-        }
+        arg[2] = std::string(instruction.arg[2], instruction.arg_length[2]);
+        handle_SCROLL_TO(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_GET_ATTRIBUTE) {
-        QString attrVal;
-        if(arg[0] == "value") {
-            attrVal = location.evaluateJavaScript("this.value;").toString();
-        } else if(arg[0] == "checked") { //special case for checkboxes and radiobuttons -- the element might be set or unset, without a value. Return the value "checked" if checked.
-            bool checkedState = location.evaluateJavaScript("this.checked;").toBool();
-            attrVal = checkedState ? "checked" : "";
-        } else {
-            attrVal = location.attribute(arg[0].c_str());
-        }
-        client->sendInstruction(HIPE_OP_ATTRIBUTE_RETURN, instruction.requestor, instruction.location,
-                                {arg[0], attrVal.toStdString()});
+        handle_GET_ATTRIBUTE(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_SET_SRC) {
         std::string dataURI = std::string("data:") + arg[1] + ";base64," + Sanitation::toBase64(arg[0]);
         location.setAttribute("src", dataURI.c_str());
@@ -238,19 +159,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
     } else if(instruction.opcode == HIPE_OP_GET_FRAME_KEY) {
         handle_GET_FRAME_KEY(this, &instruction, locationSpecified, location);
     } else if(instruction.opcode == HIPE_OP_FRAME_CLOSE) {
-        //find the relevant client
-        for(FrameData& fd : subFrames) {
-            if(fd.we == location) { //found
-                Connection* target = identifyFromFrame(fd.wf); //find the corresponding container.
-                if(target) {
-                    if(!arg[0].size() || arg[0][0] == '\0')
-                        target->disconnect(); //Hard disconnection. Will be cleaned up in the next service cycle.
-                    else
-                        target->container->containerClosed(); //soft close request.
-                }
-                break;
-            }
-        }
+        handle_FRAME_CLOSE(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_TOGGLE_CLASS) {
         location.toggleClass(arg[0].c_str());
     } else if(instruction.opcode == HIPE_OP_SET_FOCUS) {

@@ -39,7 +39,13 @@ void handle_ADD_STYLE_RULE  (Container*, hipe_instruction*, bool locationSpecifi
 void handle_ADD_FONT        (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
 void handle_SET_TITLE       (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
 void handle_SET_ATTRIBUTE   (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
-void handle_SET_STYLE   (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_SET_STYLE       (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_EVENT_REQUEST   (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_EVENT_CANCEL    (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_SCROLL_BY       (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_SCROLL_TO       (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_GET_ATTRIBUTE   (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_FRAME_CLOSE     (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
 
 
 #endif
