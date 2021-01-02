@@ -1,4 +1,4 @@
-/*  Copyright (c) 2016-2020 Daniel Kos, General Development Systems
+/*  Copyright (c) 2016-2021 Daniel Kos, General Development Systems
 
     This file is part of Hipe.
 
@@ -26,8 +26,6 @@
 
 #include <QWebFrame>
 #include <QWebPage>
-#include <QPrinter>
-#include <QDesktopServices>
 #include <stdio.h>
 
 #include <iostream>
@@ -83,7 +81,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
     arg[1] = std::string(instruction.arg[1], instruction.arg_length[1]);
     //if an operation needs additional instructions, initialise these explicitly in the same way.
 
-    uint64_t requestor = instruction.requestor;
+    //uint64_t requestor = instruction.requestor;
     bool locationSpecified = (bool) instruction.location;
     //if location not specified, set it to the body element of the container.
     QWebElement location = locationSpecified ? getReferenceableElement(instruction.location)
@@ -142,20 +140,11 @@ void Container::receiveInstruction(hipe_instruction instruction)
     } else if(instruction.opcode == HIPE_OP_GET_ATTRIBUTE) {
         handle_GET_ATTRIBUTE(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_SET_SRC) {
-        std::string dataURI = std::string("data:") + arg[1] + ";base64," + Sanitation::toBase64(arg[0]);
-        location.setAttribute("src", dataURI.c_str());
+        handle_SET_SRC(this, &instruction, locationSpecified, location);
     } else if(instruction.opcode == HIPE_OP_SET_STYLE_SRC) {
-        arg[2] = std::string(instruction.arg[2], instruction.arg_length[2]); //mime type
-        arg[3] = std::string(instruction.arg[3], instruction.arg_length[3]); //supplementary value as suffix.
-
-        std::string dataURI = std::string("data:") + arg[2] + ";base64," + Sanitation::toBase64(arg[1]);
-        if(Sanitation::isAllowedCSS(arg[0]))
-            location.setStyleProperty(arg[0].c_str(), QString("url(\"") + dataURI.c_str() + "\") " + arg[3].c_str());
+        handle_SET_STYLE_SRC(this, &instruction, locationSpecified, location);
     } else if(instruction.opcode == HIPE_OP_ADD_STYLE_RULE_SRC) {
-        std::string dataURI = std::string("data:image/png;base64,") + Sanitation::toBase64(arg[1]);
-        if(Sanitation::isAllowedCSS(arg[0]))
-            stylesheet += arg[0] + "{background-image:url(\"" + dataURI + "\");}\n";
-        applyStylesheet();
+        handle_ADD_STYLE_RULE_SRC(this, &instruction, locationSpecified, location);
     } else if(instruction.opcode == HIPE_OP_GET_FRAME_KEY) {
         handle_GET_FRAME_KEY(this, &instruction, locationSpecified, location);
     } else if(instruction.opcode == HIPE_OP_FRAME_CLOSE) {
@@ -165,72 +154,17 @@ void Container::receiveInstruction(hipe_instruction instruction)
     } else if(instruction.opcode == HIPE_OP_SET_FOCUS) {
         handle_SET_FOCUS(this, &instruction, locationSpecified, location);
     } else if(instruction.opcode == HIPE_OP_TAKE_SNAPSHOT) {
-        if(Sanitation::toLower(arg[0].c_str(), arg[0].size()) == "pdf") { //vector screenshot.
-            QPrinter pdfGen(QPrinter::ScreenResolution);
-            pdfGen.setOutputFormat(QPrinter::PdfFormat);
-            pdfGen.setFontEmbeddingEnabled(true);
-            pdfGen.setFullPage(true);
-            //scale paper size to whichever resolution the QPrinter object is using:
-            pdfGen.setPaperSize(QSizeF(webElement.webFrame()->contentsSize().width()/pdfGen.resolution(), webElement.webFrame()->contentsSize().height()/pdfGen.resolution()), QPrinter::Inch);
-            QString snapshotFile = QString("/tmp/hipe-uid") + uid.c_str() + "_snapshot.pdf";
-            pdfGen.setOutputFileName(snapshotFile);
-            webElement.webFrame()->print(&pdfGen);
-
-            //We now have the screenshot in a temporary file. We need to get that file's contents and send
-            //it back to the client.
-            FILE* ssFile = fopen(snapshotFile.toStdString().c_str(), "r");
-            bool success = true;
-            char* fData = 0;
-            size_t size;
-            if(ssFile) { //successfully opened
-                fseek(ssFile, 0, SEEK_END); //determine file size
-                size = ftell(ssFile);
-                rewind(ssFile);
-                fData = (char*) malloc(size);
-                size_t result = fread(fData, 1, size, ssFile);
-                if(result != size) success = false;
-                fclose(ssFile);
-            } else {
-                success = false;
-            }
-
-            //send the file and/or error state to the client.
-            hipe_instruction payload;
-            hipe_instruction_init(&payload);
-            payload.opcode = HIPE_OP_FILE_RETURN;
-            payload.requestor = instruction.requestor;
-            payload.location = instruction.location;
-            if(success) {
-                payload.arg[0] = fData;
-                payload.arg_length[0] = size;
-                payload.arg[1] = 0; payload.arg_length[1] = 0;
-            } else {
-                payload.arg[0] = 0; payload.arg_length[0] = 0;
-                payload.arg[1] = (char*) "File error.";
-                payload.arg_length[1] = 11;
-            }
-
-            client->sendInstruction(payload);
-            free(fData);
-            remove(snapshotFile.toStdString().c_str()); //delete the temporary file.
-        }
+        handle_TAKE_SNAPSHOT(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_USE_CANVAS) {
-        arg[0] = Sanitation::sanitiseCanvasInstruction(arg[0]);
-        webElement.evaluateJavaScript(QString("canvascontext=document.getElementById(\"")
-                                      + location.attribute("id") + "\").getContext(\"" + arg[0].c_str() + "\");");
+        handle_USE_CANVAS(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_CANVAS_ACTION) {
-        arg[0] = Sanitation::sanitiseCanvasInstruction(arg[0]);
-        arg[1] = Sanitation::sanitiseCanvasInstruction(arg[1]);
-        webElement.evaluateJavaScript(QString("canvascontext.") + arg[0].c_str() + "(" + arg[1].c_str() + ");");
+        handle_CANVAS_ACTION(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_CANVAS_SET_PROPERTY) {
-        arg[0] = Sanitation::sanitiseCanvasInstruction(arg[0]);
-        arg[1] = Sanitation::sanitiseCanvasInstruction(arg[1]);
-        webElement.evaluateJavaScript(QString("canvascontext.") + arg[0].c_str() + "=" + arg[1].c_str() + ";");
+        handle_CANVAS_SET_PROPERTY(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_SET_ICON) {
-        setIcon(instruction.arg[0], instruction.arg_length[0]);
+        handle_SET_ICON(this, &instruction, locationSpecified, location);
     } else if(instruction.opcode == HIPE_OP_REMOVE_ATTRIBUTE) {
-        if(Sanitation::isAllowedAttribute(arg[0]))
-            location.removeAttribute(arg[0].c_str());
+        handle_REMOVE_ATTRIBUTE(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_MESSAGE
             || instruction.opcode == HIPE_OP_FIFO_ADD_ABILITY
             || instruction.opcode == HIPE_OP_FIFO_REMOVE_ABILITY
@@ -240,233 +174,37 @@ void Container::receiveInstruction(hipe_instruction instruction)
             || instruction.opcode == HIPE_OP_FIFO_DROP_PEER
             || instruction.opcode == HIPE_OP_FIFO_GET_PEER
             || instruction.opcode == HIPE_OP_OPEN_LINK) {
-        //Determine whether we need to send the message to the parent frame or a child frame.
-        Container* target = nullptr;
-        QWebFrame* sourceframe = nullptr;
-        if(locationSpecified) {
-            //find the relevant child frame client
-            for(FrameData& fd : subFrames) {
-                if(fd.we == location) { //found
-                    target = identifyFromFrame(fd.wf)->container; //find the corresponding container.
-                    break;
-                }
-            }
-        } else { //send to parent element
-            target = getParent();
-            sourceframe = webElement.webFrame();
-        }
-        if(target) { //send the instruction to the destination. (at top level, target is nullptr)
-            target->receiveMessage(instruction.opcode, requestor, 
-                {std::string(instruction.arg[0],instruction.arg_length[0]), 
-                    std::string(instruction.arg[1], instruction.arg_length[1])}, 
-                sourceframe
-            );
-        } else if(instruction.opcode == HIPE_OP_FIFO_GET_PEER) {
-        //special case for HIPE_OP_FIFO_GET_PEER instruction where a frame tries to
-        //send it outside the top level. This would normally mean an application wishes
-        //to import or export a file but is running in a top-level window in another
-        //desktop environment. In this case, display an open/save dialog in order to
-        //give the client application a real file to work with.
-
-            std::string accessModeStr = arg[1];
-
-            std::string filepath = ((ContainerTopLevel*)this)->selectFileResource(arg[0],
-                       std::string(instruction.arg[2],instruction.arg_length[2]), accessModeStr);
-            //accessModeStr is modified by-reference to now reflect the actual access modes granted.
-            //(Only r and w are supported at top level)
-
-            //separate filename and extension parts...
-            size_t strPos = filepath.rfind("/");
-            if(strPos == std::string::npos) strPos = 0; else strPos++;
-            std::string filename = filepath.substr(strPos);
-            strPos = filename.rfind("."); //isolate file extension
-            std::string fileType;
-            if(strPos != std::string::npos) {
-                fileType = filename.substr(strPos+1);
-            }
- 
-            //send reply to client
-            this->receiveMessage(HIPE_OP_FIFO_RESPONSE, requestor, 
-                       {filepath, accessModeStr, filename, fileType}, nullptr);
-            
-        } else if(instruction.opcode == HIPE_OP_OPEN_LINK) {
-        //special case for opening URL in user's browser if already running at top level.
-            QDesktopServices::openUrl(QUrl(arg[0].c_str()));
-        }
+        arg[2] = std::string(instruction.arg[2], instruction.arg_length[2]);
+        arg[3] = std::string(instruction.arg[3], instruction.arg_length[3]);
+        handle_MESSAGE(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_GET_CONTENT) {
-        //get inner content of (extract data from) location.
-        std::string contentStr;
-        if(arg[0] == "0" || arg[0] == "") { //default: unformatted/plain text
-            contentStr = location.evaluateJavaScript("this.textContent;").toString().toStdString();
-        } else if(arg[0] == "1") { //html-formatted content requested from element.
-            contentStr = location.evaluateJavaScript("this.innerHTML;").toString().toStdString();
-        } else if(arg[0] == "2") {
-            contentStr = location.evaluateJavaScript("this.innerText;").toString().toStdString();
-        } else if(arg[0] == "3") { //some form elements require data to be read via a value attribute
-            contentStr = location.evaluateJavaScript("this.value;").toString().toStdString();
-        }
-        client->sendInstruction(HIPE_OP_CONTENT_RETURN, instruction.requestor,
-                                           instruction.location, {contentStr});
+        handle_GET_CONTENT(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_CARAT_POSITION) {
-        //set the selection start/end position...
-        arg[0] = Sanitation::sanitiseCanvasInstruction(arg[0]); //selection start
-        arg[1] = Sanitation::sanitiseCanvasInstruction(arg[1]); //selection end, if specified
-        if(!arg[1].size()) arg[1] = arg[0]; //if unspecified, end=start means cursor without selection.
-        location.evaluateJavaScript(QString("this.setSelectionRange(")+arg[0].c_str()+","+arg[1].c_str()+");");
+        handle_CARAT_POSITION(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_GET_CARAT_POSITION) {
-        std::string selStart, selEnd;
-        selStart = location.evaluateJavaScript("this.selectionStart;").toString().toStdString();
-        selEnd = location.evaluateJavaScript("this.selectionEnd;").toString().toStdString();
-        client->sendInstruction(HIPE_OP_CARAT_POSITION, instruction.requestor, instruction.location, {selStart, selEnd});
+        handle_GET_CARAT_POSITION(this, &instruction, locationSpecified, location);
     } else if(instruction.opcode == HIPE_OP_FIND_TEXT) {
-        if(isTopLevel) { //only the top level frame can use this instruction due
-        //to a limitation in Qt; there is no findText() method for individual frames.
-            ((ContainerTopLevel*)this)->findText(arg[0], false,false,false);
-            //TODO: add support for search direction args, etc.
-            //e.g. arg[1] might contain "bi" for 'backwards, case insensitive'
-        }
+        handle_FIND_TEXT(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_GET_AUDIOVIDEO_STATE) {
-        std::string position = location.evaluateJavaScript("this.currentTime+','+this.duration;").toString().toStdString();
-        //stores the position in the <audio>/<video> tag in the format
-        //"currentTime,totalTime" where both times are in seconds, and separated
-        //by a comma. When the user sends this data, they can ommit the total time,
-        //which will be ignored.
-
-        std::string speed = location.evaluateJavaScript("this.playbackRate;").toString().toStdString();
-
-        bool playing = location.evaluateJavaScript("(!this.paused || this.currentTime);").toBool();
-        //condition based on:https://stackoverflow.com/questions/9437228/html5-check-if-audio-is-playing
-        //If playing is false, the element may be paused, ended or waiting for playback to begin.
-
-        std::string volume = location.evaluateJavaScript("this.voume;").toString().toStdString();
-
-        client->sendInstruction(HIPE_OP_AUDIOVIDEO_STATE, instruction.requestor,
-                instruction.location, {position, speed, (playing?"1":"0"), volume});
-
+        handle_GET_AUDIOVIDEO_STATE(this, &instruction, locationSpecified, location);
     } else if(instruction.opcode == HIPE_OP_AUDIOVIDEO_STATE) {
-        float argValue;
-
-        //if arg[0] is non-null, parse the new playback position as the first "%f" in the string.
-        if(sscanf(arg[0].c_str(), "%f", &argValue) == 1) {
-            location.evaluateJavaScript(QString("this.currentTime=")+QString::number(argValue)+";");
-        }
-
-        //if arg[1] is non-null, take the playback speed as a float.
-        if(sscanf(arg[1].c_str(), "%f", &argValue) == 1) {
-            location.evaluateJavaScript(QString("this.playbackRate=")+QString::number(argValue)+";");
-        }
-
-        //if arg[2] is "1" call play() and if "0" then pause().
-        if(instruction.arg_length[2]) {  //arg is specified.
-            if(instruction.arg[2][0]=='1')
-                location.evaluateJavaScript("this.play();");
-            else if(instruction.arg[2][0]=='0')
-                location.evaluateJavaScript("this.pause();");
-        }
-
-        //if arg[3] is non-null, take volume as a float.
-        if(instruction.arg_length[3]) {
-            arg[3] = std::string(instruction.arg[3],instruction.arg_length[3]);
-            if(sscanf(arg[3].c_str(), "%f", &argValue) == 1)
-                location.evaluateJavaScript(QString("this.volume=")+QString::number(argValue)+";");
-        }
+        arg[2] = std::string(instruction.arg[2], instruction.arg_length[2]);
+        arg[3] = std::string(instruction.arg[3], instruction.arg_length[3]);
+        handle_AUDIOVIDEO_STATE(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_DIALOG || instruction.opcode == HIPE_OP_DIALOG_INPUT) {
-        Container* target = getParent();
-
-        if(!target) { //we are the top level. Dialog is handled here directly
-            arg[2] = std::string(instruction.arg[2],instruction.arg_length[2]);
-            bool cancelled;
-            bool editable = (bool) (instruction.opcode == HIPE_OP_DIALOG_INPUT);
-
-
-            std::string userChoice = ((ContainerTopLevel*)this)->dialog(arg[0], 
-                                        arg[1], arg[2], editable, &cancelled);
-
-            if(!cancelled) { //dialog wasn't cancelled
-                //find the index+1 of the choice selected...
-                std::string itemIndexStr = "";
-                QStringList items = ((QString)(arg[2].c_str())).split("\n");
-
-                for(int i=0; i<items.size(); i++) {
-                    if(items[i] == ((QString)(userChoice.c_str()))) {
-                        itemIndexStr = std::to_string(i+1);
-                        break;
-                    }
-                    if(itemIndexStr=="") itemIndexStr = 1; //in case of free-form text entry.
-                }
-                client->sendInstruction(HIPE_OP_DIALOG_RETURN, requestor,
-                                0, {userChoice, itemIndexStr});
-
-            } else { //cancelled
-                client->sendInstruction(HIPE_OP_DIALOG_RETURN, requestor, 0, {"","0"});
-            }
-        } else { //relay to parent frame.
-            if(instruction.arg_length[2]) arg[2]=std::string(instruction.arg[2],instruction.arg_length[2]);
-            else arg[2] = "";
-            if(instruction.arg_length[3]) arg[3]=std::string(instruction.arg[3],instruction.arg_length[3]);
-            else arg[3] = "";
-
-            target->receiveMessage(instruction.opcode, requestor, {arg[0],arg[1],
-                std::string(instruction.arg[2],instruction.arg_length[2]),
-                std::string(instruction.arg[3],instruction.arg_length[3])},
-                webElement.webFrame(), false);
-            //this sends the instruction to the parent's client.
-        }
+        arg[2] = std::string(instruction.arg[2], instruction.arg_length[2]);
+        arg[3] = std::string(instruction.arg[3], instruction.arg_length[3]);
+        handle_DIALOG(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_DIALOG_RETURN) {
-        if(locationSpecified) {
-        //The fact we're receiving from the client and not sending this,
-        //means a location is mandatory. We simply relay this instruction to the child frame.
-
-            Container* target = nullptr;
-            //find the relevant child frame client
-            for(FrameData& fd : subFrames) {
-                if(fd.we == location) { //found
-                    target = identifyFromFrame(fd.wf)->container; //find the corresponding container.
-                    break;
-                }
-            }
-
-            if(target) {
-                if(instruction.arg_length[2]) arg[2]=std::string(instruction.arg[2],instruction.arg_length[2]);
-                else arg[2] = "";
-                if(instruction.arg_length[3]) arg[3]=std::string(instruction.arg[3],instruction.arg_length[3]);
-                else arg[3] = "";
-
-                target->receiveMessage(HIPE_OP_DIALOG_RETURN, requestor, {arg[0],arg[1],
-                    std::string(instruction.arg[2],instruction.arg_length[2]),
-                    std::string(instruction.arg[3],instruction.arg_length[3])},
-                    nullptr, false);
-            }
-
-        }
+        arg[2] = std::string(instruction.arg[2], instruction.arg_length[2]);
+        arg[3] = std::string(instruction.arg[3], instruction.arg_length[3]);
+        handle_DIALOG_RETURN(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_GET_SELECTION) {
-        std::string selectedText = ""; //if nothing is selected, or the functionality is
-        //outside the client's purview to see, a blank string will be returned.
-        if(arg[0] == "1") { //a top-level window has requested the global selection.
-            if(isTopLevel) {
-                selectedText = ((ContainerTopLevel*)this)->getGlobalSelection(false);
-            }
-        } else { //get local (this frame's) selection using javascript.
-            selectedText = location.evaluateJavaScript("document.getSelection().toString();").toString().toStdString();
-        }
-        //return the contents of the selection...
-        client->sendInstruction(HIPE_OP_CONTENT_RETURN, instruction.requestor,
-                                           instruction.location, {selectedText});
+        handle_GET_SELECTION(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_EDIT_ACTION) {
-        if(isTopLevel) {
-            ((ContainerTopLevel*)this)->triggerEditAction(arg[0][0]);
-        }
+        handle_EDIT_ACTION(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_EDIT_STATUS) {
-    //for this op, the user specifies a string of edit function codes to check,
-    //e.g. "xcvbiu" to check cut,copy,paste,bold,italic,underline.
-        std::string resultingStates = "";
-        char state;
-        for(size_t i=0; i<arg[0].size(); i++) { //for each edit function to be checked
-            state = this->editActionStatus(arg[0][i]);
-            resultingStates += state;
-        }
-        client->sendInstruction(HIPE_OP_EDIT_STATUS, instruction.requestor,
-                                      instruction.location, {arg[0], resultingStates});
+        handle_EDIT_STATUS(this, &instruction, locationSpecified, location, arg);
     }
 }
 
@@ -509,7 +247,8 @@ void Container::receiveSubFrameEvent(short evtType, QWebFrame* sender, std::stri
             if(evtType == HIPE_FRAME_EVENT_TITLE_CHANGED)
                 sf.title = detail;
             else if(evtType == HIPE_FRAME_EVENT_BACKGROUND_CHANGED) {
-                if(detail.compare(sf.bg) != 0) { //check frame metadata in sf, if background has not changed, return without sending event.
+                if(detail.compare(sf.bg) != 0) { 
+                //check frame metadata in sf, if background has not changed, return without sending event.
                     sf.bg = detail;
                 } else
                     return; //no change to background colour.
@@ -535,7 +274,7 @@ void Container::receiveSubFrameEvent(short evtType, QWebFrame* sender, std::stri
     }
 }
 
-void Container::receiveMessage(char opcode, int64_t requestor, const std::vector<std::string>& args, /*std::string arg1, std::string arg2,*/ QWebFrame* sender, bool propagateToParent) {
+void Container::receiveMessage(char opcode, int64_t requestor, const std::vector<std::string>& args, QWebFrame* sender, bool propagateToParent) {
 //If the sender is the parent of this frame, a nullptr should be passed as sender.
 //If the sender is a child frame, we'll resolve the child frame's location from the perspective of this frame.
 //If propagateToParent is set, all parents of this container will see this message as originating from their relevant child frame.

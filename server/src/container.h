@@ -110,11 +110,11 @@ public:
     Connection* client;
     QWebElement webElement;
     std::string stylesheet; //build up the stylesheet before we apply it.
-protected:
-    bool initYet; //becomes true once boilerplate html has been set.
 
     bool isTopLevel = false; //some instructions are only permitted to be carried out
     //by the top level frame.
+protected:
+    bool initYet; //becomes true once boilerplate html has been set.
 signals:
     void receiveGuiEvent(QString location, QString requestor, QString event, QString detail);
     //signal called from within the QWebView object (via Javascript), each time a user interaction takes place.

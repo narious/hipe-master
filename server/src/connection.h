@@ -1,4 +1,4 @@
-/*  Copyright (c) 2016 Daniel Kos, General Development Systems
+/*  Copyright (c) 2016-2021 Daniel Kos, General Development Systems
 
     This file is part of Hipe.
 
@@ -76,8 +76,6 @@ private:
 
     void runInstruction(hipe_instruction* instruction);
     //deals with a completed instruction -- sends it to wherever it's needed.
-
-
 
     std::queue<hipe_instruction*> incomingInstructions;
 

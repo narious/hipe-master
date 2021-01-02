@@ -13,7 +13,7 @@
 #define _INSTRUCTIONHANDLER_H
 
 #include "container.h"
-
+#include "containertoplevel.h"
 
 void handle_CLEAR           (Container*, hipe_instruction*, bool locationSpecified, QWebElement location);
 void handle_DELETE          (Container*, hipe_instruction*, bool locationSpecified, QWebElement location);
@@ -26,6 +26,12 @@ void handle_SET_FOCUS       (Container*, hipe_instruction*, bool locationSpecifi
 void handle_GET_GEOMETRY    (Container*, hipe_instruction*, bool locationSpecified, QWebElement location);
 void handle_GET_SCROLL_GEOMETRY (Container*, hipe_instruction*, bool locationSpecified, QWebElement location);
 void handle_GET_FRAME_KEY   (Container*, hipe_instruction*, bool locationSpecified, QWebElement location);
+void handle_SET_ICON        (Container*, hipe_instruction*, bool locationSpecified, QWebElement location);
+void handle_SET_SRC         (Container*, hipe_instruction*, bool locationSpecified, QWebElement location);
+void handle_SET_STYLE_SRC   (Container*, hipe_instruction*, bool locationSpecified, QWebElement location);
+void handle_ADD_STYLE_RULE_SRC(Container*, hipe_instruction*, bool locationSpecified, QWebElement location);
+void handle_GET_CARAT_POSITION(Container*, hipe_instruction*, bool locationSpecified, QWebElement location);
+void handle_GET_AUDIOVIDEO_STATE(Container*, hipe_instruction*, bool locationSpecified, QWebElement location);
 
 
 
@@ -46,6 +52,22 @@ void handle_SCROLL_BY       (Container*, hipe_instruction*, bool locationSpecifi
 void handle_SCROLL_TO       (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
 void handle_GET_ATTRIBUTE   (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
 void handle_FRAME_CLOSE     (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_TAKE_SNAPSHOT   (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_USE_CANVAS      (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_CANVAS_ACTION   (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_CANVAS_SET_PROPERTY(Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_REMOVE_ATTRIBUTE(Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_GET_CONTENT     (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_CARAT_POSITION(Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_FIND_TEXT       (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_AUDIOVIDEO_STATE(Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_DIALOG          (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_DIALOG_RETURN   (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_GET_SELECTION   (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_EDIT_ACTION     (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_EDIT_STATUS     (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_MESSAGE         (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+
 
 
 #endif
