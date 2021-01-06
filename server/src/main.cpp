@@ -49,6 +49,8 @@
 #include <signal.h>
 #include "brokenimg.h"
 
+#include "instructionhandler.h"
+
 std::string uid;
 bool verbose;
 bool fillscreen;
@@ -286,6 +288,8 @@ int main(int argc, char *argv[])
     }
 
     signal(SIGPIPE, SIG_IGN); //broken client pipes must not crash the display server.
+
+    initInstructionMap();
 
     a.setQuitOnLastWindowClosed(false);
 

@@ -8,6 +8,201 @@
 #include <QDesktopServices>
 
 
+//A value that exceeds the highest value HIPE_OP_ constant for hipe instructions.
+#define MAX_OP_CODE 120 //update if ever the max hipe instruction code value exceeds this.
+
+//global variables used for mapping functions to function pointers...
+struct {
+    //the function pointer will have a different signature if it takes pre-converted
+    //arguments.
+    union {
+        void (*noargs)(Container*, hipe_instruction*, bool, QWebElement);
+        void (*withargs)(Container*, hipe_instruction*, bool, QWebElement, std::string[]);
+    } ptrtype;
+
+    short numargs; //the number of arguments to pre-convert to std::string
+
+} handlerInfo[MAX_OP_CODE];
+//The HIPE_OP number of the instruction is used to index the array.
+
+
+void initInstructionMap() {
+    for(int i=0; i<MAX_OP_CODE; i++) {
+    //initialise all elements to nullptrs in case an unknown instruction comes through later.
+        handlerInfo[i].ptrtype.noargs = nullptr;
+        handlerInfo[i].numargs = 0;
+    }
+
+    //populate the handlerInfo array with hipe instruction handlers...
+
+    handlerInfo[HIPE_OP_CLEAR].ptrtype.noargs = handle_CLEAR;
+
+    handlerInfo[HIPE_OP_DELETE].ptrtype.noargs = handle_DELETE;
+
+    handlerInfo[HIPE_OP_FREE_LOCATION].ptrtype.noargs = handle_FREE_LOCATION;
+
+    handlerInfo[HIPE_OP_GET_FIRST_CHILD].ptrtype.noargs = handle_GET_FIRST_CHILD;
+
+    handlerInfo[HIPE_OP_GET_LAST_CHILD].ptrtype.noargs = handle_GET_LAST_CHILD;
+
+    handlerInfo[HIPE_OP_GET_NEXT_SIBLING].ptrtype.noargs = handle_GET_NEXT_SIBLING;
+
+    handlerInfo[HIPE_OP_GET_PREV_SIBLING].ptrtype.noargs = handle_GET_PREV_SIBLING;
+
+    handlerInfo[HIPE_OP_SET_FOCUS].ptrtype.noargs = handle_SET_FOCUS;
+
+    handlerInfo[HIPE_OP_GET_GEOMETRY].ptrtype.noargs = handle_GET_GEOMETRY;
+
+    handlerInfo[HIPE_OP_GET_SCROLL_GEOMETRY].ptrtype.noargs = handle_GET_SCROLL_GEOMETRY;
+
+    handlerInfo[HIPE_OP_GET_FRAME_KEY].ptrtype.noargs = handle_GET_FRAME_KEY;
+
+    handlerInfo[HIPE_OP_SET_ICON].ptrtype.noargs = handle_SET_ICON;
+
+    handlerInfo[HIPE_OP_SET_SRC].ptrtype.noargs = handle_SET_SRC;
+
+    handlerInfo[HIPE_OP_SET_STYLE_SRC].ptrtype.noargs = handle_SET_STYLE_SRC;
+
+    handlerInfo[HIPE_OP_ADD_STYLE_RULE_SRC].ptrtype.noargs = handle_ADD_STYLE_RULE_SRC;
+
+    handlerInfo[HIPE_OP_GET_CARAT_POSITION].ptrtype.noargs = handle_GET_CARAT_POSITION;
+
+    handlerInfo[HIPE_OP_GET_AUDIOVIDEO_STATE].ptrtype.noargs = handle_GET_AUDIOVIDEO_STATE;
+    
+    handlerInfo[HIPE_OP_APPEND_TAG].ptrtype.withargs = handle_APPEND_TAG;
+    handlerInfo[HIPE_OP_APPEND_TAG].numargs = 3;
+
+    handlerInfo[HIPE_OP_SET_TEXT].ptrtype.withargs = handle_SET_TEXT;
+    handlerInfo[HIPE_OP_SET_TEXT].numargs = 2;
+
+    handlerInfo[HIPE_OP_APPEND_TEXT].ptrtype.withargs = handle_APPEND_TEXT;
+    handlerInfo[HIPE_OP_APPEND_TEXT].numargs = 2;
+
+    handlerInfo[HIPE_OP_GET_BY_ID].ptrtype.withargs = handle_GET_BY_ID;
+    handlerInfo[HIPE_OP_GET_BY_ID].numargs = 1;
+
+    handlerInfo[HIPE_OP_ADD_STYLE_RULE].ptrtype.withargs = handle_ADD_STYLE_RULE;
+    handlerInfo[HIPE_OP_ADD_STYLE_RULE].numargs = 2;
+
+    handlerInfo[HIPE_OP_ADD_FONT].ptrtype.withargs = handle_ADD_FONT;
+    handlerInfo[HIPE_OP_ADD_FONT].numargs = 2;
+
+    handlerInfo[HIPE_OP_SET_TITLE].ptrtype.withargs = handle_SET_TITLE;
+    handlerInfo[HIPE_OP_SET_TITLE].numargs = 1;
+
+    handlerInfo[HIPE_OP_SET_ATTRIBUTE].ptrtype.withargs = handle_SET_ATTRIBUTE;
+    handlerInfo[HIPE_OP_SET_ATTRIBUTE].numargs = 2;
+
+    handlerInfo[HIPE_OP_SET_STYLE].ptrtype.withargs = handle_SET_STYLE;
+    handlerInfo[HIPE_OP_SET_STYLE].numargs = 2;
+
+    handlerInfo[HIPE_OP_EVENT_REQUEST].ptrtype.withargs = handle_EVENT_REQUEST;
+    handlerInfo[HIPE_OP_EVENT_REQUEST].numargs = 1;
+
+    handlerInfo[HIPE_OP_EVENT_CANCEL].ptrtype.withargs = handle_EVENT_CANCEL;
+    handlerInfo[HIPE_OP_EVENT_CANCEL].numargs = 2;
+
+    handlerInfo[HIPE_OP_SCROLL_BY].ptrtype.withargs = handle_SCROLL_BY;
+    handlerInfo[HIPE_OP_SCROLL_BY].numargs = 3;
+
+    handlerInfo[HIPE_OP_SCROLL_TO].ptrtype.withargs = handle_SCROLL_TO;
+    handlerInfo[HIPE_OP_SCROLL_TO].numargs = 3;
+
+    handlerInfo[HIPE_OP_GET_ATTRIBUTE].ptrtype.withargs = handle_GET_ATTRIBUTE;
+    handlerInfo[HIPE_OP_GET_ATTRIBUTE].numargs = 1;
+
+    handlerInfo[HIPE_OP_FRAME_CLOSE].ptrtype.withargs = handle_FRAME_CLOSE;
+    handlerInfo[HIPE_OP_FRAME_CLOSE].numargs = 1;
+
+    handlerInfo[HIPE_OP_TAKE_SNAPSHOT].ptrtype.withargs = handle_TAKE_SNAPSHOT;
+    handlerInfo[HIPE_OP_TAKE_SNAPSHOT].numargs = 2;
+
+    handlerInfo[HIPE_OP_USE_CANVAS].ptrtype.withargs = handle_USE_CANVAS;
+    handlerInfo[HIPE_OP_USE_CANVAS].numargs = 1;
+
+    handlerInfo[HIPE_OP_CANVAS_ACTION].ptrtype.withargs = handle_CANVAS_ACTION;
+    handlerInfo[HIPE_OP_CANVAS_ACTION].numargs = 2;
+
+    handlerInfo[HIPE_OP_CANVAS_SET_PROPERTY].ptrtype.withargs = handle_CANVAS_SET_PROPERTY;
+    handlerInfo[HIPE_OP_CANVAS_SET_PROPERTY].numargs = 2;
+
+    handlerInfo[HIPE_OP_REMOVE_ATTRIBUTE].ptrtype.withargs = handle_REMOVE_ATTRIBUTE;
+    handlerInfo[HIPE_OP_REMOVE_ATTRIBUTE].numargs = 1;
+
+    handlerInfo[HIPE_OP_GET_CONTENT].ptrtype.withargs = handle_GET_CONTENT;
+    handlerInfo[HIPE_OP_GET_CONTENT].numargs = 1;
+
+    handlerInfo[HIPE_OP_CARAT_POSITION].ptrtype.withargs = handle_CARAT_POSITION;
+    handlerInfo[HIPE_OP_CARAT_POSITION].numargs = 2;
+
+    handlerInfo[HIPE_OP_FIND_TEXT].ptrtype.withargs = handle_FIND_TEXT;
+    handlerInfo[HIPE_OP_FIND_TEXT].numargs = 1;
+
+    handlerInfo[HIPE_OP_AUDIOVIDEO_STATE].ptrtype.withargs = handle_AUDIOVIDEO_STATE;
+    handlerInfo[HIPE_OP_AUDIOVIDEO_STATE].numargs = 4;
+
+    handlerInfo[HIPE_OP_DIALOG].ptrtype.withargs = handle_DIALOG;
+    handlerInfo[HIPE_OP_DIALOG_INPUT].ptrtype.withargs = handle_DIALOG;
+    handlerInfo[HIPE_OP_DIALOG].numargs = 4;
+    handlerInfo[HIPE_OP_DIALOG_INPUT].numargs = 4;
+
+    handlerInfo[HIPE_OP_DIALOG_RETURN].ptrtype.withargs = handle_DIALOG_RETURN;
+    handlerInfo[HIPE_OP_DIALOG_RETURN].numargs = 4;    
+
+    handlerInfo[HIPE_OP_GET_SELECTION].ptrtype.withargs = handle_GET_SELECTION;
+    handlerInfo[HIPE_OP_GET_SELECTION].numargs = 1;
+
+    handlerInfo[HIPE_OP_EDIT_ACTION].ptrtype.withargs = handle_EDIT_ACTION;
+    handlerInfo[HIPE_OP_EDIT_ACTION].numargs = 1;
+
+    handlerInfo[HIPE_OP_EDIT_STATUS].ptrtype.withargs = handle_EDIT_STATUS;
+    handlerInfo[HIPE_OP_EDIT_STATUS].numargs = 1;
+
+    handlerInfo[HIPE_OP_MESSAGE].ptrtype.withargs = handle_MESSAGE;
+    handlerInfo[HIPE_OP_FIFO_ADD_ABILITY].ptrtype.withargs = handle_MESSAGE;
+    handlerInfo[HIPE_OP_FIFO_REMOVE_ABILITY].ptrtype.withargs = handle_MESSAGE;
+    handlerInfo[HIPE_OP_FIFO_OPEN].ptrtype.withargs = handle_MESSAGE;
+    handlerInfo[HIPE_OP_FIFO_CLOSE].ptrtype.withargs = handle_MESSAGE;
+    handlerInfo[HIPE_OP_FIFO_RESPONSE].ptrtype.withargs = handle_MESSAGE;
+    handlerInfo[HIPE_OP_FIFO_DROP_PEER].ptrtype.withargs = handle_MESSAGE;
+    handlerInfo[HIPE_OP_FIFO_GET_PEER].ptrtype.withargs = handle_MESSAGE;
+    handlerInfo[HIPE_OP_OPEN_LINK].ptrtype.withargs = handle_MESSAGE;
+    handlerInfo[HIPE_OP_MESSAGE].numargs = 4;
+    handlerInfo[HIPE_OP_FIFO_ADD_ABILITY].numargs = 4;
+    handlerInfo[HIPE_OP_FIFO_REMOVE_ABILITY].numargs = 4;
+    handlerInfo[HIPE_OP_FIFO_OPEN].numargs = 4;
+    handlerInfo[HIPE_OP_FIFO_CLOSE].numargs = 4;
+    handlerInfo[HIPE_OP_FIFO_RESPONSE].numargs = 4;
+    handlerInfo[HIPE_OP_FIFO_DROP_PEER].numargs = 4;
+    handlerInfo[HIPE_OP_FIFO_GET_PEER].numargs = 4;
+    handlerInfo[HIPE_OP_OPEN_LINK].numargs = 4;
+
+}
+
+
+void invoke_handler(Container* c, hipe_instruction* instruction, bool locationSpecified, QWebElement location) {
+    short opcode = instruction->opcode;
+    if(opcode >= MAX_OP_CODE || opcode <0) return; //out of range.
+    if(!handlerInfo[opcode].ptrtype.noargs) return; //null function pointer.
+    //(union means it doesn't matter what ptrtype we check for null condition)
+
+    std::string args[HIPE_NARGS];
+    short requestedArgs = handlerInfo[opcode].numargs;
+    //pre-convert args if required
+    for(short i=0; i<requestedArgs; i++) {
+        args[i] = std::string(instruction->arg[i], instruction->arg_length[i]);
+    }
+
+
+    if(requestedArgs) {
+        (handlerInfo[opcode].ptrtype.withargs)(c, instruction, locationSpecified, location, args);
+    } else {
+        (handlerInfo[opcode].ptrtype.noargs)(c, instruction, locationSpecified, location);
+    }
+
+}
+
+
 
 void handle_CLEAR(Container* c, hipe_instruction*, bool locationSpecified, QWebElement location) {
     if(!locationSpecified) c->setBody("",true);

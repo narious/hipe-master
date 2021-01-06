@@ -15,6 +15,20 @@
 #include "container.h"
 #include "containertoplevel.h"
 
+
+
+void initInstructionMap();
+//populates a lookup data structure with mappings of instruction codes to their corresponding
+//handler functions.
+//This function should be called once only: when hiped starts up.
+//Note: the mappings themselves are hard-coded into this function and should be updated
+//when new functions are added.
+
+void invoke_handler(Container* c, hipe_instruction* instruction, bool locationSpecified, QWebElement location);
+//invokes the appropriate handler for the instruction.
+
+
+
 void handle_CLEAR           (Container*, hipe_instruction*, bool locationSpecified, QWebElement location);
 void handle_DELETE          (Container*, hipe_instruction*, bool locationSpecified, QWebElement location);
 void handle_FREE_LOCATION   (Container*, hipe_instruction*, bool locationSpecified, QWebElement location);

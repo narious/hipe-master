@@ -76,10 +76,6 @@ void Container::receiveInstruction(hipe_instruction instruction)
 //THEREFORE, use C++11 standard types where possible/efficient to do so,
 //and only convert to QString type where it is necessary to do so.
 {
-    std::string arg[HIPE_NARGS];
-    arg[0] = std::string(instruction.arg[0], instruction.arg_length[0]);
-    arg[1] = std::string(instruction.arg[1], instruction.arg_length[1]);
-    //if an operation needs additional instructions, initialise these explicitly in the same way.
 
     //uint64_t requestor = instruction.requestor;
     bool locationSpecified = (bool) instruction.location;
@@ -87,6 +83,16 @@ void Container::receiveInstruction(hipe_instruction instruction)
     QWebElement location = locationSpecified ? getReferenceableElement(instruction.location)
                                              : webElement; //may need to update this after calling setBody!!
 
+
+    //Enable in future... [uncommenting this now seems to cause style rules to not be applied]
+
+    //invoke_handler(this, &instruction, locationSpecified, location);
+    //return;
+
+    std::string arg[HIPE_NARGS];
+    arg[0] = std::string(instruction.arg[0], instruction.arg_length[0]);
+    arg[1] = std::string(instruction.arg[1], instruction.arg_length[1]);
+    //if an operation needs additional instructions, initialise these explicitly in the same way.
 
     //check instructions in order of most common. A map would also be useful here.
 
