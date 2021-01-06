@@ -98,7 +98,7 @@ void Connection::runInstruction(hipe_instruction* instruction)
     if(instruction->opcode == HIPE_OP_REQUEST_CONTAINER) {
 
         //Get credentials for the client process.
-        socklen_t credLen;
+        socklen_t credLen = sizeof(struct ucred);
         struct ucred pidCredentials;
         if(0==getsockopt(clientFD, SOL_SOCKET, SO_PEERCRED, &pidCredentials, &credLen)) {
             //got client creds.
