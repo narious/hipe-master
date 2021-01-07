@@ -36,8 +36,11 @@ extern "C" {
 #ifndef COMMON_H
 #define COMMON_H
 
-#define _HIPE_ARG_WIDTH 8 /*number of bytes needed to encode the length of an argument*/
-#define PREAMBLE_LENGTH (1+8+8+(_HIPE_ARG_WIDTH * HIPE_NARGS)) /*number of bytes you need to read before you can determine the total instruction length.*/
+#define _HIPE_ARG_WIDTH 8 
+/*number of bytes needed to encode the length of an argument*/
+
+#define PREAMBLE_LENGTH (1+8+8+(_HIPE_ARG_WIDTH * HIPE_NARGS)) 
+/*number of bytes you need to read before you can determine the total instruction length.*/
 
 #include <stdint.h>
 #include <sys/types.h>
@@ -87,8 +90,12 @@ void instruction_decoder_clear(instruction_decoder*);
 /*must be called before freeing memory associated with an instruction_decoder
   instance, or to reset an instance to a clean state for reuse.*/
 
-void instruction_decoder_feed(instruction_decoder*, char);
-/*feed the next character into the decoder.*/
+size_t instruction_decoder_feed(instruction_decoder*, char* buffer, size_t bufferLen);
+/*feed the next character(s) into the decoder.
+  Always returns a value >=1 indicating the number of incoming characters in buffer
+  that were consumed before the function returned. The starting position of the buffer
+  should then be incremented by this offset before calling the function again.
+*/
 
 short instruction_decoder_iscomplete(instruction_decoder*);
 /*use this to check if the complete instruction has been read and decoded.

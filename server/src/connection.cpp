@@ -160,15 +160,13 @@ void Connection::_readyRead()
     if(bufferedChars <= 0) { //connection closed
         disconnect();
         return;
-    } else for(int p=0; p<bufferedChars; p++) { //let's process our input! (Iterate for each character we've read in)
-        char c = readBuffer[p];
-        instruction_decoder_feed(&currentInstruction, c);
+    } else for(int p=0; p<bufferedChars;) { //let's process our input! (Iterate for each character we've read in)
+        p += instruction_decoder_feed(&currentInstruction, readBuffer+p, bufferedChars-p);
         if(instruction_decoder_iscomplete(&currentInstruction)) { //check if instruction is complete.
             hipe_instruction* newInstruction = new hipe_instruction;
             hipe_instruction_move(newInstruction, &(currentInstruction.output));
             std::lock_guard<std::mutex> guard(mIncomingInstructions);
             incomingInstructions.push(newInstruction);
-            //runInstruction(newInstruction);
             instruction_decoder_clear(&currentInstruction);
         }
     }

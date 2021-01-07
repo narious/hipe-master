@@ -292,10 +292,10 @@ int read_to_queue(hipe_session session, int blocking)
         } else if(bufferedChars == 0) { /*connection closed by peer*/
             hipe_disconnect(session);
             return -1;
-        } else for(p=0; p<bufferedChars; p++) { /*let's process our input! (Iterate for each character we've read in)*/
-            char c = session->readBuffer[p];
+        } else for(p=0; p<bufferedChars;) { /*let's process our input! (p represents current offset from start of input buffer)*/
 
-            instruction_decoder_feed(&session->incomingInstruction, c);
+            p += instruction_decoder_feed(&session->incomingInstruction, 
+                                          session->readBuffer + p, bufferedChars-p);
             if(instruction_decoder_iscomplete(&session->incomingInstruction)) {
 
                 if(session->incomingInstruction.output.opcode == HIPE_OP_SERVER_DENIED) {

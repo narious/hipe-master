@@ -64,12 +64,26 @@ void instruction_decoder_clear(instruction_decoder* obj)
 }
 
 
-void instruction_decoder_feed(instruction_decoder* obj, char c)
+size_t instruction_decoder_feed(instruction_decoder* obj, char* buffer, size_t bufferLen)
 {
+    size_t charsNeeded; //number of chars needed to fill an element of the instruction
+    size_t charsConsumed=1; //number of chars consumed from the buffer.
+
     int i;
     size_t cumulativeLength = PREAMBLE_LENGTH;
+
     if(obj->instruction_chars_read < PREAMBLE_LENGTH) {
-        obj->preamble[obj->instruction_chars_read++] = c;
+        charsNeeded = PREAMBLE_LENGTH - obj->instruction_chars_read;
+        if(charsNeeded > bufferLen) 
+            charsConsumed = bufferLen;
+        else 
+            charsConsumed = charsNeeded;
+
+        //copy as many characters as are available/will fill the preamble out of the buffer.
+        memcpy(obj->preamble + obj->instruction_chars_read, buffer, charsConsumed);
+        obj->instruction_chars_read += charsConsumed;
+
+        //obj->preamble[obj->instruction_chars_read++] = c; //OLD!!
 
         if(obj->instruction_chars_read == PREAMBLE_LENGTH) { /*Preamble complete.*/
             decodeInstructionPreamble(obj->preamble, &obj->output.opcode, &obj->output.requestor,
@@ -82,13 +96,29 @@ void instruction_decoder_feed(instruction_decoder* obj, char c)
     } else {
         for(i=0; i<HIPE_NARGS; i++) {
             if(obj->instruction_chars_read < cumulativeLength + obj->output.arg_length[i]) {
-                obj->output.arg[i][obj->instruction_chars_read++ - cumulativeLength] = c;
+            //currently filling this arg in the resultant instruction...
+                charsNeeded = (cumulativeLength + obj->output.arg_length[i])
+                                        - obj->instruction_chars_read;
+
+                if(charsNeeded > bufferLen)
+                    charsConsumed = bufferLen; //eat them all
+                else
+                    charsConsumed = charsNeeded; //eat until arg is filled.
+
+                //copy as many chars as we want to eat from the buffer to the arg.
+                memcpy(obj->output.arg[i] + obj->instruction_chars_read - cumulativeLength, 
+                        buffer, charsConsumed);
+                obj->instruction_chars_read += charsConsumed;
+
+                //obj->output.arg[i][obj->instruction_chars_read++ - cumulativeLength] = c;
                 break;
             } else {
+            //this arg has already been filled; account for its length
                 cumulativeLength += obj->output.arg_length[i];
             }
         }
     }
+    return charsConsumed;
 }
 
 
