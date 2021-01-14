@@ -100,13 +100,9 @@ void Container::receiveInstruction(hipe_instruction instruction)
     } else if(instruction.opcode == HIPE_OP_DELETE) {
         handle_DELETE(this, &instruction, locationSpecified, location);
     } else if(instruction.opcode == HIPE_OP_SET_TEXT) {
-        arg[0] = Sanitation::sanitisePlainText(arg[0], (bool)(arg[1]=="1"));
-        if(!locationSpecified) setBody(arg[0]);
-        else location.setInnerXml(arg[0].c_str());
+        handle_SET_TEXT(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_APPEND_TEXT) {
-        arg[0] = Sanitation::sanitisePlainText(arg[0], (bool)(arg[1]=="1"));
-        if(!locationSpecified) setBody(arg[0], false);
-        else location.appendInside(arg[0].c_str());
+        handle_APPEND_TEXT(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_ADD_STYLE_RULE) {
         if(Sanitation::isAllowedCSS(arg[0]) && Sanitation::isAllowedCSS(arg[1]))
             stylesheet += arg[0] + "{" + arg[1] + "}\n";
@@ -130,8 +126,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
     } else if(instruction.opcode == HIPE_OP_GET_PREV_SIBLING) {
         handle_GET_PREV_SIBLING(this, &instruction, locationSpecified, location);
     } else if(instruction.opcode == HIPE_OP_GET_BY_ID) {
-        client->sendInstruction(HIPE_OP_LOCATION_RETURN, instruction.requestor,
-                                getIndexOfElement(webElement.findFirst(QString("#") + arg[0].c_str())));
+        handle_GET_BY_ID(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_SET_ATTRIBUTE) {
         if(Sanitation::isAllowedAttribute(arg[0])) {
             if(arg[0]=="value") { //workaround for updating input boxes after creation
@@ -532,7 +527,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
             } else { //cancelled
                 client->sendInstruction(HIPE_OP_DIALOG_RETURN, requestor, 0, {"","0"});
             }
-        } else { //relay to parent node.
+        } else { //relay to parent frame.
             if(instruction.arg_length[2]) arg[2]=std::string(instruction.arg[2],instruction.arg_length[2]);
             else arg[2] = "";
             if(instruction.arg_length[3]) arg[3]=std::string(instruction.arg[3],instruction.arg_length[3]);

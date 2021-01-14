@@ -135,3 +135,26 @@ void handle_APPEND_TAG(Container* c, hipe_instruction* instruction, bool locatio
     }
 }
 
+
+//REQUIRES 2 ARGS
+void handle_SET_TEXT(Container* c, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]) {
+    arg[0] = Sanitation::sanitisePlainText(arg[0], (bool)(arg[1]=="1"));
+    if(!locationSpecified) c->setBody(arg[0]);
+    else location.setInnerXml(arg[0].c_str());
+}
+
+
+//REQUIRES 2 ARGS
+void handle_APPEND_TEXT(Container* c, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]) {
+    arg[0] = Sanitation::sanitisePlainText(arg[0], (bool)(arg[1]=="1"));
+    if(!locationSpecified) c->setBody(arg[0], false);
+    else location.appendInside(arg[0].c_str());
+}
+
+
+//REQUIRES 1 ARGS
+void handle_GET_BY_ID(Container* c, hipe_instruction* instruction, bool, QWebElement, std::string arg[]) {
+    c->client->sendInstruction(HIPE_OP_LOCATION_RETURN, instruction->requestor,
+                c->getIndexOfElement(c->webElement.findFirst(QString("#") + arg[0].c_str())));
+}
+

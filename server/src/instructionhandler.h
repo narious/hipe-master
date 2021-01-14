@@ -32,7 +32,9 @@ void handle_GET_FRAME_KEY   (Container*, hipe_instruction*, bool locationSpecifi
 //the following functions request C++ string conversions for neater string handling for a certain number of args.
 //the remaining args can be taken out of the hipe_instruction struct regardless.
 void handle_APPEND_TAG      (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
-
+void handle_SET_TEXT        (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_APPEND_TEXT     (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_GET_BY_ID       (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
 
 
 #endif
