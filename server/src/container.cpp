@@ -533,7 +533,7 @@ void Container::receiveInstruction(hipe_instruction instruction)
             if(instruction.arg_length[3]) arg[3]=std::string(instruction.arg[3],instruction.arg_length[3]);
             else arg[3] = "";
 
-            target->receiveMessage(HIPE_OP_DIALOG, requestor, {arg[0],arg[1],
+            target->receiveMessage(instruction.opcode, requestor, {arg[0],arg[1],
                 std::string(instruction.arg[2],instruction.arg_length[2]),
                 std::string(instruction.arg[3],instruction.arg_length[3])},
                 webElement.webFrame(), false);
