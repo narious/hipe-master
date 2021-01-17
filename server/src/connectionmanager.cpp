@@ -27,6 +27,13 @@ void ConnectionManager::timerEvent() {
 //go thru the connection list and service all events.
     timer->stop();
     if(serviceConnections()) { //returns true if the call was productive
+        serviceConnections();
+        serviceConnections();
+        serviceConnections(); //add more calls -- performance experiment.
+        serviceConnections();
+        serviceConnections();
+        serviceConnections();
+        serviceConnections();
         timer->start(1);  //next event should therefore be scheduled sooner.
     } else {
         timer->start(80); //nothing much going on right now.

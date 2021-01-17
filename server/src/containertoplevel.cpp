@@ -38,6 +38,9 @@
 #include <iostream>
 
 
+#include <unistd.h>
+
+
 //a client window wraps a WebView (from QGraphicsWebView) object.
 //At the top level, clients that request new frames are granted
 //system-level windows instead of frames managed by other clients.
@@ -312,7 +315,6 @@ QWebElement WebWindow::initBoilerplate(std::string html)
         showFullScreen();
     else
         show();
-
     QWebElement we = webView->page()->mainFrame()->documentElement();
 
     return we.lastChild(); //body tag becomes the webElement in the base class.

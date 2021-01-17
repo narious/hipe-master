@@ -55,6 +55,7 @@ int main(int argc, char** argv) {
     //Specify initial screen contents
 
     hipe_send(session, HIPE_OP_ADD_STYLE_RULE, 0,0, 2, "html", "box-sizing:border-box;");
+    hipe_send(session, HIPE_OP_ADD_STYLE_RULE, 0,0, 2, "body", "background-color:white;color:black;");
     hipe_send(session, HIPE_OP_ADD_STYLE_RULE, 0,0, 2, "*,*:before,*:after", "box-sizing: inherit;");
     hipe_send(session, HIPE_OP_ADD_STYLE_RULE, 0,0, 2, ".caption","position:absolute;width:12.5%;height:12.5%;color:white;overflow:hidden;text-align:right;padding:0.25em;visibility:hidden;border:1px outset");
     hipe_send(session, HIPE_OP_ADD_STYLE_RULE, 0,0, 2, ".frame","position:fixed;height:50%;width:50%;background-color:white;border:2px inset;");

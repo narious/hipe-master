@@ -81,6 +81,7 @@ void handle_GET_SELECTION   (Container*, hipe_instruction*, bool locationSpecifi
 void handle_EDIT_ACTION     (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
 void handle_EDIT_STATUS     (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
 void handle_MESSAGE         (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_TOGGLE_CLASS    (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
 
 
 

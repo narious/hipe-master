@@ -6,7 +6,7 @@
 
 #include <QPrinter>
 #include <QDesktopServices>
-
+#include <unistd.h>
 
 //A value that exceeds the highest value HIPE_OP_ constant for hipe instructions.
 #define MAX_OP_CODE 120 //update if ever the max hipe instruction code value exceeds this.
@@ -176,6 +176,9 @@ void initInstructionMap() {
     handlerInfo[HIPE_OP_FIFO_DROP_PEER].numargs = 4;
     handlerInfo[HIPE_OP_FIFO_GET_PEER].numargs = 4;
     handlerInfo[HIPE_OP_OPEN_LINK].numargs = 4;
+
+    handlerInfo[HIPE_OP_TOGGLE_CLASS].ptrtype.withargs = handle_TOGGLE_CLASS;
+    handlerInfo[HIPE_OP_TOGGLE_CLASS].numargs = 1;
 
 }
 
@@ -475,9 +478,11 @@ void handle_SET_STYLE(Container* c, hipe_instruction*, bool locationSpecified, Q
                 c->setBody("");
             c->webElement.setStyleProperty(arg[0].c_str(), arg[1].c_str());
 
-            if(c->getParent()) { //since a parent frame exists, we should possibly notify the parent of a new colour scheme.
+            if(c->getParent()) { 
+            //since a parent frame exists, we should possibly notify the parent of a new colour scheme.
                 QString fg, bg;
-                while(!bg.size()) //poll repeatedly until we get a non-null response, if required (frame might not have rendered yet).
+                while(!bg.size()) 
+                //poll repeatedly until we get a non-null response, if required (frame might not have rendered yet).
                     bg = c->webElement.styleProperty("background-color", QWebElement::ComputedStyle);
                 while(!fg.size())
                     fg = c->webElement.styleProperty("color", QWebElement::ComputedStyle);
@@ -491,6 +496,8 @@ void handle_SET_STYLE(Container* c, hipe_instruction*, bool locationSpecified, Q
             }
         } else {
             location.setStyleProperty(arg[0].c_str(), arg[1].c_str());
+            //std::string jsEval = std::string("this.style.['") + arg[0] + "']=\"" + arg[1]+";\";";
+            //location.evaluateJavaScript(jsEval.c_str());
         }
     }
 }
@@ -940,3 +947,10 @@ void handle_MESSAGE(Container* c, hipe_instruction* instruction, bool locationSp
         QDesktopServices::openUrl(QUrl(arg[0].c_str()));
     }
 }
+
+
+//REQUIRES 1 ARG
+void handle_TOGGLE_CLASS(Container*, hipe_instruction*, bool, QWebElement location, std::string arg[]) {
+    location.toggleClass(arg[0].c_str());
+}
+
