@@ -109,8 +109,8 @@ public:
 
     Connection* client;
     QWebElement webElement;
-protected:
     std::string stylesheet; //build up the stylesheet before we apply it.
+protected:
     bool initYet; //becomes true once boilerplate html has been set.
 
     bool isTopLevel = false; //some instructions are only permitted to be carried out

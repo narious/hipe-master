@@ -104,19 +104,11 @@ void Container::receiveInstruction(hipe_instruction instruction)
     } else if(instruction.opcode == HIPE_OP_APPEND_TEXT) {
         handle_APPEND_TEXT(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_ADD_STYLE_RULE) {
-        if(Sanitation::isAllowedCSS(arg[0]) && Sanitation::isAllowedCSS(arg[1]))
-            stylesheet += arg[0] + "{" + arg[1] + "}\n";
-        applyStylesheet();
+        handle_ADD_STYLE_RULE(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_ADD_FONT) {
-        //arg[0] is font family name, arg[1] is mime type, arg[2] is raw data.
-        if(Sanitation::isAllowedCSS(arg[0]) && Sanitation::isAllowedCSS(arg[1]))
-            stylesheet += "@fontface {font-family:\"" + arg[0] + "\"; src:url(\"data:"
-                    + arg[1] + ";base64,"
-                    + Sanitation::toBase64(instruction.arg[2],instruction.arg_length[2])
-                    + "\");}\n";
-        applyStylesheet();
+        handle_ADD_FONT(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_SET_TITLE) {
-        setTitle(arg[0]);
+        handle_SET_TITLE(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_GET_FIRST_CHILD) {
         handle_GET_FIRST_CHILD(this, &instruction, locationSpecified, location);
     } else if(instruction.opcode == HIPE_OP_GET_LAST_CHILD) {
@@ -128,37 +120,9 @@ void Container::receiveInstruction(hipe_instruction instruction)
     } else if(instruction.opcode == HIPE_OP_GET_BY_ID) {
         handle_GET_BY_ID(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_SET_ATTRIBUTE) {
-        if(Sanitation::isAllowedAttribute(arg[0])) {
-            if(arg[0]=="value") { //workaround for updating input boxes after creation
-                location.evaluateJavaScript(QString("this.value='") + Sanitation::sanitisePlainText(arg[1]).c_str() + "';");
-            } else {
-                //location.setAttribute(arg[0].c_str(), Sanitation::sanitisePlainText(arg[1]).c_str());
-                location.evaluateJavaScript(QString("this.setAttribute(\"") + arg[0].c_str() + "\",\"" + Sanitation::sanitisePlainText(arg[1]).c_str() + "\");");
-            }
-        }
+        handle_SET_ATTRIBUTE(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_SET_STYLE) {
-        if(Sanitation::isAllowedCSS(arg[0]) && Sanitation::isAllowedCSS(arg[1])) {
-            if(!locationSpecified) { //we need to be sure the body has been initialised first.
-                if(webElement.isNull())
-                    setBody("");
-                webElement.setStyleProperty(arg[0].c_str(), arg[1].c_str());
-
-                if(getParent()) { //since a parent frame exists, we should possibly notify the parent of a new colour scheme.
-                    QString fg, bg;
-                    while(!bg.size()) //poll repeatedly until we get a non-null response, if required (frame might not have rendered yet).
-                        bg = webElement.styleProperty("background-color", QWebElement::ComputedStyle);
-                    while(!fg.size())
-                        fg = webElement.styleProperty("color", QWebElement::ComputedStyle);
-
-                    //check if foreground or background colours are defined by this client. If so, notify the parent, and the
-                    //parent will update its own metadata for this frame, to determine whether to send the relevant event.
-                    getParent()->receiveSubFrameEvent(HIPE_FRAME_EVENT_BACKGROUND_CHANGED, webElement.webFrame(), bg.toStdString());
-                    getParent()->receiveSubFrameEvent(HIPE_FRAME_EVENT_COLOR_CHANGED, webElement.webFrame(), fg.toStdString());
-                }
-            } else {
-                location.setStyleProperty(arg[0].c_str(), arg[1].c_str());
-            }
-        }
+        handle_SET_STYLE(this, &instruction, locationSpecified, location, arg);
     } else if(instruction.opcode == HIPE_OP_FREE_LOCATION) {
         handle_FREE_LOCATION(this, &instruction, locationSpecified, location);
     } else if(instruction.opcode == HIPE_OP_EVENT_REQUEST) {

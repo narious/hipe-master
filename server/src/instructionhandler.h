@@ -35,6 +35,11 @@ void handle_APPEND_TAG      (Container*, hipe_instruction*, bool locationSpecifi
 void handle_SET_TEXT        (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
 void handle_APPEND_TEXT     (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
 void handle_GET_BY_ID       (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_ADD_STYLE_RULE  (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_ADD_FONT        (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_SET_TITLE       (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_SET_ATTRIBUTE   (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_SET_STYLE   (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
 
 
 #endif

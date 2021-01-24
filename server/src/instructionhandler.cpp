@@ -152,9 +152,78 @@ void handle_APPEND_TEXT(Container* c, hipe_instruction*, bool locationSpecified,
 }
 
 
-//REQUIRES 1 ARGS
+//REQUIRES 1 ARG
 void handle_GET_BY_ID(Container* c, hipe_instruction* instruction, bool, QWebElement, std::string arg[]) {
     c->client->sendInstruction(HIPE_OP_LOCATION_RETURN, instruction->requestor,
                 c->getIndexOfElement(c->webElement.findFirst(QString("#") + arg[0].c_str())));
+}
+
+
+//REQUIRES 2 ARGS
+void handle_ADD_STYLE_RULE(Container* c, hipe_instruction*, bool, QWebElement, std::string arg[]) {
+    if(Sanitation::isAllowedCSS(arg[0]) && Sanitation::isAllowedCSS(arg[1]))
+        c->stylesheet += arg[0] + "{" + arg[1] + "}\n";
+    c->applyStylesheet();
+}
+
+
+//REQUIRES 2 ARGS -- third arg is extracted from the instruction directly due to
+//the larger size of its contents.
+void handle_ADD_FONT(Container* c, hipe_instruction* instruction, bool, QWebElement, std::string arg[]) {
+//arg[0] is font family name, arg[1] is mime type, arg[2] is raw data.
+    if(Sanitation::isAllowedCSS(arg[0]) && Sanitation::isAllowedCSS(arg[1]))
+        c->stylesheet += "@fontface {font-family:\"" + arg[0] + "\"; src:url(\"data:"
+                + arg[1] + ";base64,"
+                + Sanitation::toBase64(instruction->arg[2],instruction->arg_length[2])
+                + "\");}\n";
+    c->applyStylesheet();
+}
+
+
+//REQUIRES 1 ARG
+void handle_SET_TITLE(Container* c, hipe_instruction*, bool, QWebElement, std::string arg[]) {
+    c->setTitle(arg[0]);
+}
+
+
+//REQUIRES 2 ARGS
+void handle_SET_ATTRIBUTE(Container*, hipe_instruction*, bool, QWebElement location, std::string arg[]) {
+    if(Sanitation::isAllowedAttribute(arg[0])) {
+        if(arg[0]=="value") { //workaround for updating input boxes after creation
+            location.evaluateJavaScript(QString("this.value='") + Sanitation::sanitisePlainText(arg[1]).c_str() + "';");
+        } else {
+            //location.setAttribute(arg[0].c_str(), Sanitation::sanitisePlainText(arg[1]).c_str());
+            location.evaluateJavaScript(QString("this.setAttribute(\"") + arg[0].c_str() + "\",\"" + Sanitation::sanitisePlainText(arg[1]).c_str() + "\");");
+        }
+    }
+}
+
+
+//REQUIRES 2 ARGS
+void handle_SET_STYLE(Container* c, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]) {
+    if(Sanitation::isAllowedCSS(arg[0]) && Sanitation::isAllowedCSS(arg[1])) {
+        if(!locationSpecified) { //we need to be sure the body has been initialised first.
+            if(c->webElement.isNull())
+                c->setBody("");
+            c->webElement.setStyleProperty(arg[0].c_str(), arg[1].c_str());
+
+            if(c->getParent()) { //since a parent frame exists, we should possibly notify the parent of a new colour scheme.
+                QString fg, bg;
+                while(!bg.size()) //poll repeatedly until we get a non-null response, if required (frame might not have rendered yet).
+                    bg = c->webElement.styleProperty("background-color", QWebElement::ComputedStyle);
+                while(!fg.size())
+                    fg = c->webElement.styleProperty("color", QWebElement::ComputedStyle);
+
+                //check if foreground or background colours are defined by this client. If so, notify the parent, and the
+                //parent will update its own metadata for this frame, to determine whether to send the relevant event.
+                c->getParent()->receiveSubFrameEvent(HIPE_FRAME_EVENT_BACKGROUND_CHANGED, 
+                        c->webElement.webFrame(), bg.toStdString());
+                c->getParent()->receiveSubFrameEvent(HIPE_FRAME_EVENT_COLOR_CHANGED, 
+                        c->webElement.webFrame(), fg.toStdString());
+            }
+        } else {
+            location.setStyleProperty(arg[0].c_str(), arg[1].c_str());
+        }
+    }
 }
 
