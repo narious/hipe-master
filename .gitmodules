@@ -1,0 +1,3 @@
+[submodule "hipevs/external/gtest"]
+	path = hipevs/external/gtest
+	url = https://github.com/google/googletest.git
