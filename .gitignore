@@ -18,3 +18,5 @@ api/test/hipe-canvas
 api/test/hipe-dialog
 *.swp
 README
+
+.vs/
