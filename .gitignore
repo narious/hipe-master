@@ -24,3 +24,5 @@ README
 *.filters
 *.user
 *.vcxproj
+
+hipevs/
