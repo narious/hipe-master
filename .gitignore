@@ -18,3 +18,11 @@ api/test/hipe-canvas
 api/test/hipe-dialog
 *.swp
 README
+
+# Visual studio 2019 files
+.vs/
+*.filters
+*.user
+*.vcxproj
+
+hipevs/
