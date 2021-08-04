@@ -1,8 +1,7 @@
 #include "TimerTest.h"
-#include "../../../Timer.h"
-#include "gtest/gtest.h"
 
 TEST(TimerTest, initiation)
 {
-    Timer time;
+    Timer timer;
+    EXPECT_EQ(1, 1);
 }

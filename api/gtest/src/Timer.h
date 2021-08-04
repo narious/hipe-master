@@ -1,3 +1,6 @@
+#ifndef TIMER_H
+#define TIMER_H
+
 #include "Timer.h"
 #include <iostream>
 #include <chrono>
@@ -46,3 +49,5 @@ public:
 private:
 	std::chrono::time_point<std::chrono::high_resolution_clock> m_StartTimePoint;
 };
+
+#endif
