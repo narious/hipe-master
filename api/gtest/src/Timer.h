@@ -8,6 +8,7 @@
 
 /*
 * This is a Timer class to be used to time functions
+* Timer also takes cares of logging.
 * e.g. of use
 * 
 *	{
@@ -42,7 +43,8 @@ public:
 		double ms = timetaken * 0.001;
 
 		// TODO: Add file to recieve output of timing
-		std::cout << ms << "ns" << std::endl;
+		std::cout << ms << "ms" << std::endl;
+        spdlog::info("Hello, {}!", "World");
 
 
 	}

@@ -1,4 +1,4 @@
-OBJS=build/main.o build/example.o build/TimerTest.o
+OBJS=build/main.o build/example.o build/TimerTest.o build/LogTest.o
 CC=g++
 CFLAGS=-c
 LFLAGS=-lgtest -lgtest_main -lpthread
