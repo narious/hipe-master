@@ -1,6 +1,7 @@
-
+#include "Timer.h"
 #include <iostream>
 #include <chrono>
+#include <spdlog/spdlog.h>
 
 /*
 * This is a Timer class to be used to time functions

@@ -1,7 +1,7 @@
 OBJS=build/main.o build/example.o
 CC=g++
 CFLAGS=-c
-LFLAGS=-lgtest -lgtest_main
+LFLAGS=-lgtest -lgtest_main -lpthread
 
 test: $(OBJS)
 	$(CC) $(OBJS) $(LFLAGS) -o $@
