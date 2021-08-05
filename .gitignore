@@ -26,3 +26,5 @@ README
 *.vcxproj
 
 hipevs/
+server/.ccls-cache/
+server/compile_commands.json
