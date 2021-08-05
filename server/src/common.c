@@ -28,6 +28,10 @@
 #include <unistd.h>
 #include <sys/types.h>
 
+// directory loop up sequence:
+// 1. `/run/` if is root
+// 2. `$XDG_RUNTIME_DIR` if is set
+// 3. `/tmp/`
 int default_runtime_dir(char path_ret[], size_t buffer_size)
 {
     char* xdg_path;
@@ -199,7 +203,7 @@ void instruction_encoder_encodeinstruction(instruction_encoder* obj, hipe_instru
     unsigned short argWidth=8;
     uint64_t arglen[HIPE_NARGS];
 
-    int i=0;
+    int i=0; // ???? wat
     for(; i<HIPE_NARGS; i++) //make temporary copies of argument lengths to work with.
         arglen[i] = instruction.arg_length[i];
 
