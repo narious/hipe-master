@@ -21,19 +21,20 @@
 
 #include <QTimer>
 
-//The name 'connection manager' is no longer relevant. This class manages some
-//Qt events.
+// The name 'connection manager' is no longer relevant. This class manages some
+// Qt events.
 
-class ConnectionManager : public QObject
-{
-    Q_OBJECT
+class ConnectionManager : public QObject {
+  Q_OBJECT
 public:
-    explicit ConnectionManager(QObject *parent = 0);
+  explicit ConnectionManager(QObject *parent = 0);
+
 private:
-    QTimer* timer;
+  QTimer *timer;
+
 signals:
 public slots:
-    void timerEvent(); //bound to the main event loop.
+  void timerEvent(); // bound to the main event loop.
 };
 
 #endif // SERVER_H
