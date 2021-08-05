@@ -7,14 +7,13 @@
 class Log
 {
 public:
-    static void Init();
-    inline static std::shared_ptr<spdlog::logger>& GetLogger() { return Logger };
+    Log(const char* name, const char* logfile){};
+    ~Log(){};
+    
+    inline std::shared_ptr<spdlog::logger>& GetLogger() { return _Logger; };
 
 private:
-    static std::shared_ptr<spdlog::logger> Logger;
-
+    std::shared_ptr<spdlog::logger> _Logger;
 };
-
-#define LOG_INFO->(...)     Log::GetLogger()->info(__VA__ARGS__) 
 
 #endif
