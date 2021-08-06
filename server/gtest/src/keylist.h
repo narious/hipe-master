@@ -7,7 +7,7 @@
 #define TKEYLIST_H
 
 #include <gtest/gtest.h>
-// Want to test a private function to make it public.
+// Want to test a private function so make it public.
 #define private public
 #include "../../src/keylist.h"
 #undef private
