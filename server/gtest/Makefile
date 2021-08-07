@@ -6,10 +6,11 @@ TOBJS=build/main.o build/hinstr.o build/keylist.o
 HOBJS=../hipe_instruction.o ../keylist.o
 CC=g++
 CFLAGS=-c
-LFLAGS=-lgtest -lgtest_main
+LFLAGS=-lgtest -lgtest_main -lpthread
+INC= -I../
 
 test: $(TOBJS) 
-	$(CC) $(TOBJS) $(HOBJS) $(LFLAGS) -o $@
+	$(CC) $(TOBJS) $(HOBJS) $(LFLAGS) $(INC) -o $@
 
 build/%.o: src/%.cpp
 	$(CC) $(CFLAGS) $< -o $@
