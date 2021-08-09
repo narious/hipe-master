@@ -2,6 +2,6 @@
 
 TEST(TimerTest, initiation)
 {
-    Timer timer;
+    Timer timer("test");
     EXPECT_EQ(1, 1);
 }
