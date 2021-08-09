@@ -26,5 +26,14 @@ README
 *.vcxproj
 
 hipevs/
+
+# ccls language server cache
 **/.ccls-cache/
 **/compile_commands.json
+
+# gtest outputs
+server/gtest/test
+server/gtest/build
+api/gtest/test
+api/gtest/build
+>>>>>>> master

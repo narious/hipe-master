@@ -3,6 +3,7 @@
 
 #include "Timer.h"
 #include <iostream>
+#include <string>
 #include <chrono>
 #include <spdlog/spdlog.h>
 
@@ -21,10 +22,13 @@
 
 class Timer
 {
+	std::string name;
+
 public:
-	Timer()
+	Timer(std::string name)
 	{
 		std::chrono::high_resolution_clock::now();
+		this->name = name;
 	}
 
 	~Timer()
@@ -43,7 +47,7 @@ public:
 		double ms = timetaken * 0.001;
 
 		// TODO: Add file to recieve output of timing
-		std::cout << ms << "ms" << std::endl;
+		std::cout << this->name << ": " << ms << "ms" << std::endl;
         spdlog::info("Hello, {}!", "World");
 
 
