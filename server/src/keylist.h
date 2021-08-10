@@ -43,15 +43,33 @@ private:
     static char map6bitToAlphaNumeric(int num);
 
 public:
+    /*
+     * Must be called before any objects are created from this class.
+     * randomDevice is a hardware device path, e.g. "/dev/random" which is optionally specified.
+     * If ommitted, default behaviour ensues.
+     *
+     * O(1) worst case time complexity (or whatever the complexity of rand_device is).
+     */
     static void initClass(std::string randomDevice=""); 
-    //must be called before any objects are created from this class.
-    //randomDevice is a hardware device path, e.g. "/dev/random" which is optionally specified.
-    //If ommitted, default behaviour ensues.
 
+    /*
+     * O(1) worst case time complexity.
+     */
     explicit KeyList(std::string baseString);
 
+    /*
+     * O(1) worst case time complexity because it doesn't do anything (redundant).
+     */
     ~KeyList();
+    /*
+     * O(n+m) worst case time complexity where n is the length of the generated key and m is
+     * the length of the list used to store the keys.
+     */
     std::string generateContainerKey();
+    /*
+     * O(n*m) worst case time complexity where n is the length of the list of keys and m is the
+     * length of a key.
+     */
     bool claimKey(std::string key);
 };
 

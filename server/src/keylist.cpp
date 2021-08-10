@@ -41,6 +41,9 @@ KeyList::~KeyList() {
 
 }
 
+/*
+ * O(1) worst case time complexity.
+ */
 char KeyList::map6bitToAlphaNumeric(int num) {
 //maps a number from 0-63 to a unique letter (case sensitive), number, tilde or underscore.
 //PRECONDITION: 0 <= num < 64 (the value of num later gets incrememted out of this range to produce the return value)
@@ -74,6 +77,7 @@ std::string KeyList::generateContainerKey()
     std::stringstream result;
     result << baseString;
 
+    // Pretty much O(1) since this will only loop a few hundred times.
     while(num1 || num2) {
         result << map6bitToAlphaNumeric(num1 % 64) << map6bitToAlphaNumeric(num2 % 64);
         num1 /= 64;
