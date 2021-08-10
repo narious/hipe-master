@@ -16,16 +16,23 @@
 #include "containertoplevel.h"
 
 
-
+/*
+ * populates a lookup data structure with mappings of instruction codes to their corresponding
+ * handler functions.
+ * This function should be called once only: when hiped starts up.
+ * Note: the mappings themselves are hard-coded into this function and should be updated
+ * when new functions are added.
+ *
+ * O(n) worst case time complexity where n is the number of commands.
+ */
 void initInstructionMap();
-//populates a lookup data structure with mappings of instruction codes to their corresponding
-//handler functions.
-//This function should be called once only: when hiped starts up.
-//Note: the mappings themselves are hard-coded into this function and should be updated
-//when new functions are added.
 
+/*
+ * invokes the appropriate handler for the instruction.
+ *
+ * Time complexity dependent on the instruction being ran. See which function is ran with the hipe_instruction opcode.
+ */
 void invoke_handler(Container* c, hipe_instruction* instruction, bool locationSpecified, QWebElement location);
-//invokes the appropriate handler for the instruction.
 
 
 
