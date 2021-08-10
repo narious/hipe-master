@@ -460,43 +460,55 @@ struct _hipe_instruction { /*for storing the (decoded) values of an instruction*
 };
 typedef struct _hipe_instruction hipe_instruction;
 
-void hipe_instruction_init(hipe_instruction* obj);
 /*Must be called on any new hipe_instruction instance (excepting shallow copies
  *of an existing instance). The same applies if a struct previously modified by
  *the user (e.g. assigning arg strings to it) is going to be reused for
  *collecting new input from hipe. This function doesn't allocate or free memory,
  *but it initialises the struct's values into a consistent state so that other
  *hipe functions can do so safely.
+ *
+ * O(1) worst case time complexity.
  */
+void hipe_instruction_init(hipe_instruction* obj);
 
-void hipe_instruction_alloc(hipe_instruction* obj);
 /*Allocates memory to store each argument in obj, according to arg_length[]
  *values already assigned to obj. Arguments allocated in this way should later
  *be freed with hipe_instruction_clear().
+ *
+ * O(n) worst case complexity where n is the length of an argument from mallocing
+ * arguments, but may as well be O(1) because the max length of a string is 64 bits.
  */
+void hipe_instruction_alloc(hipe_instruction* obj);
 
-void hipe_instruction_clear(hipe_instruction* obj);
 /*Frees memory previously allocated within the instruction, and leaves the
  *struct in a clean state ready for reuse. Do not use this function to clear a
  *hipe_instruction for which you have allocated values yourself. Instead,
  *de-allocate the argument strings in a way consistent with how you allocated
  *them, then call hipe_instruction_init() to re-initialise the values into a
  *clean state.
+ *
+ * O(1) worst case time complexity.
  */
+void hipe_instruction_clear(hipe_instruction* obj);
 
-void hipe_instruction_copy(hipe_instruction* dest, hipe_instruction* src);
 /*Deeply copies src values into dest, allocating memory for args.
  *Does not do any initialisation or deallocation of any previous values that may
  *have been present in dest previously.
  *When done with the instruction in dest, free the memory of its internal
  *variables with hipe_instruction_clear().
+ *
+ * See hipe_instruction_alloc for complexity.
  */
+void hipe_instruction_copy(hipe_instruction* dest, hipe_instruction* src);
 
-void hipe_instruction_move(hipe_instruction* dest, hipe_instruction* src);
 /*Moves allocations from src to dest. Similar to hipe_instruction_copy except no
  *new memory is allocated; the memory allocated to src is reassigned to dest,
  *and src is then re-initialised. The memory in dest should later be freed in a
- *manner consistent with how src was previously allocated. */
+ *manner consistent with how src was previously allocated. 
+ *
+ * O(1) worst case time complexity.
+ */
+void hipe_instruction_move(hipe_instruction* dest, hipe_instruction* src);
 
 #endif
 #ifdef __cplusplus
