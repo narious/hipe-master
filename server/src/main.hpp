@@ -51,6 +51,8 @@ extern KeyList *topLevelKeyList;
 // path and filename to store next available top-level key in.
 extern std::string keyFilePath;
 
+
+void makeNewTopLevelKeyFile(std::string path);
 // create file. Store random key in it.
 void makeNewTopLevelKeyFile();
 

@@ -51,13 +51,14 @@
 #include "keylist.h"
 #include "sanitation.h"
 
+// NOTE(Di): used in main and instructionhandler, easily break thing if refactor.
 std::string uid;
 bool verbose;
 bool fillscreen;
 int serverFD;
 KeyList* topLevelKeyList;
 std::string keyFilePath; //path and filename to store next available top-level key in.
-std::string randomDevice;
+// std::string randomDevice;
 
 std::map<int, Connection*> activeConnections; //maps each socket descriptor to its client connection object.
 std::recursive_mutex mActiveConnections; //mutex to lock the activeConnections list during accesses.
@@ -79,6 +80,15 @@ void deregisterConnection(Connection* c)
         }
 }
 
+void makeNewTopLevelKeyFile(std::string path)
+//create file. Store random key in it.
+{
+    std::ofstream keyfile(path);
+    keyfile << topLevelKeyList->generateContainerKey();
+    keyfile.close();
+}
+
+//TODO(Di): replace with above function.
 void makeNewTopLevelKeyFile()
 //create file. Store random key in it.
 {
@@ -94,7 +104,7 @@ Container* requestContainerFromKey(std::string key, std::string clientName, uint
 //the lock is already held by this thread.
 {
     if(topLevelKeyList->claimKey(key)) {
-        makeNewTopLevelKeyFile();
+        makeNewTopLevelKeyFile(); // TODO(Di): replace with `makeNewTopLevelFile(path)`, but how to get `path`
         Container* container = new ContainerTopLevel(c, clientName);
         container->setTitle(clientName);
         return container;
@@ -206,34 +216,78 @@ void incomingSocketThread() {
     }
 }
 
+//CUSTOM FONT PREFERENCES...
+//Load font preferences if available (hard-coded path: /etc/hipe/fontprefs)
+void setGlobalFont() {
+    FILE* fontPrefs = fopen("/etc/hipe/fontprefs", "r");
+    //The format for fontprefs file is as follows:
+    //[fontfamily]:first-preference,secondpreference,etc.
+    //1 generic font family per line from the following categories:
+    //fontfamily:
+    //    standard, fixed, serif, sans, cursive, fantasy
+    //example:
+    //    serif:times,Century schoolbook
+    if(fontPrefs) {
+        int errcode = 0;
+        char *genericFamily, *actualFontValue;
+        while((errcode = fscanf(fontPrefs, " %m[^:]:%m[^\n]", &genericFamily, &actualFontValue))!=EOF) {
+            if(errcode < 2) continue;
+            QWebSettings::FontFamily category;
+            if(strcmp(genericFamily, "standard") == 0)
+                category = QWebSettings::StandardFont;
+            else if(strcmp(genericFamily, "fixed") == 0)
+                category = QWebSettings::FixedFont;
+            else if(strcmp(genericFamily, "serif") == 0)
+                category = QWebSettings::SerifFont;
+            else if(strcmp(genericFamily, "sans") == 0)
+                category = QWebSettings::SansSerifFont;
+            else if(strcmp(genericFamily, "cursive") == 0)
+                category = QWebSettings::CursiveFont;
+            else if(strcmp(genericFamily, "fantasy") == 0)
+                category = QWebSettings::FantasyFont;
+            else
+                goto skipFontSetting;
+
+            QWebSettings::globalSettings()->setFontFamily(category, actualFontValue);
+            skipFontSetting:
+            //since using dynamic allocation in fscanf, need to free these
+            //after each iteration. It is not worth considering the cases
+            //where a malformed file results in one being allocated but not the
+            //other, as the lost memory would be on par with loading the extra code
+            //needed to handle it.
+            free(genericFamily);
+            free(actualFontValue);
+        }
+        fclose(fontPrefs);
+    }
+}
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
-    a.setApplicationName("Hipe display server");
-    a.setApplicationVersion("v0 beta. Check README.md for more specific info.");
+    QApplication app(argc, argv);
+    app.setApplicationName("Hipe display server");
+    app.setApplicationVersion("v0 beta. Check README.md for more specific info.");
 
     std::stringstream userid; userid << getuid();
     uid = userid.str();
-    randomDevice = ""; //unless overridden by --random argument, default behaviour is used.
+    std::string randomDevice = ""; //unless overridden by --random argument, default behaviour is used.
     verbose = true;
     fillscreen = false;
 
     Sanitation::init();
-
     //set some global policies
     QWebSettings::globalSettings()->setAttribute(QWebSettings::LocalContentCanAccessFileUrls, false);
     QWebSettings::globalSettings()->setAttribute(QWebSettings::JavascriptEnabled, true);
     QWebSettings::globalSettings()->setAttribute(QWebSettings::PrivateBrowsingEnabled, true);
-
     //set default icon for corrupt/broken image tags.
     QPixmap brokenImgIcon;
     brokenImgIcon.loadFromData((const uchar*) brokenImgData, (uint) brokenImgDataLen);
     QWebSettings::globalSettings()->setWebGraphic(QWebSettings::MissingImageGraphic, brokenImgIcon);
     QWebSettings::globalSettings()->setWebGraphic(QWebSettings::MissingPluginGraphic, brokenImgIcon);
 
-
-    //Parse command line options ad-hoc to avoid platform dependencies.
+    //////////////////////
+    // Parse command line options ad-hoc to avoid platform dependencies.
+    //////////////////////
     //(QCommandLineParser isn't backwards compatible with Qt4.)
     std::string socketFileArg = ""; //store parameters in these vars if specified by user.
     std::string keyFileArg = "";
@@ -292,52 +346,9 @@ int main(int argc, char *argv[])
 
     initInstructionMap();
 
-    a.setQuitOnLastWindowClosed(false);
+    app.setQuitOnLastWindowClosed(false);
 
-    //CUSTOM FONT PREFERENCES...
-    //Load font preferences if available (hard-coded path: /etc/hipe/fontprefs)
-    FILE* fontPrefs = fopen("/etc/hipe/fontprefs", "r");
-    if(fontPrefs) { //if file exists and is readable...
-    //The format for fontprefs file is as follows:
-    //[fontfamily]:first-preference,secondpreference,etc.
-    //e.g. serif:times,Century schoolbook
-    //1 generic font family per line from the following categories:
-    //standard, fixed, serif, sans, cursive, fantasy
-
-        int errcode = 0;
-        char *genericFamily, *actualFontValue;
-        while((errcode = fscanf(fontPrefs, " %m[^:]:%m[^\n]", &genericFamily, &actualFontValue))!=EOF) {
-            if(errcode < 2) continue;
-            QWebSettings::FontFamily category;
-            if(strcmp(genericFamily, "standard") == 0)
-                category = QWebSettings::StandardFont;
-            else if(strcmp(genericFamily, "fixed") == 0)
-                category = QWebSettings::FixedFont;
-            else if(strcmp(genericFamily, "serif") == 0)
-                category = QWebSettings::SerifFont;
-            else if(strcmp(genericFamily, "sans") == 0)
-                category = QWebSettings::SansSerifFont;
-            else if(strcmp(genericFamily, "cursive") == 0)
-                category = QWebSettings::CursiveFont;
-            else if(strcmp(genericFamily, "fantasy") == 0)
-                category = QWebSettings::FantasyFont;
-            else
-                goto skipFontSetting;
-            QWebSettings::globalSettings()->setFontFamily(category, actualFontValue);
-            skipFontSetting:
-
-            //since using dynamic allocation in fscanf, need to free these
-            //after each iteration. It is not worth considering the cases
-            //where a malformed file results in one being allocated but not the
-            //other, as the lost memory would be on par with loading the extra code
-            //needed to handle it.
-            free(genericFamily);
-            free(actualFontValue);
-        }
-
-        fclose(fontPrefs);
-    }
-
+    setGlobalFont();
 
     if(stylesheetArg.size()) { //load the stylesheet into a string
         std::ifstream cssFile(stylesheetArg);
@@ -368,7 +379,7 @@ int main(int argc, char *argv[])
     KeyList::initClass(randomDevice);
     topLevelKeyList = new KeyList("H");
     keyFilePath = keyFile;
-    makeNewTopLevelKeyFile();
+    makeNewTopLevelKeyFile(keyFile);
 
 
     //////////
@@ -413,8 +424,9 @@ int main(int argc, char *argv[])
     ////////
     // start execute
     ////////
+
     std::thread sockThread(incomingSocketThread);
-    a.exec(); //start Qt's event loop, listening for connections, responding to events, etc.
+    app.exec(); //start Qt's event loop, listening for connections, responding to events, etc.
 
     //clean up...
     sockThread.join();
