@@ -405,3 +405,11 @@ int hipe_send(hipe_session session, char opcode, uint64_t requestor, hipe_loc lo
     //hipe_instruction_clear(&instruction);
     return result;
 }
+
+hipe_loc append_tag_return_location(hipe_session session, hipe_loc parent, const char* tag_type, const char* tag_id) {
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, parent, 3, tag_type, tag_id, 1); 
+    hipe_instruction instruction;
+    hipe_instruction_init(&instruction);
+    hipe_await_instruction(session, &instruction, HIPE_OP_LOCATION_RETURN);
+    return instruction.location;
+}

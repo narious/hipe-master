@@ -61,6 +61,8 @@ int hipe_send(hipe_session session, char opcode, uint64_t requestor, hipe_loc lo
  * as char* or const char*
  */
  
+ hipe_loc append_tag_return_location(hipe_session session, hipe_loc parent, const char* tag_type, const char* tag_id);
+ /* Convenience function to append new tag and immediately return the hipe_loc of said tag */
 
 #endif
 
