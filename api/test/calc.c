@@ -15,21 +15,6 @@ short placeValue;
 hipe_loc mantissa;
 short operation;
 
-hipe_loc getLoc(char* id) {
-    hipe_send(session, HIPE_OP_GET_BY_ID, 0, 0, 1, id); 
-    hipe_instruction instruction;
-    hipe_instruction_init(&instruction);
-    hipe_await_instruction(session, &instruction, HIPE_OP_LOCATION_RETURN);
-    return instruction.location;
-}
-
-hipe_loc getLastChild(hipe_loc parent) {
-    hipe_send(session, HIPE_OP_GET_LAST_CHILD, 0, parent, 0); 
-    hipe_instruction instruction;
-    hipe_instruction_init(&instruction);
-    hipe_await_instruction(session, &instruction, HIPE_OP_LOCATION_RETURN);
-    return instruction.location;
-}
 
 void updateDisplay() {
 //update the onscreen representation of the current value
@@ -106,93 +91,93 @@ int main(int argc, char** argv)
 
     //Specify initial window layout
     hipe_send(session, HIPE_OP_APPEND_TAG, 0, 0, 1, "table");
-    hipe_loc tableLoc = getLastChild(0);
+    hipe_loc tableLoc = last_child_getLoc(session, 0);
     hipe_send(session, HIPE_OP_SET_STYLE, 0, tableLoc, 2, "visibility", "hidden"); //hide the table until constructed.
 
     hipe_send(session, HIPE_OP_APPEND_TAG, 0, tableLoc, 1, "tbody");
-    hipe_loc tbodyLoc = getLastChild(tableLoc);
+    hipe_loc tbodyLoc = last_child_getLoc(session, tableLoc);
     hipe_send(session, HIPE_OP_APPEND_TAG, 0, tbodyLoc, 1, "tr");
 
     //first row of table layout shows the calculator's mantissa display
-    hipe_loc rowLoc = getLastChild(tbodyLoc);
+    hipe_loc rowLoc = last_child_getLoc(session, tbodyLoc);
     hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 2, "td", "mantissa");
-    mantissa = getLoc("mantissa");
+    mantissa = getLoc(session, "mantissa");
     hipe_send(session, HIPE_OP_SET_ATTRIBUTE, 0, mantissa, 2, "colspan", "4");
     hipe_send(session, HIPE_OP_APPEND_TAG, 0, tbodyLoc, 1, "tr");
     hipe_send(session, HIPE_OP_FREE_LOCATION, 0, rowLoc, 0); //free the location reference to first row as we no longer need it.
 
     //second row of table layout displays first row of buttons: clear, clear entry, divide, times.
-    rowLoc = getLastChild(tbodyLoc); //rowLoc now points to second row.
+    rowLoc = last_child_getLoc(session, tbodyLoc); //rowLoc now points to second row.
     hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "oC"); //C button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, last_child_getLoc(session, rowLoc), 2, "button", "oC"); //C button.
     hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "oE"); //CE button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, last_child_getLoc(session, rowLoc), 2, "button", "oE"); //CE button.
     hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "oD"); //&div; button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, last_child_getLoc(session, rowLoc), 2, "button", "oD"); //&div; button.
     hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "oT"); //&times; button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, last_child_getLoc(session, rowLoc), 2, "button", "oT"); //&times; button.
     hipe_send(session, HIPE_OP_APPEND_TAG, 0, tbodyLoc, 1, "tr");
     hipe_send(session, HIPE_OP_FREE_LOCATION, 0, rowLoc, 0); //free the location reference to 2nd row as we no longer need it.
 
     //third row of table layout displays calculator buttons: 7, 8, 9, minus.
-    rowLoc = getLastChild(tbodyLoc);
+    rowLoc = last_child_getLoc(session, tbodyLoc);
     hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "n7"); //7 button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, last_child_getLoc(session, rowLoc), 2, "button", "n7"); //7 button.
     hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "n8"); //8 button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, last_child_getLoc(session, rowLoc), 2, "button", "n8"); //8 button.
     hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "n9"); //9 button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, last_child_getLoc(session, rowLoc), 2, "button", "n9"); //9 button.
     hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "oM"); //&minus; button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, last_child_getLoc(session, rowLoc), 2, "button", "oM"); //&minus; button.
     hipe_send(session, HIPE_OP_APPEND_TAG, 0, tbodyLoc, 1, "tr");
     hipe_send(session, HIPE_OP_FREE_LOCATION, 0, rowLoc, 0); //free the location reference to 3rd row as we no longer need it.
 
     //fourth row of table layout displays calculator buttons: 4, 5, 6, plus.
-    rowLoc = getLastChild(tbodyLoc);
+    rowLoc = last_child_getLoc(session, tbodyLoc);
     hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "n4"); //4 button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, last_child_getLoc(session, rowLoc), 2, "button", "n4"); //4 button.
     hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "n5"); //5 button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, last_child_getLoc(session, rowLoc), 2, "button", "n5"); //5 button.
     hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "n6"); //6 button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, last_child_getLoc(session, rowLoc), 2, "button", "n6"); //6 button.
     hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "oA"); //+ button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, last_child_getLoc(session, rowLoc), 2, "button", "oA"); //+ button.
     hipe_send(session, HIPE_OP_APPEND_TAG, 0, tbodyLoc, 1, "tr");
     hipe_send(session, HIPE_OP_FREE_LOCATION, 0, rowLoc, 0);
 
     //fifth row of table layout displays calculator buttons: 1, 2, 3, equals (spans 2 rows)
-    rowLoc = getLastChild(tbodyLoc);
+    rowLoc = last_child_getLoc(session, tbodyLoc);
     hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "n1"); //1 button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, last_child_getLoc(session, rowLoc), 2, "button", "n1"); //1 button.
     hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "n2"); //2 button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, last_child_getLoc(session, rowLoc), 2, "button", "n2"); //2 button.
     hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "n3"); //3 button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, last_child_getLoc(session, rowLoc), 2, "button", "n3"); //3 button.
     hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
-    hipe_send(session, HIPE_OP_SET_ATTRIBUTE,0,getLastChild(rowLoc), 2, "rowspan", "2"); //make = button span 2 rows.
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "oR"); //= button.
+    hipe_send(session, HIPE_OP_SET_ATTRIBUTE,0,last_child_getLoc(session, rowLoc), 2, "rowspan", "2"); //make = button span 2 rows.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, last_child_getLoc(session, rowLoc), 2, "button", "oR"); //= button.
     hipe_send(session, HIPE_OP_APPEND_TAG, 0, tbodyLoc, 1, "tr");
     hipe_send(session, HIPE_OP_FREE_LOCATION, 0, rowLoc, 0);
     
     //sixth row of table layout displays calculator buttons: 0 (spans 2 cols), point.
-    rowLoc = getLastChild(tbodyLoc);
+    rowLoc = last_child_getLoc(session, tbodyLoc);
     hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
-    hipe_send(session, HIPE_OP_SET_ATTRIBUTE,0,getLastChild(rowLoc), 2, "colspan", "2"); //make 0 button span 2 rows.
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "n0"); //0 button.
+    hipe_send(session, HIPE_OP_SET_ATTRIBUTE,0,last_child_getLoc(session, rowLoc), 2, "colspan", "2"); //make 0 button span 2 rows.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, last_child_getLoc(session, rowLoc), 2, "button", "n0"); //0 button.
     hipe_send(session, HIPE_OP_APPEND_TAG, 0, rowLoc, 1, "td");
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, getLastChild(rowLoc), 2, "button", "oP"); //. button.
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, last_child_getLoc(session, rowLoc), 2, "button", "oP"); //. button.
     hipe_send(session, HIPE_OP_FREE_LOCATION, 0, rowLoc, 0);
 
     //Get location handles for all the GUI elements so we can play with them.
-    mantissa = getLoc("mantissa");
-    hipe_loc bClear = getLoc("oC");
-    hipe_loc bClearEntry = getLoc("oE");
-    hipe_loc bDiv = getLoc("oD");
-    hipe_loc bTimes = getLoc("oT");
-    hipe_loc bMinus = getLoc("oM");
-    hipe_loc bAdd = getLoc("oA");
-    hipe_loc bPoint = getLoc("oP");
-    hipe_loc bEquals = getLoc("oR");
+    mantissa = getLoc(session, "mantissa");
+    hipe_loc bClear = getLoc(session, "oC");
+    hipe_loc bClearEntry = getLoc(session, "oE");
+    hipe_loc bDiv = getLoc(session, "oD");
+    hipe_loc bTimes = getLoc(session, "oT");
+    hipe_loc bMinus = getLoc(session, "oM");
+    hipe_loc bAdd = getLoc(session, "oA");
+    hipe_loc bPoint = getLoc(session, "oP");
+    hipe_loc bEquals = getLoc(session, "oR");
 
     //label these buttons by setting content inside their <button> tags.
     hipe_send(session, HIPE_OP_SET_TEXT, 0, bClear, 1, "C");
@@ -210,7 +195,7 @@ int main(int argc, char** argv)
     idstr[0] = 'n'; idstr[2] = '\0';
     for(i=0; i<10; i++) { //loop through the numerical digits 0 to 9.
         idstr[1] = i+'0';
-        bNum[i] = getLoc(idstr);
+        bNum[i] = getLoc(session, idstr);
         //label the button with its index -- the number it represents. Use idstr[i] but skip the 0th character.
         hipe_send(session, HIPE_OP_SET_TEXT, 0, bNum[i], 1, &(idstr[1]));
     }

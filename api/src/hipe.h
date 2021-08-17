@@ -61,8 +61,22 @@ int hipe_send(hipe_session session, char opcode, uint64_t requestor, hipe_loc lo
  * as char* or const char*
  */
  
- hipe_loc append_tag_return_location(hipe_session session, hipe_loc parent, const char* tag_type, const char* tag_id);
- /* Convenience function to append new tag and immediately return the hipe_loc of said tag */
+hipe_loc append_tag_getLoc(hipe_session session, hipe_loc parent, const char* tag_type, const char* tag_id);
+/* Convenience function to append new tag and immediately return the hipe_loc of said tag */
+
+hipe_loc getLoc(hipe_session session, char* id);
+/* Convenience function to get the hipe_loc of a HTML element by id */
+
+hipe_loc last_child_getLoc(hipe_session session, hipe_loc parent);
+/* Convenience function to get the hipe_loc of the last child of a HTML element*/
+
+hipe_loc first_child_getLoc(hipe_session session, hipe_loc parent);
+/* Convenience function to get the hipe_loc of the first child of a HTML element*/
+
+
+hipe_loc next_sibling_getLoc(hipe_session session, hipe_loc child);
+/* Convenience function to get the hipe_loc of the next sibling of a HTML element*/
+
 
 #endif
 

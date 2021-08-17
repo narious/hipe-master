@@ -406,10 +406,43 @@ int hipe_send(hipe_session session, char opcode, uint64_t requestor, hipe_loc lo
     return result;
 }
 
-hipe_loc append_tag_return_location(hipe_session session, hipe_loc parent, const char* tag_type, const char* tag_id) {
+hipe_loc append_tag_getLoc(hipe_session session, hipe_loc parent, const char* tag_type, const char* tag_id) {
     hipe_send(session, HIPE_OP_APPEND_TAG, 0, parent, 3, tag_type, tag_id, 1); 
     hipe_instruction instruction;
     hipe_instruction_init(&instruction);
     hipe_await_instruction(session, &instruction, HIPE_OP_LOCATION_RETURN);
     return instruction.location;
 }
+
+hipe_loc getLoc(hipe_session session, char* id) {
+    hipe_send(session, HIPE_OP_GET_BY_ID, 0, 0, 1, id); 
+    hipe_instruction instruction;
+    hipe_instruction_init(&instruction);
+    hipe_await_instruction(session, &instruction, HIPE_OP_LOCATION_RETURN);
+    return instruction.location;
+}
+
+hipe_loc last_child_getLoc(hipe_session session, hipe_loc parent) {
+    hipe_send(session, HIPE_OP_GET_LAST_CHILD, 0, parent, 0); 
+    hipe_instruction instruction;
+    hipe_instruction_init(&instruction);
+    hipe_await_instruction(session, &instruction, HIPE_OP_LOCATION_RETURN);
+    return instruction.location;
+}
+
+hipe_loc first_child_getLoc(hipe_session session, hipe_loc parent) {
+    hipe_send(session, HIPE_OP_GET_FIRST_CHILD, 0, parent, 0); 
+    hipe_instruction instruction;
+    hipe_instruction_init(&instruction);
+    hipe_await_instruction(session, &instruction, HIPE_OP_LOCATION_RETURN);
+    return instruction.location;
+}
+
+hipe_loc next_sibling_getLoc(hipe_session session, hipe_loc child) {
+    hipe_send(session, HIPE_OP_GET_NEXT_SIBLING, 0, child, 0); 
+    hipe_instruction instruction;
+    hipe_instruction_init(&instruction);
+    hipe_await_instruction(session, &instruction, HIPE_OP_LOCATION_RETURN);
+    return instruction.location;
+}
+
