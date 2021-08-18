@@ -60,9 +60,12 @@ int hipe_send(hipe_session session, char opcode, uint64_t requestor, hipe_loc lo
 /* Convenience function to send instructions when the arguments (0 or more) are null-terminated strings expressed
  * as char* or const char*
  */
- 
-hipe_loc append_tag_getLoc(hipe_session session, hipe_loc parent, const char* tag_type, const char* tag_id);
-/* Convenience function to append new tag and immediately return the hipe_loc of said tag */
+
+hipe_loc append_tag_getLoc(hipe_session session, hipe_loc parent, char* tag_type, char* tag_id);
+/* Convenience function to append new tag and immediately return the hipe_loc of said tag.
+*  tag_id is a string that gives the id attribute to the created tag but if no id is required
+*  just pass an empty string ("").
+*/
 
 hipe_loc getLoc(hipe_session session, char* id);
 /* Convenience function to get the hipe_loc of a HTML element by id */

@@ -406,12 +406,9 @@ int hipe_send(hipe_session session, char opcode, uint64_t requestor, hipe_loc lo
     return result;
 }
 
-hipe_loc append_tag_getLoc(hipe_session session, hipe_loc parent, const char* tag_type, const char* tag_id) {
-    hipe_send(session, HIPE_OP_APPEND_TAG, 0, parent, 3, tag_type, tag_id, 1); 
-    hipe_instruction instruction;
-    hipe_instruction_init(&instruction);
-    hipe_await_instruction(session, &instruction, HIPE_OP_LOCATION_RETURN);
-    return instruction.location;
+hipe_loc append_tag_getLoc(hipe_session session, hipe_loc parent, char* tag_type, char* tag_id) {
+    hipe_send(session, HIPE_OP_APPEND_TAG, 0, parent, 2, tag_type, tag_id);
+    return last_child_getLoc(session, parent);
 }
 
 hipe_loc getLoc(hipe_session session, char* id) {
