@@ -348,7 +348,7 @@ void handle_APPEND_TAG(Container* c, hipe_instruction* instruction, bool locatio
 
 //REQUIRES 2 ARGS
 void handle_SET_TEXT(Container* c, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]) {
-    // HACK: refer to Sanatition::tagWhiteList
+    // HACK: `evaluateJavaScript()`, user will be able to inject random javascript code
     // NOTE: `Sanitation` will change special characters to web characters,
     // to avoid that, put this code in front
     if(arg[0].size() && arg[0][0] == '!') {
