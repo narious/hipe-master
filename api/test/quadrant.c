@@ -12,7 +12,7 @@ int fAvailable[3]; //indicates which frames are available.
 char hostkey[3][40]; //assume hostkeys won't be longer than 40 characters. A little risky perhaps but we should be OK.
 hipe_loc keyDisp;
 
-hipe_loc getLoc(char* id) {
+hipe_loc getLocByid(char* id) {
     hipe_send(session, HIPE_OP_GET_BY_ID, 0, 0, 1, id); 
     hipe_instruction instruction;
     hipe_instruction_init(&instruction);
@@ -94,34 +94,34 @@ int main(int argc, char** argv) {
 
     hipe_loc f[3];
 
-    f[0] = getLoc("f0");
+    f[0] = getLocByid("f0");
     hipe_send(session, HIPE_OP_SET_STYLE, 0, f[0], 2, "top", "0");
     hipe_send(session, HIPE_OP_SET_STYLE, 0, f[0], 2, "left", "0");
     hipe_send(session, HIPE_OP_SET_STYLE, 0, f[0], 2, "border-color", "blue");
 
-    f[1] = getLoc("f1");
+    f[1] = getLocByid("f1");
     hipe_send(session, HIPE_OP_SET_STYLE, 0, f[1], 2, "bottom", "0");
     hipe_send(session, HIPE_OP_SET_STYLE, 0, f[1], 2, "left", "0");
     hipe_send(session, HIPE_OP_SET_STYLE, 0, f[1], 2, "border-color", "red");
 
-    f[2] = getLoc("f2");
+    f[2] = getLocByid("f2");
     hipe_send(session, HIPE_OP_SET_STYLE, 0, f[2], 2, "bottom", "0");
     hipe_send(session, HIPE_OP_SET_STYLE, 0, f[2], 2, "right", "0");
     hipe_send(session, HIPE_OP_SET_STYLE, 0, f[2], 2, "border-color", "green");
     
     hipe_loc fInfo[3];
 
-    fInfo[0] = getLoc("f0info");
+    fInfo[0] = getLocByid("f0info");
     hipe_send(session, HIPE_OP_SET_STYLE, 0, fInfo[0], 2, "top", "25%");
     hipe_send(session, HIPE_OP_SET_STYLE, 0, fInfo[0], 2, "left", "50%");
     hipe_send(session, HIPE_OP_SET_STYLE, 0, fInfo[0], 2, "background-color", "blue");
 
-    fInfo[1] = getLoc("f1info");
+    fInfo[1] = getLocByid("f1info");
     hipe_send(session, HIPE_OP_SET_STYLE, 0, fInfo[1], 2, "top", "37.5%");
     hipe_send(session, HIPE_OP_SET_STYLE, 0, fInfo[1], 2, "left", "50%");
     hipe_send(session, HIPE_OP_SET_STYLE, 0, fInfo[1], 2, "background-color", "red");
 
-    fInfo[2] = getLoc("f2info");
+    fInfo[2] = getLocByid("f2info");
     hipe_send(session, HIPE_OP_SET_STYLE, 0, fInfo[2], 2, "top", "37.5%");
     hipe_send(session, HIPE_OP_SET_STYLE, 0, fInfo[2], 2, "left", "62.5%");
     hipe_send(session, HIPE_OP_SET_STYLE, 0, fInfo[2], 2, "background-color", "green");
@@ -197,7 +197,7 @@ int main(int argc, char** argv) {
         hostkey[i][instruction.arg_length[0]] = '\0'; //received arguments don't have null-terminators, so add one.
     }
 
-    keyDisp = getLoc("nextkeydisp");
+    keyDisp = getLocByid("nextkeydisp");
     updateKey();
 
     hipe_instruction hi;

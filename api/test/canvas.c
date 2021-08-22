@@ -6,7 +6,7 @@
 
 hipe_session session;
 
-hipe_loc getLoc(char* id) {
+hipe_loc getLocById(char* id) {
     hipe_send(session, HIPE_OP_GET_BY_ID, 0, 0, 1, id); 
     hipe_instruction instruction;
     hipe_instruction_init(&instruction);
@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
     hipe_send(session, HIPE_OP_SET_STYLE, 0,0, 2, "margin", "0");
     hipe_send(session, HIPE_OP_SET_STYLE, 0,0, 2, "background-color", "grey");
     hipe_send(session, HIPE_OP_APPEND_TAG, 0,0, 2, "canvas", "canv");
-    hipe_loc canvas = getLoc("canv");
+    hipe_loc canvas = getLocById("canv");
     hipe_send(session, HIPE_OP_SET_STYLE, 0,canvas, 2, "background-color", "white");
     hipe_send(session, HIPE_OP_SET_STYLE, 0,canvas, 2, "border", "2px inset");
     hipe_send(session, HIPE_OP_SET_STYLE, 0,canvas, 2, "height", "600");

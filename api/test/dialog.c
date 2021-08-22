@@ -18,7 +18,7 @@
 
 hipe_session session;
 
-hipe_loc getLoc(char* id) {
+hipe_loc getLocById(char* id) {
     hipe_send(session, HIPE_OP_GET_BY_ID, 0, 0, 1, id); 
     hipe_instruction instruction;
     hipe_instruction_init(&instruction);
@@ -69,10 +69,10 @@ int main(int argc, char** argv)
         "1"
     );
 
-    hipe_loc dialogButton = getLoc("dialogButton");
-    hipe_loc dialog2Button = getLoc("dialog2Button");
-    hipe_loc textDialogButton = getLoc("textDialogButton");
-    hipe_loc fifoOpenButton = getLoc("fifoOpenButton");
+    hipe_loc dialogButton = getLocById("dialogButton");
+    hipe_loc dialog2Button = getLocById("dialog2Button");
+    hipe_loc textDialogButton = getLocById("textDialogButton");
+    hipe_loc fifoOpenButton = getLocById("fifoOpenButton");
 
     //add text to the buttons
     hipe_send(session, HIPE_OP_APPEND_TEXT, 0,dialogButton, 1, "Show dialog");
