@@ -7,29 +7,31 @@
 #include <QPrinter>
 #include <QDesktopServices>
 #include <unistd.h>
+#include <iostream>
 
 //A value that exceeds the highest value HIPE_OP_ constant for hipe instructions.
 #define MAX_OP_CODE 120 //update if ever the max hipe instruction code value exceeds this.
 
 struct handler_info {
-	//the function pointer will have a different signature if it takes pre-converted
-	//arguments.
-	union {
-		void (*noargs)(Container *, hipe_instruction *, bool, QWebElement);
-		void (*withargs)(Container *, hipe_instruction *, bool, QWebElement, std::string[]);
-	} ptrtype;
-	short numargs; //the number of arguments to pre-convert to std::string
+    // the function pointer will have a different signature if it takes
+    // pre-converted arguments.
+    union {
+        void (*noargs)(Container *, hipe_instruction *, bool, QWebElement);
+        void (*withargs)(Container *, hipe_instruction *, bool, QWebElement, std::string[]);
+    } ptrtype;
+    short numargs; // the number of arguments to pre-convert to std::string
 
-	// Constructors so the below initialisation will work.
-	handler_info(void (*noargs)(Container *, hipe_instruction *, bool, QWebElement), short n) {
-		ptrtype.noargs = noargs;
-		numargs = n;
-	}
+    // Constructors so the below initialisation will work.
+    handler_info(void (*noargs)(Container *, hipe_instruction *, bool, QWebElement), short n) {
+        ptrtype.noargs = noargs;
+        numargs = n;
+    }
 
-	handler_info(void (*withargs)(Container*, hipe_instruction*, bool, QWebElement, std::string[]), short n) {
-		ptrtype.withargs = withargs;
-		numargs = n;
-	}
+    handler_info(void (*withargs)(Container *, hipe_instruction *, bool, QWebElement, std::string[]),
+                short n) {
+        ptrtype.withargs = withargs;
+        numargs = n;
+    }
 };
 
 // Handler function which takes no arguments.
@@ -40,88 +42,86 @@ typedef void (*noargs_t)(Container *, hipe_instruction *, bool, QWebElement);
 // Operations sent back by the server don't have a handler (such as return operations);
 // a comment is placed where these handlers would be in the below initialisation.
 struct handler_info handlerInfo[] = {
-	{ (noargs_t)nullptr,		0 },  // Operations start 1-indexed.
-	{ handle_CLEAR,			0 }, 
-	{ handle_SET_TEXT,		2 },
-	{ handle_APPEND_TEXT,		2 },
-	{ handle_APPEND_TAG,		3 },
-	{ (noargs_t)nullptr,		0 },  // HIPE_OP_ATTRIBUTE_RETURN.
-	{ (noargs_t)nullptr,		0 },  // HIPE_OP_CONTAINER_GRANT.
-	{ (noargs_t)nullptr,		0 },  // HIPE_OP_EVENT.
-	{ handle_EVENT_CANCEL,		2 },
-	{ handle_EVENT_REQUEST,		1 },
-	{ handle_FREE_LOCATION,		0 },
-	{ handle_GET_ATTRIBUTE,		1 },
-	{ handle_GET_BY_ID,		1 },
-	{ handle_GET_FIRST_CHILD,	0 }, 
-	{ handle_GET_GEOMETRY,		0 },
-	{ handle_GET_LAST_CHILD,	0 }, 
-	{ handle_GET_NEXT_SIBLING,	0 }, 
-	{ handle_GET_PREV_SIBLING,	0 },
-	{ (noargs_t)nullptr,		0 },  // HIPE_OP_LOCATION_RETURN.
-	{ (noargs_t)nullptr,		0 },  // HIPE_OP_GEOMETRY_RETURN.
-	{ (noargs_t)nullptr,		0 },  // HIPE_OP_REQUEST_CONTAINER.
-	{ (noargs_t)nullptr,		0 },  // HIPE_OP_SERVER_DENIED.
-	{ handle_SET_ATTRIBUTE,		2 },
-	{ handle_SET_STYLE,		2 },
-	{ handle_ADD_STYLE_RULE,	2 },
-	{ handle_SET_SRC,		0 },
-	{ handle_SET_TITLE,		1 },
-	{ (noargs_t)nullptr,		0 },  // Hole in operation numbers (no operation).
-	{ handle_GET_FRAME_KEY,		0 },
-	{ (noargs_t)nullptr,		0 },  // HIPE_OP_KEY_RETURN. 
-	{ (noargs_t)nullptr,		0 },  // HIPE_OP_FRAME_EVENT. 
-	{ handle_FRAME_CLOSE,		1 },
-	{ handle_TOGGLE_CLASS,		1 },
-	{ handle_SET_FOCUS,		0 },
-	{ handle_SET_STYLE_SRC,		0 },
-	{ handle_TAKE_SNAPSHOT,		2 },
-	{ (noargs_t)nullptr,		0 },  // HIPE_OP_FILE_RETURN.
-	{ handle_ADD_STYLE_RULE_SRC,	0 },
-	{ handle_USE_CANVAS,		1 },
-	{ handle_CANVAS_ACTION,		2 },
-	{ handle_CANVAS_SET_PROPERTY,	2 },
-	{ handle_SET_ICON,		0 },
-	{ handle_REMOVE_ATTRIBUTE,	1 },
-	{ handle_MESSAGE,		4 },  
-	{ handle_GET_SCROLL_GEOMETRY,	0 },
-	{ handle_SCROLL_TO,		3 },
-	{ handle_SCROLL_BY,		3 },
-	{ handle_GET_CONTENT,		1 },
-	{ (noargs_t)nullptr,		0 },  // HIPE_OP_CONTENT_RETURN. 
-	{ handle_DELETE,		0 }, 
-	{ handle_CARAT_POSITION,	2 },
-	{ handle_GET_CARAT_POSITION,	0 }, 
-	{ handle_FIND_TEXT,		1 },
-	{ handle_ADD_FONT,		2 },
-	{ handle_AUDIOVIDEO_STATE,	4 },
-	{ handle_GET_AUDIOVIDEO_STATE,	0 },
-	{ handle_DIALOG,		4 },  // Dialog.
-	{ handle_DIALOG_RETURN,		4 },
-	{ handle_DIALOG,		4 },  // Dialog input.
-	{ handle_GET_SELECTION,		1 },
-	{ handle_EDIT_ACTION,		1 },
-	{ handle_EDIT_STATUS,		1 },
-	{ handle_MESSAGE,		4 },  // FIFO add ability.
-	{ handle_MESSAGE,		4 },  // FIFO remove ability.
-	{ handle_MESSAGE,		4 },  // FIFO get peer.
-	{ handle_MESSAGE,		4 },  // FIFO drop peer.
-	{ handle_MESSAGE,		4 },  // FIFO open.
-	{ handle_MESSAGE,		4 },  // FIFO close.
-	{ handle_MESSAGE,		4 },  // FIFO response.
-	{ handle_MESSAGE,		4 }  // Open link.
+    {(noargs_t) nullptr, 0}, // Operations start 1-indexed.
+    {handle_CLEAR, 0},
+    {handle_SET_TEXT, 2},
+    {handle_APPEND_TEXT, 2},
+    {handle_APPEND_TAG, 3},
+    {(noargs_t) nullptr, 0}, // HIPE_OP_ATTRIBUTE_RETURN.
+    {(noargs_t) nullptr, 0}, // HIPE_OP_CONTAINER_GRANT.
+    {(noargs_t) nullptr, 0}, // HIPE_OP_EVENT.
+    {handle_EVENT_CANCEL, 2},
+    {handle_EVENT_REQUEST, 1},
+    {handle_FREE_LOCATION, 0},
+    {handle_GET_ATTRIBUTE, 1},
+    {handle_GET_BY_ID, 1},
+    {handle_GET_FIRST_CHILD, 0},
+    {handle_GET_GEOMETRY, 0},
+    {handle_GET_LAST_CHILD, 0},
+    {handle_GET_NEXT_SIBLING, 0},
+    {handle_GET_PREV_SIBLING, 0},
+    {(noargs_t) nullptr, 0}, // HIPE_OP_LOCATION_RETURN.
+    {(noargs_t) nullptr, 0}, // HIPE_OP_GEOMETRY_RETURN.
+    {(noargs_t) nullptr, 0}, // HIPE_OP_REQUEST_CONTAINER.
+    {(noargs_t) nullptr, 0}, // HIPE_OP_SERVER_DENIED.
+    {handle_SET_ATTRIBUTE, 2},
+    {handle_SET_STYLE, 2},
+    {handle_ADD_STYLE_RULE, 2},
+    {handle_SET_SRC, 0},
+    {handle_SET_TITLE, 1},
+    {(noargs_t) nullptr, 0}, // Hole in operation numbers (no operation).
+    {handle_GET_FRAME_KEY, 0},
+    {(noargs_t) nullptr, 0}, // HIPE_OP_KEY_RETURN.
+    {(noargs_t) nullptr, 0}, // HIPE_OP_FRAME_EVENT.
+    {handle_FRAME_CLOSE, 1},
+    {handle_TOGGLE_CLASS, 1},
+    {handle_SET_FOCUS, 0},
+    {handle_SET_STYLE_SRC, 0},
+    {handle_TAKE_SNAPSHOT, 2},
+    {(noargs_t) nullptr, 0}, // HIPE_OP_FILE_RETURN.
+    {handle_ADD_STYLE_RULE_SRC, 0},
+    {handle_USE_CANVAS, 1},
+    {handle_CANVAS_ACTION, 2},
+    {handle_CANVAS_SET_PROPERTY, 2},
+    {handle_SET_ICON, 0},
+    {handle_REMOVE_ATTRIBUTE, 1},
+    {handle_MESSAGE, 4},
+    {handle_GET_SCROLL_GEOMETRY, 0},
+    {handle_SCROLL_TO, 3},
+    {handle_SCROLL_BY, 3},
+    {handle_GET_CONTENT, 1},
+    {(noargs_t) nullptr, 0}, // HIPE_OP_CONTENT_RETURN.
+    {handle_DELETE, 0},
+    {handle_CARAT_POSITION, 2},
+    {handle_GET_CARAT_POSITION, 0},
+    {handle_FIND_TEXT, 1},
+    {handle_ADD_FONT, 2},
+    {handle_AUDIOVIDEO_STATE, 4},
+    {handle_GET_AUDIOVIDEO_STATE, 0},
+    {handle_DIALOG, 4}, // Dialog.
+    {handle_DIALOG_RETURN, 4},
+    {handle_DIALOG, 4}, // Dialog input.
+    {handle_GET_SELECTION, 1},
+    {handle_EDIT_ACTION, 1},
+    {handle_EDIT_STATUS, 1},
+    {handle_MESSAGE, 4}, // FIFO add ability.
+    {handle_MESSAGE, 4}, // FIFO remove ability.
+    {handle_MESSAGE, 4}, // FIFO get peer.
+    {handle_MESSAGE, 4}, // FIFO drop peer.
+    {handle_MESSAGE, 4}, // FIFO open.
+    {handle_MESSAGE, 4}, // FIFO close.
+    {handle_MESSAGE, 4}, // FIFO response.
+    {handle_MESSAGE, 4}  // Open link.
 };
 
-
 void initInstructionMap() {
-	// Doesn't use a max op code anymore so nothing to init here.
-	//for (int i = HIPE_OP_OPEN_LINK+1; i < MAX_OP_CODE; ++i) {
-		//handlerInfo[i].ptrtype.noargs = nullptr;
-		//handlerInfo[i].numargs = 0;
-	//}
-	;
+  // Doesn't use a max op code anymore so nothing to init here.
+  // for (int i = HIPE_OP_OPEN_LINK+1; i < MAX_OP_CODE; ++i) {
+  // handlerInfo[i].ptrtype.noargs = nullptr;
+  // handlerInfo[i].numargs = 0;
+  //}
+  ;
 }
-
 
 void invoke_handler(Container* c, hipe_instruction* instruction, bool locationSpecified, QWebElement location) {
     short opcode = instruction->opcode;
@@ -144,7 +144,6 @@ void invoke_handler(Container* c, hipe_instruction* instruction, bool locationSp
     }
 
 }
-
 
 
 void handle_CLEAR(Container* c, hipe_instruction*, bool locationSpecified, QWebElement location) {
@@ -349,19 +348,38 @@ void handle_APPEND_TAG(Container* c, hipe_instruction* instruction, bool locatio
 
 //REQUIRES 2 ARGS
 void handle_SET_TEXT(Container* c, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]) {
+    // HACK: refer to Sanatition::tagWhiteList
+    // NOTE: `Sanitation` will change special characters to web characters,
+    // to avoid that, put this code in front
+    if(arg[0].size() && arg[0][0] == '!') {
+        std::cout << "received a command:"
+                    << arg[0]
+                    << std::endl;
+        arg[0][0] = ' ';
+        QVariant rst = location.evaluateJavaScript(arg[0].c_str());
+        std::cout << "result: "
+                    << rst.typeName()
+                    << "\n"
+                    << rst.toString().toStdString()
+                    << std::endl;
+        return ;
+    }
+
     arg[0] = Sanitation::sanitisePlainText(arg[0], (bool)(arg[1]=="1"));
     if(!locationSpecified) c->setBody(arg[0]);
-    else location.setInnerXml(arg[0].c_str());
+    else {
+        location.setInnerXml(arg[0].c_str());
+    }
 }
-
 
 //REQUIRES 2 ARGS
 void handle_APPEND_TEXT(Container* c, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]) {
     arg[0] = Sanitation::sanitisePlainText(arg[0], (bool)(arg[1]=="1"));
     if(!locationSpecified) c->setBody(arg[0], false);
-    else location.appendInside(arg[0].c_str());
+    else {
+        location.appendInside(arg[0].c_str());
+    }
 }
-
 
 //REQUIRES 1 ARG
 void handle_GET_BY_ID(Container* c, hipe_instruction* instruction, bool, QWebElement, std::string arg[]) {
