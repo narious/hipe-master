@@ -56,6 +56,13 @@
         "thread": "cpp",
         "cinttypes": "cpp",
         "typeinfo": "cpp",
-        "variant": "cpp"
+        "variant": "cpp",
+        "any": "cpp",
+        "forward_list": "cpp",
+        "executor": "cpp",
+        "io_context": "cpp",
+        "netfwd": "cpp",
+        "timer": "cpp",
+        "future": "cpp"
     }
 }

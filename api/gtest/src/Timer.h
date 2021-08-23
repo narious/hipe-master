@@ -22,13 +22,13 @@
 
 class Timer
 {
-	std::string name;
+	std::string testname;
 
 public:
-	Timer(std::string name)
+	Timer(std::string testname)
 	{
 		std::chrono::high_resolution_clock::now();
-		this->name = name;
+		this->testname = testname;
 	}
 
 	~Timer()
@@ -46,10 +46,7 @@ public:
 		auto timetaken = endtime - start;
 		double ms = timetaken * 0.001;
 
-		// TODO: Add file to recieve output of timing
-		std::cout << this->name << ": " << ms << "ms" << std::endl;
-        spdlog::info("Hello, {}!", "World");
-
+		printf("%s: %d ms\n",this->testname, ms);
 
 	}
 private:

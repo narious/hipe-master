@@ -8,6 +8,8 @@
 #include <stdio.h>
 #include <unistd.h>
 
+#include "./additionaltesting/timer.h"
+
 hipe_session session;
 double currentValue;
 double accumulator;
