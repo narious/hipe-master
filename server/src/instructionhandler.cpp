@@ -7,7 +7,10 @@
 #include <QPrinter>
 #include <QDesktopServices>
 #include <unistd.h>
+#include <fstream>
 #include <iostream>
+#include <string>
+#include <sstream>
 
 //A value that exceeds the highest value HIPE_OP_ constant for hipe instructions.
 #define MAX_OP_CODE 120 //update if ever the max hipe instruction code value exceeds this.
@@ -112,6 +115,7 @@ struct handler_info handlerInfo[] = {
     {handle_MESSAGE, 4}, // FIFO close.
     {handle_MESSAGE, 4}, // FIFO response.
     {handle_MESSAGE, 4}  // Open link.
+    { handle_IMPORT_CSS,    1 } 
 };
 
 void initInstructionMap() {
@@ -912,3 +916,21 @@ void handle_TOGGLE_CLASS(Container*, hipe_instruction*, bool, QWebElement locati
     location.toggleClass(arg[0].c_str());
 }
 
+
+// REQUIRES 1 ARG
+void handle_IMPORT_CSS(Container* c, hipe_instruction*, bool, QWebElement location, std::string arg[]) {
+
+    std::ifstream cssFile(arg[0]);
+
+    if(!cssFile.is_open()) {
+           std::cout << "CSS file not found - check file path.\n" << arg[0] << std::endl;
+        } else {
+            std::stringstream buffer;
+            buffer << cssFile.rdbuf();
+
+            cssFile.close();
+
+            c->stylesheet = buffer.str();
+            c->applyStylesheet();
+        }
+}
