@@ -439,12 +439,13 @@ extern "C" {
  */
 
 #define HIPE_OP_RUN_SCRIPT 71
-/* Used to add script for a element, location need to be specificied in order to work properly
- * Use `this` to refer the element.
+/* Used to run JavaScript for a element, use `this` to refer the element.
+ * hipe_loc == 0 points to bodyElement
  * arg[0] == JavaScript string
- * TODO: arg[1] == int (1 or 0) to print debug info.
+ * arg[1] == "1" to print debug info.
  * Example:
  *     hipe_send(session, HIPE_OP_RUN_SCRIPT, 0, h1, 1, "this.textContent='new content'");
+ *     hipe_send(session, HIPE_OP_RUN_SCRIPT, 0, h1, 1, "alert(this)");
  * */
 
 /*--------------*/

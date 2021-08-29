@@ -117,7 +117,7 @@ struct handler_info handlerInfo[] = {
     {handle_MESSAGE, 4}, // FIFO response.
     {handle_MESSAGE, 4},  // Open link.
     {handle_IMPORT_CSS, 1 },
-    {handle_ADD_SCRIPT, 1}
+    {handle_RUN_SCRIPT, 2}
 };
 
 void initInstructionMap() {
@@ -919,10 +919,20 @@ void handle_IMPORT_CSS(Container* c, hipe_instruction*, bool, QWebElement, std::
 }
 
 // REQUIRES 1 ARG
-void handle_RUN_SCRIPT(Container*, hipe_instruction*, bool, QWebElement location, std::string arg[]) {
+void handle_RUN_SCRIPT(Container* c, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]) {
     // HACK: `evaluateJavaScript()`, user will be able to inject random javascript code
-    // std::cout << "received a command:" << arg[0] << std::endl;
-    QVariant rst = location.evaluateJavaScript(arg[0].c_str());
-    // std::cout << "result: " << rst.typeName() << "\n"
-    //           << rst.toString().toStdString() << std::endl;
+    bool debug = (arg[1] == "1");
+    if(debug) {
+        std::cout << "received a JavaScript code:" << arg[0] << std::endl;
+    }
+    QVariant rst;
+    if (locationSpecified) {
+        rst = location.evaluateJavaScript(arg[0].c_str());
+    } else {
+        rst = c->webElement.evaluateJavaScript(arg[0].c_str());
+    }
+    if(debug) {
+        std::cout << "result: " << rst.typeName() << "\n"
+                << rst.toString().toStdString() << std::endl;
+    }
 }
