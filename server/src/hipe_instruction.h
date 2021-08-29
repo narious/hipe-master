@@ -438,13 +438,13 @@ extern "C" {
  * arg[1] == int (1 or 0) to specify if stylesheet is to be overwritten (1) or have the imported file appended (0).
  */
 
-#define HIPE_OP_ADD_SCRIPT 71
+#define HIPE_OP_RUN_SCRIPT 71
 /* Used to add script for a element, location need to be specificied in order to work properly
  * Use `this` to refer the element.
  * arg[0] == JavaScript string
  * TODO: arg[1] == int (1 or 0) to print debug info.
  * Example:
- *     hipe_send(session, HIPE_OP_ADD_SCRIPT, 0, h1, 1, "this.textContent='new content'");
+ *     hipe_send(session, HIPE_OP_RUN_SCRIPT, 0, h1, 1, "this.textContent='new content'");
  * */
 
 /*--------------*/

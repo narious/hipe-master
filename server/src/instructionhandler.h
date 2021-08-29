@@ -90,7 +90,7 @@ void handle_EDIT_STATUS     (Container*, hipe_instruction*, bool locationSpecifi
 void handle_MESSAGE         (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
 void handle_TOGGLE_CLASS    (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
 void handle_IMPORT_CSS      (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
-void handle_ADD_SCRIPT      (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
+void handle_RUN_SCRIPT      (Container*, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]);
 
 
 
