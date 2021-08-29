@@ -921,13 +921,8 @@ void handle_IMPORT_CSS(Container* c, hipe_instruction*, bool, QWebElement, std::
 // REQUIRES 1 ARG
 void handle_ADD_SCRIPT(Container*, hipe_instruction*, bool, QWebElement location, std::string arg[]) {
     // HACK: `evaluateJavaScript()`, user will be able to inject random javascript code
-    bool dubug = (bool)(arg[1] == "1");
-    if(dubug) {
-        std::cout << "received a command:" << arg[0] << std::endl;
-    }
+    // std::cout << "received a command:" << arg[0] << std::endl;
     QVariant rst = location.evaluateJavaScript(arg[0].c_str());
-    if (dubug) {
-        std::cout << "result: " << rst.typeName() << "\n"
-                  << rst.toString().toStdString() << std::endl;
-    }
+    // std::cout << "result: " << rst.typeName() << "\n"
+    //           << rst.toString().toStdString() << std::endl;
 }

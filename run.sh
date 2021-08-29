@@ -17,10 +17,7 @@ compile_server() {
 compile_testing() {
     cd ./api/ || return
     make && echo "make api"
-    if [ ! -f /usr/local/include/hipe.h ]
-    then
-       sudo make install
-    fi
+    sudo make install
     make testing
     cd ..
 }
@@ -36,7 +33,7 @@ kill_all() {
 }
 
 compile_all() {
-    compile_server & compile_testing
+    compile_server && compile_testing
     echo "compile finish"
 }
 
