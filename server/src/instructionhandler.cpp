@@ -44,6 +44,7 @@ typedef void (*noargs_t)(Container *, hipe_instruction *, bool, QWebElement);
 // The HIPE_OP number of the instruction is used to index the array.
 // Operations sent back by the server don't have a handler (such as return operations);
 // a comment is placed where these handlers would be in the below initialisation.
+// NOTE: the order inside handlerInfo must be same as `HIPE_OP`s defined in `hipe_instruction.h`
 struct handler_info handlerInfo[] = {
     {(noargs_t) nullptr, 0}, // Operations start 1-indexed.
     {handle_CLEAR, 0},
@@ -115,7 +116,8 @@ struct handler_info handlerInfo[] = {
     {handle_MESSAGE, 4}, // FIFO close.
     {handle_MESSAGE, 4}, // FIFO response.
     {handle_MESSAGE, 4},  // Open link.
-    {handle_IMPORT_CSS, 1 }
+    {handle_IMPORT_CSS, 1 },
+    {handle_ADD_SCRIPT, 1}
 };
 
 void initInstructionMap() {
@@ -352,23 +354,6 @@ void handle_APPEND_TAG(Container* c, hipe_instruction* instruction, bool locatio
 
 //REQUIRES 2 ARGS
 void handle_SET_TEXT(Container* c, hipe_instruction*, bool locationSpecified, QWebElement location, std::string arg[]) {
-    // HACK: `evaluateJavaScript()`, user will be able to inject random javascript code
-    // NOTE: `Sanitation` will change special characters to web characters,
-    // to avoid that, put this code in front
-    if(arg[0].size() && arg[0][0] == '!') {
-        std::cout << "received a command:"
-                    << arg[0]
-                    << std::endl;
-        arg[0][0] = ' ';
-        QVariant rst = location.evaluateJavaScript(arg[0].c_str());
-        std::cout << "result: "
-                    << rst.typeName()
-                    << "\n"
-                    << rst.toString().toStdString()
-                    << std::endl;
-        return ;
-    }
-
     arg[0] = Sanitation::sanitisePlainText(arg[0], (bool)(arg[1]=="1"));
     if(!locationSpecified) c->setBody(arg[0]);
     else {
@@ -916,7 +901,6 @@ void handle_TOGGLE_CLASS(Container*, hipe_instruction*, bool, QWebElement locati
     location.toggleClass(arg[0].c_str());
 }
 
-
 // REQUIRES 1 ARG
 void handle_IMPORT_CSS(Container* c, hipe_instruction*, bool, QWebElement, std::string arg[]) {
     std::ifstream cssFile(arg[0]);
@@ -931,5 +915,19 @@ void handle_IMPORT_CSS(Container* c, hipe_instruction*, bool, QWebElement, std::
 
         c->stylesheet = buffer.str();
         c->applyStylesheet();
+    }
+}
+
+// REQUIRES 1 ARG
+void handle_ADD_SCRIPT(Container*, hipe_instruction*, bool, QWebElement location, std::string arg[]) {
+    // HACK: `evaluateJavaScript()`, user will be able to inject random javascript code
+    bool dubug = (bool)(arg[1] == "1");
+    if(dubug) {
+        std::cout << "received a command:" << arg[0] << std::endl;
+    }
+    QVariant rst = location.evaluateJavaScript(arg[0].c_str());
+    if (dubug) {
+        std::cout << "result: " << rst.typeName() << "\n"
+                  << rst.toString().toStdString() << std::endl;
     }
 }
