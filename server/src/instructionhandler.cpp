@@ -116,7 +116,7 @@ struct handler_info handlerInfo[] = {
     {handle_MESSAGE, 4}, // FIFO close.
     {handle_MESSAGE, 4}, // FIFO response.
     {handle_MESSAGE, 4},  // Open link.
-    {handle_IMPORT_CSS, 1 },
+    {handle_IMPORT_CSS, 2},
     {handle_RUN_SCRIPT, 2}
 };
 
@@ -901,7 +901,7 @@ void handle_TOGGLE_CLASS(Container*, hipe_instruction*, bool, QWebElement locati
     location.toggleClass(arg[0].c_str());
 }
 
-// REQUIRES 1 ARG
+// REQUIRES 2 ARGS
 void handle_IMPORT_CSS(Container* c, hipe_instruction*, bool, QWebElement, std::string arg[]) {
     std::ifstream cssFile(arg[0]);
 
@@ -913,7 +913,14 @@ void handle_IMPORT_CSS(Container* c, hipe_instruction*, bool, QWebElement, std::
 
         cssFile.close();
 
-        c->stylesheet = buffer.str();
+        // overwrite mode
+        if (arg[1] == "1") {
+            c->stylesheet = buffer.str();
+        } // append mode
+        else {
+            c->stylesheet += buffer.str();
+        }
+
         c->applyStylesheet();
     }
 }
