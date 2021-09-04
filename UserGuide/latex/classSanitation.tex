@@ -1,0 +1,48 @@
+\hypertarget{classSanitation}{}\doxysection{Sanitation Class Reference}
+\label{classSanitation}\index{Sanitation@{Sanitation}}
+
+
+{\ttfamily \#include $<$sanitation.\+h$>$}
+
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classSanitation_a433a3fdc35c49d9273b59ab3ea7a8c3a}\label{classSanitation_a433a3fdc35c49d9273b59ab3ea7a8c3a}} 
+static void {\bfseries init} ()
+\item 
+\mbox{\Hypertarget{classSanitation_a0c612f3d7b2ad707703327d3af790f65}\label{classSanitation_a0c612f3d7b2ad707703327d3af790f65}} 
+static std\+::string {\bfseries sanitise\+Plain\+Text} (std\+::string input, bool convert\+Layout=false)
+\item 
+\mbox{\Hypertarget{classSanitation_ad410b6ab00c95f7a68ae85bb0dd4b424}\label{classSanitation_ad410b6ab00c95f7a68ae85bb0dd4b424}} 
+static std\+::string {\bfseries sanitise\+Canvas\+Instruction} (std\+::string input)
+\item 
+\mbox{\Hypertarget{classSanitation_a4e704dcf2824670f07d12e06c8377aa3}\label{classSanitation_a4e704dcf2824670f07d12e06c8377aa3}} 
+static std\+::string {\bfseries to\+Base64} (const std\+::string \&binary\+Data)
+\item 
+\mbox{\Hypertarget{classSanitation_a7069d0205218a9ed4a17b337d2d4c462}\label{classSanitation_a7069d0205218a9ed4a17b337d2d4c462}} 
+static std\+::string {\bfseries to\+Base64} (const char $\ast$data, size\+\_\+t size)
+\item 
+\mbox{\Hypertarget{classSanitation_a454858dcc3a505800c3bb7824d126ed8}\label{classSanitation_a454858dcc3a505800c3bb7824d126ed8}} 
+static std\+::string {\bfseries to\+Lower} (const char $\ast$text, size\+\_\+t size)
+\item 
+\mbox{\Hypertarget{classSanitation_ae0fb247829996a0aed272d135f848541}\label{classSanitation_ae0fb247829996a0aed272d135f848541}} 
+static bool {\bfseries is\+Allowed\+Attribute} (std\+::string input)
+\item 
+\mbox{\Hypertarget{classSanitation_af0aa96e6a676c5e7749b305f3e4202bc}\label{classSanitation_af0aa96e6a676c5e7749b305f3e4202bc}} 
+static bool {\bfseries is\+Allowed\+Tag} (std\+::string input)
+\item 
+\mbox{\Hypertarget{classSanitation_a0ed9c632f0928890aab6b1b8bcae0236}\label{classSanitation_a0ed9c632f0928890aab6b1b8bcae0236}} 
+static bool {\bfseries is\+Allowed\+CSS} (std\+::string input)
+\item 
+\mbox{\Hypertarget{classSanitation_ae75c97803cf12c1eedb6dd461f7edbb5}\label{classSanitation_ae75c97803cf12c1eedb6dd461f7edbb5}} 
+static QWeb\+Page\+::\+Web\+Action {\bfseries edit\+Code\+Lookup} (char code)
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+\mbox{\hyperlink{classSanitation}{Sanitation}} class. PURPOSE\+: provides static utility functions and resources for sanitising user input. 
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+server/src/sanitation.\+h\item 
+server/src/sanitation.\+cpp\end{DoxyCompactItemize}

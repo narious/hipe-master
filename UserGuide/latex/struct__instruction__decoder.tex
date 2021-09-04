@@ -1,0 +1,32 @@
+\hypertarget{struct__instruction__decoder}{}\doxysection{\+\_\+instruction\+\_\+decoder Struct Reference}
+\label{struct__instruction__decoder}\index{\_instruction\_decoder@{\_instruction\_decoder}}
+
+
+{\ttfamily \#include $<$common.\+h$>$}
+
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{struct__instruction__decoder_af072d8a2927b1d1d760f39d93862b3bd}\label{struct__instruction__decoder_af072d8a2927b1d1d760f39d93862b3bd}} 
+char {\bfseries preamble} \mbox{[}PREAMBLE\+\_\+\+LENGTH\mbox{]}
+\item 
+\mbox{\Hypertarget{struct__instruction__decoder_a7adda16c3e19bea2d66806b25e36c89a}\label{struct__instruction__decoder_a7adda16c3e19bea2d66806b25e36c89a}} 
+unsigned int {\bfseries instruction\+\_\+chars\+\_\+read}
+\item 
+\mbox{\Hypertarget{struct__instruction__decoder_aa9c4cecdac3219c934e0a96805e954a8}\label{struct__instruction__decoder_aa9c4cecdac3219c934e0a96805e954a8}} 
+\mbox{\hyperlink{struct__hipe__instruction}{hipe\+\_\+instruction}} {\bfseries output}
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+instruction\+\_\+decoder struct-\/based class.
+\begin{DoxyItemize}
+\item To instantiate\+: allocate an instruction\+\_\+decoder instance and call instruction\+\_\+decoder\+\_\+init() on it.
+\item To re-\/use\+: call instruction\+\_\+decoder\+\_\+clear on the instance to reset it to a clean state.
+\item To destroy\+: call instruction\+\_\+decoder\+\_\+clear then free the struct instance from memory.
+\item To use\+: call instruction\+\_\+decoder\+\_\+feed() to feed characters into the decoder until instruction\+\_\+decoder\+\_\+iscomplete() returns true. Then read the decoded instruction in the output variable. 
+\end{DoxyItemize}
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+server/src/common.\+h\end{DoxyCompactItemize}

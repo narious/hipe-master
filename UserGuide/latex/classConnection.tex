@@ -1,0 +1,38 @@
+\hypertarget{classConnection}{}\doxysection{Connection Class Reference}
+\label{classConnection}\index{Connection@{Connection}}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classConnection_a916207814313e852ff708a789c952923}\label{classConnection_a916207814313e852ff708a789c952923}} 
+{\bfseries Connection} (int client\+FD)
+\item 
+\mbox{\Hypertarget{classConnection_a481d43d1bce24aa4faf13b7db388cd4a}\label{classConnection_a481d43d1bce24aa4faf13b7db388cd4a}} 
+void {\bfseries send\+Instruction} (char opcode, uint64\+\_\+t requestor, uint64\+\_\+t location, const std\+::vector$<$ std\+::string $>$ \&args=\{\})
+\item 
+\mbox{\Hypertarget{classConnection_affda080faf1e0f63299aaf052ab1ee1b}\label{classConnection_affda080faf1e0f63299aaf052ab1ee1b}} 
+void {\bfseries send\+Instruction} (\mbox{\hyperlink{struct__hipe__instruction}{hipe\+\_\+instruction}} \&instruction)
+\item 
+\mbox{\Hypertarget{classConnection_acd9cf9bbba606f87a1884f67e267b5bb}\label{classConnection_acd9cf9bbba606f87a1884f67e267b5bb}} 
+bool {\bfseries service} ()
+\item 
+\mbox{\Hypertarget{classConnection_a68536d10cc8bc26964a0e7eccfaab52c}\label{classConnection_a68536d10cc8bc26964a0e7eccfaab52c}} 
+bool {\bfseries is\+Connected} ()
+\item 
+\mbox{\Hypertarget{classConnection_ae7ab346dba186ca12bba17eb6f0fbaab}\label{classConnection_ae7ab346dba186ca12bba17eb6f0fbaab}} 
+void {\bfseries disconnect} ()
+\item 
+\mbox{\Hypertarget{classConnection_a171d697bbea58ff627787528db0fd5ce}\label{classConnection_a171d697bbea58ff627787528db0fd5ce}} 
+void {\bfseries \+\_\+ready\+Read} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classConnection_ae140f0161ab73df20ad3a60d3ccb8c2a}\label{classConnection_ae140f0161ab73df20ad3a60d3ccb8c2a}} 
+\mbox{\hyperlink{classContainer}{Container}} $\ast$ {\bfseries container}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+server/src/connection.\+h\item 
+server/src/connection.\+cpp\end{DoxyCompactItemize}

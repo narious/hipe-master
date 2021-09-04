@@ -1,0 +1,31 @@
+\hypertarget{struct__hipe__session}{}\doxysection{\+\_\+hipe\+\_\+session Struct Reference}
+\label{struct__hipe__session}\index{\_hipe\_session@{\_hipe\_session}}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{struct__hipe__session_aab2be750ecc3785c8bc2b0314503d315}\label{struct__hipe__session_aab2be750ecc3785c8bc2b0314503d315}} 
+int {\bfseries connection\+\_\+fd}
+\item 
+\mbox{\Hypertarget{struct__hipe__session_a889ed992f9f3f31a9c4b6e7b95d15d38}\label{struct__hipe__session_a889ed992f9f3f31a9c4b6e7b95d15d38}} 
+pthread\+\_\+mutex\+\_\+t {\bfseries send\+\_\+lock}
+\item 
+\mbox{\Hypertarget{struct__hipe__session_ad8e209807bfcbeedb8a2363f602b36b6}\label{struct__hipe__session_ad8e209807bfcbeedb8a2363f602b36b6}} 
+char {\bfseries read\+Buffer} \mbox{[}READ\+\_\+\+BUFFER\+\_\+\+SIZE\mbox{]}
+\item 
+\mbox{\Hypertarget{struct__hipe__session_a456d688e0d8a598f1031b3476daefab4}\label{struct__hipe__session_a456d688e0d8a598f1031b3476daefab4}} 
+\mbox{\hyperlink{struct__instruction__encoder}{instruction\+\_\+encoder}} {\bfseries outgoing\+Instruction}
+\item 
+\mbox{\Hypertarget{struct__hipe__session_a064a2f70af07a747c63456fdb8fc0ad6}\label{struct__hipe__session_a064a2f70af07a747c63456fdb8fc0ad6}} 
+\mbox{\hyperlink{struct__instruction__decoder}{instruction\+\_\+decoder}} {\bfseries incoming\+Instruction}
+\item 
+\mbox{\Hypertarget{struct__hipe__session_a514efd698c36f290d739a7fff926186e}\label{struct__hipe__session_a514efd698c36f290d739a7fff926186e}} 
+\mbox{\hyperlink{struct__hipe__instruction}{hipe\+\_\+instruction}} $\ast$ {\bfseries oldest\+Instruction}
+\item 
+\mbox{\Hypertarget{struct__hipe__session_aaacbee7328663ed73df3270c401e9610}\label{struct__hipe__session_aaacbee7328663ed73df3270c401e9610}} 
+\mbox{\hyperlink{struct__hipe__instruction}{hipe\+\_\+instruction}} $\ast$ {\bfseries newest\+Instruction}
+\end{DoxyCompactItemize}
+
+
+The documentation for this struct was generated from the following file\+:\begin{DoxyCompactItemize}
+\item 
+api/src/hipe.\+c\end{DoxyCompactItemize}

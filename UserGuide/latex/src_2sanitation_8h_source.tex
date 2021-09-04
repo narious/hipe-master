@@ -1,0 +1,64 @@
+\hypertarget{src_2sanitation_8h_source}{}\doxysection{sanitation.\+h}
+\label{src_2sanitation_8h_source}\index{server/src/sanitation.h@{server/src/sanitation.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{comment}{/*  Copyright (c) 2016-\/2020 Daniel Kos, General Development Systems}}
+\DoxyCodeLine{2 \textcolor{comment}{}}
+\DoxyCodeLine{3 \textcolor{comment}{    This file is part of Hipe.}}
+\DoxyCodeLine{4 \textcolor{comment}{}}
+\DoxyCodeLine{5 \textcolor{comment}{    Hipe is free software: you can redistribute it and/or modify}}
+\DoxyCodeLine{6 \textcolor{comment}{    it under the terms of the GNU General Public License as published by}}
+\DoxyCodeLine{7 \textcolor{comment}{    the Free Software Foundation, either version 3 of the License, or}}
+\DoxyCodeLine{8 \textcolor{comment}{    (at your option) any later version.}}
+\DoxyCodeLine{9 \textcolor{comment}{}}
+\DoxyCodeLine{10 \textcolor{comment}{    Hipe is distributed in the hope that it will be useful,}}
+\DoxyCodeLine{11 \textcolor{comment}{    but WITHOUT ANY WARRANTY; without even the implied warranty of}}
+\DoxyCodeLine{12 \textcolor{comment}{    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the}}
+\DoxyCodeLine{13 \textcolor{comment}{    GNU General Public License for more details.}}
+\DoxyCodeLine{14 \textcolor{comment}{}}
+\DoxyCodeLine{15 \textcolor{comment}{    You should have received a copy of the GNU General Public License}}
+\DoxyCodeLine{16 \textcolor{comment}{    along with Hipe.  If not, see <http://www.gnu.org/licenses/>.}}
+\DoxyCodeLine{17 \textcolor{comment}{*/}}
+\DoxyCodeLine{18 }
+\DoxyCodeLine{21 }
+\DoxyCodeLine{22 \textcolor{preprocessor}{\#ifndef SANITATION\_H}}
+\DoxyCodeLine{23 \textcolor{preprocessor}{\#define SANITATION\_H}}
+\DoxyCodeLine{24 }
+\DoxyCodeLine{25 \textcolor{preprocessor}{\#include <string>}}
+\DoxyCodeLine{26 \textcolor{preprocessor}{\#include <set>}}
+\DoxyCodeLine{27 \textcolor{preprocessor}{\#include <map>}}
+\DoxyCodeLine{28 \textcolor{preprocessor}{\#include <QWebPage>}}
+\DoxyCodeLine{29 }
+\DoxyCodeLine{30 \textcolor{keyword}{class }\mbox{\hyperlink{classSanitation}{Sanitation}}}
+\DoxyCodeLine{31 \{}
+\DoxyCodeLine{32 \textcolor{keyword}{private}:}
+\DoxyCodeLine{33     \textcolor{comment}{//sets to store whitelists of allowed HTML tags and attributes.}}
+\DoxyCodeLine{34     \textcolor{keyword}{static} std::set<std::string> tagWhitelist;}
+\DoxyCodeLine{35     \textcolor{keyword}{static} std::set<std::string> attrWhitelist;}
+\DoxyCodeLine{36 }
+\DoxyCodeLine{37     \textcolor{comment}{//converts edit action code characters into Qt WebAction constants.}}
+\DoxyCodeLine{38     \textcolor{keyword}{static} std::map<char, QWebPage::WebAction> editCodeMap;}
+\DoxyCodeLine{39 \textcolor{keyword}{public}:}
+\DoxyCodeLine{40     \textcolor{keyword}{static} \textcolor{keywordtype}{void} init();}
+\DoxyCodeLine{41     \textcolor{comment}{//initialises whitelists and related sanitation data.}}
+\DoxyCodeLine{42     \textcolor{comment}{//Call this before using any of the sanitisation functions in this class.}}
+\DoxyCodeLine{43 }
+\DoxyCodeLine{44     \textcolor{keyword}{static} std::string sanitisePlainText(std::string input, \textcolor{keywordtype}{bool} convertLayout=\textcolor{keyword}{false});}
+\DoxyCodeLine{45     \textcolor{comment}{//convert HTML syntactical characters in input into harmless escaped character entities.}}
+\DoxyCodeLine{46 }
+\DoxyCodeLine{47     \textcolor{keyword}{static} std::string sanitiseCanvasInstruction(std::string input);}
+\DoxyCodeLine{48 }
+\DoxyCodeLine{49     \textcolor{keyword}{static} std::string toBase64(\textcolor{keyword}{const} std::string\& binaryData);}
+\DoxyCodeLine{50     \textcolor{keyword}{static} std::string toBase64(\textcolor{keyword}{const} \textcolor{keywordtype}{char}* data, \textcolor{keywordtype}{size\_t} size);}
+\DoxyCodeLine{51     \textcolor{keyword}{static} std::string toLower(\textcolor{keyword}{const} \textcolor{keywordtype}{char}* text, \textcolor{keywordtype}{size\_t} size); \textcolor{comment}{//convert to lowercase}}
+\DoxyCodeLine{52     \textcolor{keyword}{static} \textcolor{keywordtype}{bool} isAllowedAttribute(std::string input);}
+\DoxyCodeLine{53     \textcolor{keyword}{static} \textcolor{keywordtype}{bool} isAllowedTag(std::string input);}
+\DoxyCodeLine{54     \textcolor{keyword}{static} \textcolor{keywordtype}{bool} isAllowedCSS(std::string input);}
+\DoxyCodeLine{55 }
+\DoxyCodeLine{56     \textcolor{keyword}{static} QWebPage::WebAction editCodeLookup(\textcolor{keywordtype}{char} code);}
+\DoxyCodeLine{57 }
+\DoxyCodeLine{58 \};}
+\DoxyCodeLine{59 }
+\DoxyCodeLine{60 \textcolor{preprocessor}{\#endif }\textcolor{comment}{// SANITATION\_H}}
+
+\end{DoxyCode}

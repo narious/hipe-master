@@ -1,0 +1,48 @@
+\hypertarget{classKeyList}{}\doxysection{Key\+List Class Reference}
+\label{classKeyList}\index{KeyList@{KeyList}}
+
+
+{\ttfamily \#include $<$keylist.\+h$>$}
+
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classKeyList_adf17459bfadfe5a7d25bb52e3af61598}\label{classKeyList_adf17459bfadfe5a7d25bb52e3af61598}} 
+{\bfseries Key\+List} (std\+::string base\+String)
+\item 
+std\+::string \mbox{\hyperlink{classKeyList_a34a0558639183084807b7a1da7c0f9ad}{generate\+Container\+Key}} ()
+\item 
+\mbox{\Hypertarget{classKeyList_ac1b6e3331736ddb543573a12c31d2e45}\label{classKeyList_ac1b6e3331736ddb543573a12c31d2e45}} 
+bool {\bfseries claim\+Key} (std\+::string key)
+\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classKeyList_af35eb716a2c79ac3eba075ece0d6ec20}\label{classKeyList_af35eb716a2c79ac3eba075ece0d6ec20}} 
+static void {\bfseries init\+Class} (std\+::string random\+Device=\char`\"{}\char`\"{})
+\end{DoxyCompactItemize}
+
+
+\doxysubsection{Detailed Description}
+Each client, and the global environment, holds a \mbox{\hyperlink{classKeyList}{Key\+List}} object. It indexes a list of randomly generated keys which a client needs in order to become parented by a particular host. A valid key can only be claimed once, afterwhich it\textquotesingle{}s removed from the pool. 
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classKeyList_a34a0558639183084807b7a1da7c0f9ad}\label{classKeyList_a34a0558639183084807b7a1da7c0f9ad}} 
+\index{KeyList@{KeyList}!generateContainerKey@{generateContainerKey}}
+\index{generateContainerKey@{generateContainerKey}!KeyList@{KeyList}}
+\doxysubsubsection{\texorpdfstring{generateContainerKey()}{generateContainerKey()}}
+{\footnotesize\ttfamily std\+::string Key\+List\+::generate\+Container\+Key (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})}
+
+key Ingredients\+:
+\begin{DoxyItemize}
+\item the base\+String, used as a prefix and followed by an underscore.
+\item an integer which gets incremented each time this function is called, and is allowed to overflow.
+\item a random number whose digits alternate with those of the integer.
+\end{DoxyItemize}
+
+What we want to do with the latter two numbers is map them into other characters and produce a result where alternating odd and even characters correspond to the sequential and random integers respectively. We convert to base-\/64 and use map6bit\+To\+Alpha\+Numeric for this purpose.
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+server/src/keylist.\+h\item 
+server/src/keylist.\+cpp\end{DoxyCompactItemize}

@@ -1,0 +1,104 @@
+\hypertarget{containertoplevel_8h_source}{}\doxysection{containertoplevel.\+h}
+\label{containertoplevel_8h_source}\index{server/src/containertoplevel.h@{server/src/containertoplevel.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{comment}{/*  Copyright (c) 2015-\/2020 Daniel Kos, General Development Systems}}
+\DoxyCodeLine{2 \textcolor{comment}{}}
+\DoxyCodeLine{3 \textcolor{comment}{    This file is part of Hipe.}}
+\DoxyCodeLine{4 \textcolor{comment}{}}
+\DoxyCodeLine{5 \textcolor{comment}{    Hipe is free software: you can redistribute it and/or modify}}
+\DoxyCodeLine{6 \textcolor{comment}{    it under the terms of the GNU General Public License as published by}}
+\DoxyCodeLine{7 \textcolor{comment}{    the Free Software Foundation, either version 3 of the License, or}}
+\DoxyCodeLine{8 \textcolor{comment}{    (at your option) any later version.}}
+\DoxyCodeLine{9 \textcolor{comment}{}}
+\DoxyCodeLine{10 \textcolor{comment}{    Hipe is distributed in the hope that it will be useful,}}
+\DoxyCodeLine{11 \textcolor{comment}{    but WITHOUT ANY WARRANTY; without even the implied warranty of}}
+\DoxyCodeLine{12 \textcolor{comment}{    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the}}
+\DoxyCodeLine{13 \textcolor{comment}{    GNU General Public License for more details.}}
+\DoxyCodeLine{14 \textcolor{comment}{}}
+\DoxyCodeLine{15 \textcolor{comment}{    You should have received a copy of the GNU General Public License}}
+\DoxyCodeLine{16 \textcolor{comment}{    along with Hipe.  If not, see <http://www.gnu.org/licenses/>.}}
+\DoxyCodeLine{17 \textcolor{comment}{*/}}
+\DoxyCodeLine{18 }
+\DoxyCodeLine{19 \textcolor{preprocessor}{\#ifndef CLIENTWINDOW\_H}}
+\DoxyCodeLine{20 \textcolor{preprocessor}{\#define CLIENTWINDOW\_H}}
+\DoxyCodeLine{21 }
+\DoxyCodeLine{22 \textcolor{preprocessor}{\#include <QMainWindow>}}
+\DoxyCodeLine{23 \textcolor{preprocessor}{\#include <QWebView>}}
+\DoxyCodeLine{24 \textcolor{preprocessor}{\#include <QWebElement>}}
+\DoxyCodeLine{25 \textcolor{preprocessor}{\#include <QCloseEvent>}}
+\DoxyCodeLine{26 \textcolor{preprocessor}{\#include "{}container.h"{}}}
+\DoxyCodeLine{27 \textcolor{keyword}{class }Client;}
+\DoxyCodeLine{28 }
+\DoxyCodeLine{29 }
+\DoxyCodeLine{30 \textcolor{keyword}{class }\mbox{\hyperlink{classWebView}{WebView}} : \textcolor{keyword}{public} QWebView \{}
+\DoxyCodeLine{31     Q\_OBJECT}
+\DoxyCodeLine{32 \textcolor{keyword}{public}:}
+\DoxyCodeLine{33     \mbox{\hyperlink{classWebView}{WebView}}();}
+\DoxyCodeLine{34 \textcolor{keyword}{protected}:}
+\DoxyCodeLine{35     \textcolor{keywordtype}{void} contextMenuEvent(QContextMenuEvent*) \{;\} \textcolor{comment}{//reimplement to disable the default context menu}}
+\DoxyCodeLine{36 \};}
+\DoxyCodeLine{37 }
+\DoxyCodeLine{38 \textcolor{keyword}{class }\mbox{\hyperlink{classWebWindow}{WebWindow}} : \textcolor{keyword}{public} QMainWindow \{}
+\DoxyCodeLine{39     Q\_OBJECT}
+\DoxyCodeLine{40 \textcolor{keyword}{public}:}
+\DoxyCodeLine{41     \mbox{\hyperlink{classWebWindow}{WebWindow}}(\mbox{\hyperlink{classContainer}{Container}}* cc);}
+\DoxyCodeLine{42 }
+\DoxyCodeLine{43     QWebElement initBoilerplate(std::string html);}
+\DoxyCodeLine{44 }
+\DoxyCodeLine{45     \mbox{\hyperlink{classWebView}{WebView}}* webView;}
+\DoxyCodeLine{46     QPalette pal;}
+\DoxyCodeLine{47 }
+\DoxyCodeLine{48 \textcolor{keyword}{private}:}
+\DoxyCodeLine{49     \mbox{\hyperlink{classContainer}{Container}}* cc;}
+\DoxyCodeLine{50 \textcolor{keyword}{public} slots:}
+\DoxyCodeLine{51     \textcolor{keywordtype}{void} resizeEvent(QResizeEvent *);}
+\DoxyCodeLine{52     \textcolor{keywordtype}{void} closeEvent(QCloseEvent *);}
+\DoxyCodeLine{53 \};}
+\DoxyCodeLine{54 }
+\DoxyCodeLine{55 \textcolor{comment}{//-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/}}
+\DoxyCodeLine{56 \textcolor{comment}{//THE CLASS YOU'RE HERE FOR:}}
+\DoxyCodeLine{57 }
+\DoxyCodeLine{58 \textcolor{keyword}{class }\mbox{\hyperlink{classContainerTopLevel}{ContainerTopLevel}} : \textcolor{keyword}{public} \mbox{\hyperlink{classContainer}{Container}}}
+\DoxyCodeLine{59 \{}
+\DoxyCodeLine{60 }
+\DoxyCodeLine{61 \textcolor{keyword}{public}:}
+\DoxyCodeLine{62     \textcolor{keyword}{explicit} \mbox{\hyperlink{classContainerTopLevel}{ContainerTopLevel}}(\mbox{\hyperlink{classConnection}{Connection}}*, std::string clientName);}
+\DoxyCodeLine{63     \mbox{\hyperlink{classContainerTopLevel}{\string~ContainerTopLevel}}();}
+\DoxyCodeLine{64 }
+\DoxyCodeLine{65     \mbox{\hyperlink{classContainer}{Container}}* getParent();}
+\DoxyCodeLine{66 }
+\DoxyCodeLine{67     \textcolor{keywordtype}{bool} findText(std::string userQuery, \textcolor{keywordtype}{bool} searchBackwards, \textcolor{keywordtype}{bool} wrapAtEnd, \textcolor{keywordtype}{bool} caseSensitive);}
+\DoxyCodeLine{68     std::string getGlobalSelection(\textcolor{keywordtype}{bool} asHtml);}
+\DoxyCodeLine{69     \textcolor{comment}{//if asHtml is false, the selection is returned as plain text.}}
+\DoxyCodeLine{70 }
+\DoxyCodeLine{71     \textcolor{keywordtype}{char} editActionStatus(\textcolor{keywordtype}{char} action);}
+\DoxyCodeLine{72     \textcolor{keywordtype}{void} triggerEditAction(\textcolor{keywordtype}{char} action);}
+\DoxyCodeLine{73 }
+\DoxyCodeLine{74     std::string dialog(std::string title, std::string prompt, std::string choices, }
+\DoxyCodeLine{75             \textcolor{keywordtype}{bool} editable, \textcolor{keywordtype}{bool}* cancelled);}
+\DoxyCodeLine{76     \textcolor{comment}{//choices is newline-\/separated. Displays modal dialog and returns result.}}
+\DoxyCodeLine{77     \textcolor{comment}{//If the user selects cancel, the cancelled status is returned in a pointer argument.}}
+\DoxyCodeLine{78 }
+\DoxyCodeLine{79     std::string selectFileResource(std::string defaultName, std::string metadata, std::string\& accessMode);}
+\DoxyCodeLine{80     \textcolor{comment}{//implements top-\/level FIFO functionality through the OS's native open/save as interface.}}
+\DoxyCodeLine{81     \textcolor{comment}{//Ordinary files are used instead of real FIFOs here.}}
+\DoxyCodeLine{82     \textcolor{comment}{//The metadata argument spans multiple lines and contains caption and file filter info,}}
+\DoxyCodeLine{83     \textcolor{comment}{//consistent with what's passed to HIPE\_OP\_FIFO\_GET\_PEER.}}
+\DoxyCodeLine{84 }
+\DoxyCodeLine{85 \textcolor{keyword}{private}:}
+\DoxyCodeLine{86     \mbox{\hyperlink{classWebWindow}{WebWindow}}* w;}
+\DoxyCodeLine{87 \textcolor{keyword}{protected}:}
+\DoxyCodeLine{88     \textcolor{keywordtype}{void} setTitle(std::string newTitle);}
+\DoxyCodeLine{89     \textcolor{keywordtype}{void} setBody(std::string newBodyHtml, \textcolor{keywordtype}{bool} overwrite=\textcolor{keyword}{true});}
+\DoxyCodeLine{90     \textcolor{keywordtype}{void} setIcon(\textcolor{keyword}{const} \textcolor{keywordtype}{char}* imgData, \textcolor{keywordtype}{size\_t} length);}
+\DoxyCodeLine{91 }
+\DoxyCodeLine{92     QAction* getEditQtAction(\textcolor{keywordtype}{char} action);}
+\DoxyCodeLine{93     \textcolor{comment}{//utility function to convert our hipe EDIT action codes (e.g. 'x'==cut, 'c'==copy)}}
+\DoxyCodeLine{94     \textcolor{comment}{//into a pointer to the corresponding QAction object with methods to trigger that}}
+\DoxyCodeLine{95     \textcolor{comment}{//action and check its toggle state.}}
+\DoxyCodeLine{96 \};}
+\DoxyCodeLine{97 }
+\DoxyCodeLine{98 \textcolor{preprocessor}{\#endif }\textcolor{comment}{// CLIENTWINDOW\_H}}
+
+\end{DoxyCode}

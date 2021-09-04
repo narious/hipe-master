@@ -1,0 +1,12 @@
+\hypertarget{timer_8h_source}{}\doxysection{timer.\+h}
+\label{timer_8h_source}\index{api/test/additionaltesting/timer.h@{api/test/additionaltesting/timer.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#ifndef \_TIMER\_H}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#define TIMER\_H = 1}}
+\DoxyCodeLine{3 \textcolor{preprocessor}{\#include <time.h>}}
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#define beginClock(testname) \{char * t\_name = testname; clock\_t begin = clock();}}
+\DoxyCodeLine{5 \textcolor{preprocessor}{\#define endClock clock\_t end = clock(); double time\_spent\_ms = (double)(end -\/ begin)*1000/CLOCKS\_PER\_SEC; printf("{}TEST \%s Time Taken: \%f ms\(\backslash\)n"{}}, t\_name, time\_spent\_ms);\}}
+\DoxyCodeLine{6 \#endif}
+
+\end{DoxyCode}

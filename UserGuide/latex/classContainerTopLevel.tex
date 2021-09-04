@@ -1,0 +1,105 @@
+\hypertarget{classContainerTopLevel}{}\doxysection{Container\+Top\+Level Class Reference}
+\label{classContainerTopLevel}\index{ContainerTopLevel@{ContainerTopLevel}}
+Inheritance diagram for Container\+Top\+Level\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classContainerTopLevel}
+\end{center}
+\end{figure}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classContainerTopLevel_a0305858babd0e972f49cafbab4e7c3e2}\label{classContainerTopLevel_a0305858babd0e972f49cafbab4e7c3e2}} 
+{\bfseries Container\+Top\+Level} (\mbox{\hyperlink{classConnection}{Connection}} $\ast$, std\+::string client\+Name)
+\item 
+\mbox{\hyperlink{classContainer}{Container}} $\ast$ \mbox{\hyperlink{classContainerTopLevel_a3fa3466ebcac933888a6a0584f8869ba}{get\+Parent}} ()
+\item 
+\mbox{\Hypertarget{classContainerTopLevel_a5a8c1128443a9b0594854f0fdcc3d0b5}\label{classContainerTopLevel_a5a8c1128443a9b0594854f0fdcc3d0b5}} 
+bool {\bfseries find\+Text} (std\+::string user\+Query, bool search\+Backwards, bool wrap\+At\+End, bool case\+Sensitive)
+\item 
+\mbox{\Hypertarget{classContainerTopLevel_a5931fb1d72f3770b535c170c360b7f14}\label{classContainerTopLevel_a5931fb1d72f3770b535c170c360b7f14}} 
+std\+::string {\bfseries get\+Global\+Selection} (bool as\+Html)
+\item 
+char \mbox{\hyperlink{classContainerTopLevel_a9f9c54941069acc51f8beff876efdeb3}{edit\+Action\+Status}} (char action)
+\item 
+\mbox{\Hypertarget{classContainerTopLevel_a037173bea9871b66efa369d80ae4b63d}\label{classContainerTopLevel_a037173bea9871b66efa369d80ae4b63d}} 
+void {\bfseries trigger\+Edit\+Action} (char action)
+\item 
+\mbox{\Hypertarget{classContainerTopLevel_aa9970a1a975d8acced060c7265809361}\label{classContainerTopLevel_aa9970a1a975d8acced060c7265809361}} 
+std\+::string {\bfseries dialog} (std\+::string title, std\+::string prompt, std\+::string choices, bool editable, bool $\ast$cancelled)
+\item 
+\mbox{\Hypertarget{classContainerTopLevel_a664a05656750465ce6d5d13be430252f}\label{classContainerTopLevel_a664a05656750465ce6d5d13be430252f}} 
+std\+::string {\bfseries select\+File\+Resource} (std\+::string default\+Name, std\+::string metadata, std\+::string \&access\+Mode)
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+void \mbox{\hyperlink{classContainerTopLevel_a66a4dfce91459a8a6279379db309b6f9}{set\+Title}} (std\+::string new\+Title)
+\item 
+void \mbox{\hyperlink{classContainerTopLevel_ab817203b7d5bb5ec4c82df899568550b}{set\+Body}} (std\+::string new\+Body\+Html, bool overwrite=true)
+\item 
+void \mbox{\hyperlink{classContainerTopLevel_a8adce760ec47978143d8fabb05aa8e0a}{set\+Icon}} (const char $\ast$img\+Data, size\+\_\+t length)
+\item 
+\mbox{\Hypertarget{classContainerTopLevel_a5dc9cf2f79cc1f7e660a0902e052d9cb}\label{classContainerTopLevel_a5dc9cf2f79cc1f7e660a0902e052d9cb}} 
+QAction $\ast$ {\bfseries get\+Edit\+Qt\+Action} (char action)
+\end{DoxyCompactItemize}
+\doxysubsection*{Additional Inherited Members}
+
+
+\doxysubsection{Member Function Documentation}
+\mbox{\Hypertarget{classContainerTopLevel_a9f9c54941069acc51f8beff876efdeb3}\label{classContainerTopLevel_a9f9c54941069acc51f8beff876efdeb3}} 
+\index{ContainerTopLevel@{ContainerTopLevel}!editActionStatus@{editActionStatus}}
+\index{editActionStatus@{editActionStatus}!ContainerTopLevel@{ContainerTopLevel}}
+\doxysubsubsection{\texorpdfstring{editActionStatus()}{editActionStatus()}}
+{\footnotesize\ttfamily char Container\+Top\+Level\+::edit\+Action\+Status (\begin{DoxyParamCaption}\item[{char}]{action }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Reimplemented from \mbox{\hyperlink{classContainer}{Container}}.
+
+\mbox{\Hypertarget{classContainerTopLevel_a3fa3466ebcac933888a6a0584f8869ba}\label{classContainerTopLevel_a3fa3466ebcac933888a6a0584f8869ba}} 
+\index{ContainerTopLevel@{ContainerTopLevel}!getParent@{getParent}}
+\index{getParent@{getParent}!ContainerTopLevel@{ContainerTopLevel}}
+\doxysubsubsection{\texorpdfstring{getParent()}{getParent()}}
+{\footnotesize\ttfamily \mbox{\hyperlink{classContainer}{Container}} $\ast$ Container\+Top\+Level\+::get\+Parent (\begin{DoxyParamCaption}{ }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [virtual]}}
+
+
+
+Implements \mbox{\hyperlink{classContainer}{Container}}.
+
+\mbox{\Hypertarget{classContainerTopLevel_ab817203b7d5bb5ec4c82df899568550b}\label{classContainerTopLevel_ab817203b7d5bb5ec4c82df899568550b}} 
+\index{ContainerTopLevel@{ContainerTopLevel}!setBody@{setBody}}
+\index{setBody@{setBody}!ContainerTopLevel@{ContainerTopLevel}}
+\doxysubsubsection{\texorpdfstring{setBody()}{setBody()}}
+{\footnotesize\ttfamily void Container\+Top\+Level\+::set\+Body (\begin{DoxyParamCaption}\item[{std\+::string}]{new\+Body\+Html,  }\item[{bool}]{overwrite = {\ttfamily true} }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Implements \mbox{\hyperlink{classContainer}{Container}}.
+
+\mbox{\Hypertarget{classContainerTopLevel_a8adce760ec47978143d8fabb05aa8e0a}\label{classContainerTopLevel_a8adce760ec47978143d8fabb05aa8e0a}} 
+\index{ContainerTopLevel@{ContainerTopLevel}!setIcon@{setIcon}}
+\index{setIcon@{setIcon}!ContainerTopLevel@{ContainerTopLevel}}
+\doxysubsubsection{\texorpdfstring{setIcon()}{setIcon()}}
+{\footnotesize\ttfamily void Container\+Top\+Level\+::set\+Icon (\begin{DoxyParamCaption}\item[{const char $\ast$}]{img\+Data,  }\item[{size\+\_\+t}]{length }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Implements \mbox{\hyperlink{classContainer}{Container}}.
+
+\mbox{\Hypertarget{classContainerTopLevel_a66a4dfce91459a8a6279379db309b6f9}\label{classContainerTopLevel_a66a4dfce91459a8a6279379db309b6f9}} 
+\index{ContainerTopLevel@{ContainerTopLevel}!setTitle@{setTitle}}
+\index{setTitle@{setTitle}!ContainerTopLevel@{ContainerTopLevel}}
+\doxysubsubsection{\texorpdfstring{setTitle()}{setTitle()}}
+{\footnotesize\ttfamily void Container\+Top\+Level\+::set\+Title (\begin{DoxyParamCaption}\item[{std\+::string}]{new\+Title }\end{DoxyParamCaption})\hspace{0.3cm}{\ttfamily [protected]}, {\ttfamily [virtual]}}
+
+
+
+Implements \mbox{\hyperlink{classContainer}{Container}}.
+
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+server/src/containertoplevel.\+h\item 
+server/src/containertoplevel.\+cpp\end{DoxyCompactItemize}

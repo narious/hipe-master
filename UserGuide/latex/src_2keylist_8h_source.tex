@@ -1,0 +1,78 @@
+\hypertarget{src_2keylist_8h_source}{}\doxysection{keylist.\+h}
+\label{src_2keylist_8h_source}\index{server/src/keylist.h@{server/src/keylist.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{comment}{/*  Copyright (c) 2015 Daniel Kos, General Development Systems}}
+\DoxyCodeLine{2 \textcolor{comment}{}}
+\DoxyCodeLine{3 \textcolor{comment}{    This file is part of Hipe.}}
+\DoxyCodeLine{4 \textcolor{comment}{}}
+\DoxyCodeLine{5 \textcolor{comment}{    Hipe is free software: you can redistribute it and/or modify}}
+\DoxyCodeLine{6 \textcolor{comment}{    it under the terms of the GNU General Public License as published by}}
+\DoxyCodeLine{7 \textcolor{comment}{    the Free Software Foundation, either version 3 of the License, or}}
+\DoxyCodeLine{8 \textcolor{comment}{    (at your option) any later version.}}
+\DoxyCodeLine{9 \textcolor{comment}{}}
+\DoxyCodeLine{10 \textcolor{comment}{    Hipe is distributed in the hope that it will be useful,}}
+\DoxyCodeLine{11 \textcolor{comment}{    but WITHOUT ANY WARRANTY; without even the implied warranty of}}
+\DoxyCodeLine{12 \textcolor{comment}{    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the}}
+\DoxyCodeLine{13 \textcolor{comment}{    GNU General Public License for more details.}}
+\DoxyCodeLine{14 \textcolor{comment}{}}
+\DoxyCodeLine{15 \textcolor{comment}{    You should have received a copy of the GNU General Public License}}
+\DoxyCodeLine{16 \textcolor{comment}{    along with Hipe.  If not, see <http://www.gnu.org/licenses/>.}}
+\DoxyCodeLine{17 \textcolor{comment}{*/}}
+\DoxyCodeLine{18 }
+\DoxyCodeLine{23 }
+\DoxyCodeLine{24 \textcolor{preprocessor}{\#ifndef KEYLIST\_H}}
+\DoxyCodeLine{25 \textcolor{preprocessor}{\#define KEYLIST\_H}}
+\DoxyCodeLine{26 }
+\DoxyCodeLine{27 \textcolor{preprocessor}{\#include <mutex>}}
+\DoxyCodeLine{28 \textcolor{preprocessor}{\#include <list>}}
+\DoxyCodeLine{29 \textcolor{preprocessor}{\#include <random>}}
+\DoxyCodeLine{30 }
+\DoxyCodeLine{31 }
+\DoxyCodeLine{32 \textcolor{keyword}{class }\mbox{\hyperlink{classKeyList}{KeyList}} \{}
+\DoxyCodeLine{33 \textcolor{keyword}{private}:}
+\DoxyCodeLine{34     \textcolor{keyword}{static} std::random\_device* rand;}
+\DoxyCodeLine{35     \textcolor{keyword}{static} \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} sequenceNumber;}
+\DoxyCodeLine{36 }
+\DoxyCodeLine{37     \textcolor{keyword}{static} std::mutex mKeyList; \textcolor{comment}{//used to make KeyList operations thread-\/safe.}}
+\DoxyCodeLine{38     \textcolor{comment}{//rarity of this operation means a single mutex can be shared between instances.}}
+\DoxyCodeLine{39 }
+\DoxyCodeLine{40     std::string baseString;}
+\DoxyCodeLine{41     std::list<std::string> keys;}
+\DoxyCodeLine{42 }
+\DoxyCodeLine{43     \textcolor{keyword}{static} \textcolor{keywordtype}{char} map6bitToAlphaNumeric(\textcolor{keywordtype}{int} num);}
+\DoxyCodeLine{44 }
+\DoxyCodeLine{45 \textcolor{keyword}{public}:}
+\DoxyCodeLine{46     \textcolor{comment}{/*}}
+\DoxyCodeLine{47 \textcolor{comment}{     * Must be called before any objects are created from this class.}}
+\DoxyCodeLine{48 \textcolor{comment}{     * randomDevice is a hardware device path, e.g. "{}/dev/random"{} which is optionally specified.}}
+\DoxyCodeLine{49 \textcolor{comment}{     * If ommitted, default behaviour ensues.}}
+\DoxyCodeLine{50 \textcolor{comment}{     *}}
+\DoxyCodeLine{51 \textcolor{comment}{     * O(1) worst case time complexity (or whatever the complexity of rand\_device is).}}
+\DoxyCodeLine{52 \textcolor{comment}{     */}}
+\DoxyCodeLine{53     \textcolor{keyword}{static} \textcolor{keywordtype}{void} initClass(std::string randomDevice=\textcolor{stringliteral}{"{}"{}}); }
+\DoxyCodeLine{54 }
+\DoxyCodeLine{55     \textcolor{comment}{/*}}
+\DoxyCodeLine{56 \textcolor{comment}{     * O(1) worst case time complexity.}}
+\DoxyCodeLine{57 \textcolor{comment}{     */}}
+\DoxyCodeLine{58     \textcolor{keyword}{explicit} \mbox{\hyperlink{classKeyList}{KeyList}}(std::string baseString);}
+\DoxyCodeLine{59 }
+\DoxyCodeLine{60     \textcolor{comment}{/*}}
+\DoxyCodeLine{61 \textcolor{comment}{     * O(1) worst case time complexity because it doesn't do anything (redundant).}}
+\DoxyCodeLine{62 \textcolor{comment}{     */}}
+\DoxyCodeLine{63     \mbox{\hyperlink{classKeyList}{\string~KeyList}}();}
+\DoxyCodeLine{64     \textcolor{comment}{/*}}
+\DoxyCodeLine{65 \textcolor{comment}{     * O(n+m) worst case time complexity where n is the length of the generated key and m is}}
+\DoxyCodeLine{66 \textcolor{comment}{     * the length of the list used to store the keys.}}
+\DoxyCodeLine{67 \textcolor{comment}{     */}}
+\DoxyCodeLine{68     std::string \mbox{\hyperlink{classKeyList_a34a0558639183084807b7a1da7c0f9ad}{generateContainerKey}}();}
+\DoxyCodeLine{69     \textcolor{comment}{/*}}
+\DoxyCodeLine{70 \textcolor{comment}{     * O(n*m) worst case time complexity where n is the length of the list of keys and m is the}}
+\DoxyCodeLine{71 \textcolor{comment}{     * length of a key.}}
+\DoxyCodeLine{72 \textcolor{comment}{     */}}
+\DoxyCodeLine{73     \textcolor{keywordtype}{bool} claimKey(std::string key);}
+\DoxyCodeLine{74 \};}
+\DoxyCodeLine{75 }
+\DoxyCodeLine{76 \textcolor{preprocessor}{\#endif }\textcolor{comment}{// KEYLIST\_H}}
+
+\end{DoxyCode}
