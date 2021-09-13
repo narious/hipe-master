@@ -434,7 +434,7 @@ extern "C" {
 
 #define HIPE_OP_IMPORT_CSS 70
 /* Used to import a CSS file to apply to a container.
- * arg[0] == file path of the CSS file
+ * arg[0] == file path of the CSS file (must be relative to hipe-master)
  * arg[1] == string ("1" or "0") to specify if stylesheet is to be overwritten ("1") or have the imported file appended ("0").
  */
 
