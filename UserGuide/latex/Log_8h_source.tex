@@ -1,0 +1,25 @@
+\hypertarget{Log_8h_source}{}\doxysection{Log.\+h}
+\label{Log_8h_source}\index{api/gtest/src/Log.h@{api/gtest/src/Log.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#ifndef LOG\_H\_}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#define LOG\_H\_}}
+\DoxyCodeLine{3 }
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#include <memory.h>}}
+\DoxyCodeLine{5 \textcolor{preprocessor}{\#include "{}spdlog/spdlog.h"{}}}
+\DoxyCodeLine{6 }
+\DoxyCodeLine{7 \textcolor{keyword}{class }\mbox{\hyperlink{classLog}{Log}}}
+\DoxyCodeLine{8 \{}
+\DoxyCodeLine{9 \textcolor{keyword}{public}:}
+\DoxyCodeLine{10     \mbox{\hyperlink{classLog}{Log}}(\textcolor{keyword}{const} \textcolor{keywordtype}{char}* name, \textcolor{keyword}{const} \textcolor{keywordtype}{char}* logfile)\{\};}
+\DoxyCodeLine{11     \mbox{\hyperlink{classLog}{\string~Log}}()\{\};}
+\DoxyCodeLine{12     }
+\DoxyCodeLine{13     \textcolor{keyword}{inline} std::shared\_ptr<spdlog::logger>\& GetLogger() \{ \textcolor{keywordflow}{return} \_Logger; \};}
+\DoxyCodeLine{14 }
+\DoxyCodeLine{15 \textcolor{keyword}{private}:}
+\DoxyCodeLine{16     std::shared\_ptr<spdlog::logger> \_Logger;}
+\DoxyCodeLine{17 \};}
+\DoxyCodeLine{18 }
+\DoxyCodeLine{19 \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

@@ -1,0 +1,97 @@
+\hypertarget{connection_8h_source}{}\doxysection{connection.\+h}
+\label{connection_8h_source}\index{server/src/connection.h@{server/src/connection.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{comment}{/*  Copyright (c) 2016-\/2021 Daniel Kos, General Development Systems}}
+\DoxyCodeLine{2 \textcolor{comment}{}}
+\DoxyCodeLine{3 \textcolor{comment}{    This file is part of Hipe.}}
+\DoxyCodeLine{4 \textcolor{comment}{}}
+\DoxyCodeLine{5 \textcolor{comment}{    Hipe is free software: you can redistribute it and/or modify}}
+\DoxyCodeLine{6 \textcolor{comment}{    it under the terms of the GNU General Public License as published by}}
+\DoxyCodeLine{7 \textcolor{comment}{    the Free Software Foundation, either version 3 of the License, or}}
+\DoxyCodeLine{8 \textcolor{comment}{    (at your option) any later version.}}
+\DoxyCodeLine{9 \textcolor{comment}{}}
+\DoxyCodeLine{10 \textcolor{comment}{    Hipe is distributed in the hope that it will be useful,}}
+\DoxyCodeLine{11 \textcolor{comment}{    but WITHOUT ANY WARRANTY; without even the implied warranty of}}
+\DoxyCodeLine{12 \textcolor{comment}{    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the}}
+\DoxyCodeLine{13 \textcolor{comment}{    GNU General Public License for more details.}}
+\DoxyCodeLine{14 \textcolor{comment}{}}
+\DoxyCodeLine{15 \textcolor{comment}{    You should have received a copy of the GNU General Public License}}
+\DoxyCodeLine{16 \textcolor{comment}{    along with Hipe.  If not, see <http://www.gnu.org/licenses/>.}}
+\DoxyCodeLine{17 \textcolor{comment}{*/}}
+\DoxyCodeLine{18 }
+\DoxyCodeLine{29 }
+\DoxyCodeLine{30 \textcolor{comment}{// OWNERSHIP:}}
+\DoxyCodeLine{31 \textcolor{comment}{// The connection owns the on-\/screen container object. It is responsible for}}
+\DoxyCodeLine{32 \textcolor{comment}{// deleting the container object when destroyed.}}
+\DoxyCodeLine{33 }
+\DoxyCodeLine{34 \textcolor{preprocessor}{\#ifndef CONNECTION\_H}}
+\DoxyCodeLine{35 \textcolor{preprocessor}{\#define CONNECTION\_H}}
+\DoxyCodeLine{36 }
+\DoxyCodeLine{37 \textcolor{comment}{// WARN(Di): api/hipe.c also defined a READ\_BUFFER\_SIZE 128, are they related?}}
+\DoxyCodeLine{38 \textcolor{preprocessor}{\#define READ\_BUFFER\_SIZE 256 }\textcolor{comment}{// 128 //this choice is arbitrary.}}
+\DoxyCodeLine{39 }
+\DoxyCodeLine{40 \textcolor{preprocessor}{\#include <mutex>}}
+\DoxyCodeLine{41 \textcolor{preprocessor}{\#include <queue>}}
+\DoxyCodeLine{42 }
+\DoxyCodeLine{43 \textcolor{preprocessor}{\#include "{}common.h"{}}}
+\DoxyCodeLine{44 \textcolor{preprocessor}{\#include "{}container.h"{}}}
+\DoxyCodeLine{45 }
+\DoxyCodeLine{46 \textcolor{keyword}{class }\mbox{\hyperlink{classConnection}{Connection}} \{}
+\DoxyCodeLine{47 \textcolor{keyword}{private}:}
+\DoxyCodeLine{48   \textcolor{comment}{// UNCLEAR: why predefined separately.}}
+\DoxyCodeLine{49   \textcolor{keywordtype}{bool} connected = \textcolor{keyword}{true};}
+\DoxyCodeLine{50 }
+\DoxyCodeLine{51 \textcolor{keyword}{public}:}
+\DoxyCodeLine{52   \mbox{\hyperlink{classConnection}{Connection}}(\textcolor{keywordtype}{int} clientFD);}
+\DoxyCodeLine{53   \mbox{\hyperlink{classConnection}{\string~Connection}}();}
+\DoxyCodeLine{54 }
+\DoxyCodeLine{55   \textcolor{comment}{// send one encoded insturction to dedicated client according to their fd.}}
+\DoxyCodeLine{56   \textcolor{keywordtype}{void} sendInstruction(\textcolor{keywordtype}{char} opcode, uint64\_t requestor, uint64\_t location,}
+\DoxyCodeLine{57                        \textcolor{keyword}{const} std::vector<std::string> \&args = \{\});}
+\DoxyCodeLine{58   \textcolor{keywordtype}{void} sendInstruction(\mbox{\hyperlink{struct__hipe__instruction}{hipe\_instruction}} \&instruction);}
+\DoxyCodeLine{59   \mbox{\hyperlink{classContainer}{Container}} *container;}
+\DoxyCodeLine{60 }
+\DoxyCodeLine{61   \textcolor{comment}{// The hiped event loop iterates over each activeConnection and calls the}}
+\DoxyCodeLine{62   \textcolor{comment}{// service() function in each, returning to an idle state if all connections}}
+\DoxyCodeLine{63   \textcolor{comment}{// return false (unproductive call). The purpose of service() is to check if}}
+\DoxyCodeLine{64   \textcolor{comment}{// an incoming instruction has been queued by the socket thread and service}}
+\DoxyCodeLine{65   \textcolor{comment}{// it in the primary/GUI thread; by modifying the GUI appropriately.}}
+\DoxyCodeLine{66   \textcolor{keywordtype}{bool} service();}
+\DoxyCodeLine{67 }
+\DoxyCodeLine{68   \textcolor{keyword}{inline} \textcolor{keywordtype}{bool} isConnected() \{ \textcolor{keywordflow}{return} connected; \}}
+\DoxyCodeLine{69   \textcolor{keywordtype}{void} disconnect();}
+\DoxyCodeLine{70 }
+\DoxyCodeLine{71   \textcolor{comment}{// TODO: bad name, rename to read}}
+\DoxyCodeLine{72   \textcolor{comment}{// read instruction from `readBuffer`, then decode, then move buffer content}}
+\DoxyCodeLine{73   \textcolor{comment}{// to `incomingInstructions`}}
+\DoxyCodeLine{74   \textcolor{keywordtype}{void} \_readyRead();}
+\DoxyCodeLine{75 }
+\DoxyCodeLine{76 \textcolor{keyword}{private}:}
+\DoxyCodeLine{77   \textcolor{keywordtype}{int} clientFD;    \textcolor{comment}{// socket descriptor of the connection.}}
+\DoxyCodeLine{78   pid\_t clientPID; \textcolor{comment}{// pid\_t == int}}
+\DoxyCodeLine{79 }
+\DoxyCodeLine{80   \textcolor{comment}{// where we put characters that have been read in over the connection.}}
+\DoxyCodeLine{81   \textcolor{keywordtype}{char} readBuffer[READ\_BUFFER\_SIZE];}
+\DoxyCodeLine{82 }
+\DoxyCodeLine{83   \textcolor{comment}{// UNCLEAR : reusable?}}
+\DoxyCodeLine{84   \mbox{\hyperlink{struct__instruction__decoder}{instruction\_decoder}} currentInstruction;}
+\DoxyCodeLine{85 }
+\DoxyCodeLine{86   \textcolor{comment}{// deals with a completed instruction -\/-\/ sends it to wherever it's needed.}}
+\DoxyCodeLine{87   \textcolor{keywordtype}{void} runInstruction(\mbox{\hyperlink{struct__hipe__instruction}{hipe\_instruction}} *instruction);}
+\DoxyCodeLine{88 }
+\DoxyCodeLine{89   std::queue<hipe\_instruction *> incomingInstructions;}
+\DoxyCodeLine{90 }
+\DoxyCodeLine{91   \textcolor{comment}{// instruction queue is filled by the incomingInstruction thread, and emptied}}
+\DoxyCodeLine{92   \textcolor{comment}{// in the main thread. Mutual exclusion must be enforced to ensure no two}}
+\DoxyCodeLine{93   \textcolor{comment}{// threads access the queue simultaneously.}}
+\DoxyCodeLine{94   std::mutex mIncomingInstructions;}
+\DoxyCodeLine{95 }
+\DoxyCodeLine{96   \textcolor{comment}{// mutex to enforce atomicity of write calls when sending messages back}}
+\DoxyCodeLine{97   \textcolor{comment}{// to client.}}
+\DoxyCodeLine{98   std::mutex mWriteProtect;}
+\DoxyCodeLine{99 \};}
+\DoxyCodeLine{100 }
+\DoxyCodeLine{101 \textcolor{preprocessor}{\#endif }\textcolor{comment}{// CONNECTION\_H}}
+
+\end{DoxyCode}

@@ -1,0 +1,21 @@
+\hypertarget{gtest_2src_2keylist_8h_source}{}\doxysection{keylist.\+h}
+\label{gtest_2src_2keylist_8h_source}\index{server/gtest/src/keylist.h@{server/gtest/src/keylist.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{comment}{/*}}
+\DoxyCodeLine{2 \textcolor{comment}{ * Testing the hipe server keylist.}}
+\DoxyCodeLine{3 \textcolor{comment}{ */}}
+\DoxyCodeLine{4 \textcolor{comment}{// Prefix definition with 'T' to separate from hipe server's}}
+\DoxyCodeLine{5 \textcolor{comment}{// keylist files.}}
+\DoxyCodeLine{6 \textcolor{preprocessor}{\#ifndef TKEYLIST\_H}}
+\DoxyCodeLine{7 \textcolor{preprocessor}{\#define TKEYLIST\_H}}
+\DoxyCodeLine{8 }
+\DoxyCodeLine{9 \textcolor{preprocessor}{\#include <gtest/gtest.h>}}
+\DoxyCodeLine{10 \textcolor{comment}{// Want to test a private function so make it public.}}
+\DoxyCodeLine{11 \textcolor{preprocessor}{\#define private public}}
+\DoxyCodeLine{12 \textcolor{preprocessor}{\#include "{}../../src/keylist.h"{}}}
+\DoxyCodeLine{13 \textcolor{preprocessor}{\#undef private}}
+\DoxyCodeLine{14 }
+\DoxyCodeLine{15 \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

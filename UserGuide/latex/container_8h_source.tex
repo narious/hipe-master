@@ -1,0 +1,169 @@
+\hypertarget{container_8h_source}{}\doxysection{container.\+h}
+\label{container_8h_source}\index{server/src/container.h@{server/src/container.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{comment}{/*  Copyright (c) 2016-\/2018 Daniel Kos, General Development Systems}}
+\DoxyCodeLine{2 \textcolor{comment}{}}
+\DoxyCodeLine{3 \textcolor{comment}{    This file is part of Hipe.}}
+\DoxyCodeLine{4 \textcolor{comment}{}}
+\DoxyCodeLine{5 \textcolor{comment}{    Hipe is free software: you can redistribute it and/or modify}}
+\DoxyCodeLine{6 \textcolor{comment}{    it under the terms of the GNU General Public License as published by}}
+\DoxyCodeLine{7 \textcolor{comment}{    the Free Software Foundation, either version 3 of the License, or}}
+\DoxyCodeLine{8 \textcolor{comment}{    (at your option) any later version.}}
+\DoxyCodeLine{9 \textcolor{comment}{}}
+\DoxyCodeLine{10 \textcolor{comment}{    Hipe is distributed in the hope that it will be useful,}}
+\DoxyCodeLine{11 \textcolor{comment}{    but WITHOUT ANY WARRANTY; without even the implied warranty of}}
+\DoxyCodeLine{12 \textcolor{comment}{    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the}}
+\DoxyCodeLine{13 \textcolor{comment}{    GNU General Public License for more details.}}
+\DoxyCodeLine{14 \textcolor{comment}{}}
+\DoxyCodeLine{15 \textcolor{comment}{    You should have received a copy of the GNU General Public License}}
+\DoxyCodeLine{16 \textcolor{comment}{    along with Hipe.  If not, see <http://www.gnu.org/licenses/>.}}
+\DoxyCodeLine{17 \textcolor{comment}{*/}}
+\DoxyCodeLine{18 }
+\DoxyCodeLine{19 \textcolor{preprocessor}{\#ifndef CLIENTCONTAINER\_H}}
+\DoxyCodeLine{20 \textcolor{preprocessor}{\#define CLIENTCONTAINER\_H}}
+\DoxyCodeLine{21 }
+\DoxyCodeLine{22 \textcolor{preprocessor}{\#include <QWebElement>}}
+\DoxyCodeLine{23 \textcolor{preprocessor}{\#include <QWebFrame>}}
+\DoxyCodeLine{24 \textcolor{preprocessor}{\#include <QObject>}}
+\DoxyCodeLine{25 \textcolor{preprocessor}{\#include <stack>}}
+\DoxyCodeLine{26 \textcolor{preprocessor}{\#include <list>}}
+\DoxyCodeLine{27 \textcolor{preprocessor}{\#include <map>}}
+\DoxyCodeLine{28 \textcolor{preprocessor}{\#include <string>}}
+\DoxyCodeLine{29 \textcolor{preprocessor}{\#include "{}ExpArray.hh"{}}}
+\DoxyCodeLine{30 \textcolor{preprocessor}{\#include "{}common.h"{}}}
+\DoxyCodeLine{31 \textcolor{preprocessor}{\#include "{}keylist.h"{}}}
+\DoxyCodeLine{32 \textcolor{keyword}{class }\mbox{\hyperlink{classConnection}{Connection}};}
+\DoxyCodeLine{33 }
+\DoxyCodeLine{34 }
+\DoxyCodeLine{35 \textcolor{keyword}{class }\mbox{\hyperlink{classFrameData}{FrameData}} \{}
+\DoxyCodeLine{36 \textcolor{comment}{//stores metadata and references relevant to a particular child container.}}
+\DoxyCodeLine{37 \textcolor{keyword}{public}:}
+\DoxyCodeLine{38     QWebElement we; \textcolor{comment}{//reference to the <iframe> tag}}
+\DoxyCodeLine{39     QWebFrame* wf; \textcolor{comment}{//reference to the frame object which matches the <iframe> tag.}}
+\DoxyCodeLine{40     QString hostkey; \textcolor{comment}{//once claimed, this becomes an empty string.}}
+\DoxyCodeLine{41 }
+\DoxyCodeLine{42     uint64\_t requestor; \textcolor{comment}{//to be attached when sending back child frame events.}}
+\DoxyCodeLine{43     std::string clientName;}
+\DoxyCodeLine{44     std::string title;}
+\DoxyCodeLine{45     pid\_t pid; \textcolor{comment}{//client process ID. pid\_t defined in <types.h>}}
+\DoxyCodeLine{46 }
+\DoxyCodeLine{47     std::string fg, bg; \textcolor{comment}{//foreground and background colours as CSS values.}}
+\DoxyCodeLine{48 }
+\DoxyCodeLine{49     \textcolor{keywordtype}{bool} operator==(\textcolor{keyword}{const} \mbox{\hyperlink{classFrameData}{FrameData}}\& other);}
+\DoxyCodeLine{50 \};}
+\DoxyCodeLine{51 }
+\DoxyCodeLine{52 }
+\DoxyCodeLine{53 \textcolor{keyword}{class }\mbox{\hyperlink{classContainer}{Container}} : \textcolor{keyword}{public} QObject}
+\DoxyCodeLine{54 \{}
+\DoxyCodeLine{55     Q\_OBJECT}
+\DoxyCodeLine{56 \textcolor{keyword}{public}:}
+\DoxyCodeLine{57     \textcolor{keyword}{friend} \textcolor{keyword}{class }ContainerManager;}
+\DoxyCodeLine{58     \textcolor{keyword}{static} std::string globalStyleRules;}
+\DoxyCodeLine{59 }
+\DoxyCodeLine{60     \mbox{\hyperlink{classContainer}{Container}}(\mbox{\hyperlink{classConnection}{Connection}}* client, std::string clientName);}
+\DoxyCodeLine{61     \mbox{\hyperlink{classContainer}{\string~Container}}();}
+\DoxyCodeLine{62 }
+\DoxyCodeLine{63     \textcolor{keywordtype}{void} receiveInstruction(\mbox{\hyperlink{struct__hipe__instruction}{hipe\_instruction}} instruction);}
+\DoxyCodeLine{64 }
+\DoxyCodeLine{65     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} setTitle(std::string newTitle)=0;}
+\DoxyCodeLine{66     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} setIcon(\textcolor{keyword}{const} \textcolor{keywordtype}{char}* imgData, \textcolor{keywordtype}{size\_t} length)=0;}
+\DoxyCodeLine{67     \textcolor{keyword}{virtual} \textcolor{keywordtype}{void} setBody(std::string newBodyHtml, \textcolor{keywordtype}{bool} overwrite=\textcolor{keyword}{true})=0;}
+\DoxyCodeLine{68 }
+\DoxyCodeLine{69     \textcolor{keywordtype}{void} applyStylesheet();}
+\DoxyCodeLine{70     \textcolor{comment}{//apply stylesheet after changes. If <body> was not opened yet (!initYet)}}
+\DoxyCodeLine{71     \textcolor{comment}{//then this is a no-\/op as styling gets applied when setBody is called.}}
+\DoxyCodeLine{72     \textcolor{comment}{//Otherwise, this call causes a <style> tag to be appended inside the}}
+\DoxyCodeLine{73     \textcolor{comment}{//<body> tag; which is not technically valid HTML but should do the trick.}}
+\DoxyCodeLine{74 }
+\DoxyCodeLine{75     \textcolor{keywordtype}{void} containerClosed();}
+\DoxyCodeLine{76 }
+\DoxyCodeLine{77     \mbox{\hyperlink{classContainer}{Container}}* requestNew(std::string key, std::string clientName, uint64\_t pid, \mbox{\hyperlink{classConnection}{Connection}}* c);}
+\DoxyCodeLine{78     \textcolor{comment}{//request a new sub-\/frame that is managed by this container. Returns nullptr if the}}
+\DoxyCodeLine{79     \textcolor{comment}{//key is not held by this container, else creates a new ContainerFrame object and}}
+\DoxyCodeLine{80     \textcolor{comment}{//returns its pointer.}}
+\DoxyCodeLine{81 }
+\DoxyCodeLine{82     \textcolor{keywordtype}{void} receiveSubFrameEvent(\textcolor{keywordtype}{short} evtType, QWebFrame* sender, std::string detail);}
+\DoxyCodeLine{83     \textcolor{comment}{//called by a sub-\/frame (ContainerFrame object) of this container to indicate that}}
+\DoxyCodeLine{84     \textcolor{comment}{//the frame has been modified in a way that should be reported to the framing client.}}
+\DoxyCodeLine{85 }
+\DoxyCodeLine{86     \textcolor{keywordtype}{void} receiveMessage(\textcolor{keywordtype}{char} opcode, int64\_t requestor, \textcolor{keyword}{const} std::vector<std::string>\& args, QWebFrame* sender, \textcolor{keywordtype}{bool} propagateToParent=\textcolor{keyword}{false});}
+\DoxyCodeLine{87     \textcolor{comment}{//called by another container object to transmit an instruction (e.g. HIPE\_OP\_MESSAGE)}}
+\DoxyCodeLine{88     \textcolor{comment}{//from a direct parent/child frame's client to this container's client.}}
+\DoxyCodeLine{89     \textcolor{comment}{//sender should be used only if sender is a child of the recipient. If it's}}
+\DoxyCodeLine{90     \textcolor{comment}{//the parent, this should be indicated by passing a nullptr.}}
+\DoxyCodeLine{91     \textcolor{comment}{//This can also be used to transmit events across frame boundaries}}
+\DoxyCodeLine{92     \textcolor{comment}{//(the parent will see the event as originating from the client frame element).}}
+\DoxyCodeLine{93 }
+\DoxyCodeLine{94     \textcolor{keywordtype}{void} keyEventOnChildFrame(QWebFrame* origin, \textcolor{keywordtype}{bool} keyUp, QString keycode);}
+\DoxyCodeLine{95     \textcolor{comment}{//if keyup is false, it was a keydown event.}}
+\DoxyCodeLine{96     \textcolor{comment}{//This function is called from a child container instructing this container}}
+\DoxyCodeLine{97     \textcolor{comment}{//that a keyup/keydown event has occurred on the body element of this frame}}
+\DoxyCodeLine{98     \textcolor{comment}{//(or has propagated from a child frame of *that* frame).}}
+\DoxyCodeLine{99     \textcolor{comment}{//The event should be propagated up to the top level so the framing manager}}
+\DoxyCodeLine{100     \textcolor{comment}{//can intercept global keyboard shortcuts.}}
+\DoxyCodeLine{101     \textcolor{comment}{//It should also trigger a simulated event on the frame to this client,}}
+\DoxyCodeLine{102     \textcolor{comment}{//if this client has bound onkeydown/onkeyup attributes to this frame.}}
+\DoxyCodeLine{103 }
+\DoxyCodeLine{104     \textcolor{keyword}{virtual} \mbox{\hyperlink{classContainer}{Container}}* getParent()=0; \textcolor{comment}{//returns the parent container, or nullptr if it's a top level container.}}
+\DoxyCodeLine{105 }
+\DoxyCodeLine{106     \textcolor{keyword}{virtual} \textcolor{keywordtype}{char} editActionStatus(\textcolor{keywordtype}{char}) \{\textcolor{keywordflow}{return} \textcolor{charliteral}{'?'};\}}
+\DoxyCodeLine{107 }
+\DoxyCodeLine{108     QWebFrame* frame;}
+\DoxyCodeLine{109 }
+\DoxyCodeLine{110     \mbox{\hyperlink{classConnection}{Connection}}* client;}
+\DoxyCodeLine{111     QWebElement webElement;}
+\DoxyCodeLine{112     std::string stylesheet; \textcolor{comment}{//build up the stylesheet before we apply it.}}
+\DoxyCodeLine{113 }
+\DoxyCodeLine{114     \textcolor{keywordtype}{bool} isTopLevel = \textcolor{keyword}{false}; \textcolor{comment}{//some instructions are only permitted to be carried out}}
+\DoxyCodeLine{115     \textcolor{comment}{//by the top level frame.}}
+\DoxyCodeLine{116 \textcolor{keyword}{protected}:}
+\DoxyCodeLine{117     \textcolor{keywordtype}{bool} initYet; \textcolor{comment}{//becomes true once boilerplate html has been set.}}
+\DoxyCodeLine{118 signals:}
+\DoxyCodeLine{119     \textcolor{keywordtype}{void} receiveGuiEvent(QString location, QString requestor, QString event, QString detail);}
+\DoxyCodeLine{120     \textcolor{comment}{//signal called from within the QWebView object (via Javascript), each time a user interaction takes place.}}
+\DoxyCodeLine{121 }
+\DoxyCodeLine{122     \textcolor{keywordtype}{void} receiveKeyEventOnBody(\textcolor{keywordtype}{bool} keyUp, QString keycode);}
+\DoxyCodeLine{123     \textcolor{comment}{//signal called when a keyup (or else keydown) event happens on the body element.}}
+\DoxyCodeLine{124 \textcolor{keyword}{protected} slots:}
+\DoxyCodeLine{125     \textcolor{keywordtype}{void} \_receiveGuiEvent(QString location, QString requestor, QString event, QString detail);}
+\DoxyCodeLine{126     \textcolor{comment}{//location and requestor are to be passed as hexadecimal strings.}}
+\DoxyCodeLine{127 }
+\DoxyCodeLine{128     \textcolor{keywordtype}{void} \_receiveKeyEventOnBody(\textcolor{keywordtype}{bool} keyUp, QString keycode);}
+\DoxyCodeLine{129     \textcolor{keywordtype}{void} frameCleared();}
+\DoxyCodeLine{130     \textcolor{keywordtype}{void} frameDestroyed(); \textcolor{comment}{//conneected to the QWebFrame's destroyed() signal.}}
+\DoxyCodeLine{131 \textcolor{keyword}{public} slots:}
+\DoxyCodeLine{132 \textcolor{keyword}{private}:}
+\DoxyCodeLine{136     \mbox{\hyperlink{classAutoExpArray}{AutoExpArray<QWebElement*>}} referenceableElement;}
+\DoxyCodeLine{137     \textcolor{keywordtype}{size\_t} firstFreeElementAfter=1;}
+\DoxyCodeLine{138     \textcolor{comment}{//store the location of the first free element, or a smaller element number, to speed insertions.}}
+\DoxyCodeLine{139 }
+\DoxyCodeLine{140 \textcolor{keyword}{public}:}
+\DoxyCodeLine{141     \textcolor{comment}{//when an element is created, we store its location as an element number here, then share the element number}}
+\DoxyCodeLine{142     \textcolor{comment}{//(not a QWebElement-\/-\/dangerous!) with the client.}}
+\DoxyCodeLine{143     \textcolor{keywordtype}{size\_t} addReferenceableElement(\textcolor{keyword}{const} QWebElement\&);}
+\DoxyCodeLine{144     }
+\DoxyCodeLine{145     \textcolor{keywordtype}{void} removeReferenceableElement(\textcolor{keywordtype}{size\_t});}
+\DoxyCodeLine{146     QWebElement getReferenceableElement(\textcolor{keywordtype}{size\_t}); \textcolor{comment}{//resolve a reference integer.}}
+\DoxyCodeLine{147     \textcolor{keywordtype}{size\_t} findReferenceableElement(QWebElement);}
+\DoxyCodeLine{148     \textcolor{keywordtype}{size\_t} getIndexOfElement(QWebElement);}
+\DoxyCodeLine{149     \textcolor{comment}{//finds corresponding index, or adds it if it has not been allocated an index yet.}}
+\DoxyCodeLine{150 }
+\DoxyCodeLine{151     \textcolor{comment}{//flags to handle keyup/down events on body as a special case (since this event needs to propagate to the framing manager for special window manipulation keys)}}
+\DoxyCodeLine{152     \textcolor{keywordtype}{bool} reportKeydownOnBody=\textcolor{keyword}{false}; \textcolor{comment}{//has the client requested keydown events on the body element?}}
+\DoxyCodeLine{153     \textcolor{keywordtype}{bool} reportKeyupOnBody=\textcolor{keyword}{false}; \textcolor{comment}{//has the client requested keyup events on the body element?}}
+\DoxyCodeLine{154     uint64\_t keyDownOnBodyRequestor=0; \textcolor{comment}{//corresponding requestors if the client requests these key events.}}
+\DoxyCodeLine{155     uint64\_t keyUpOnBodyRequestor=0;}
+\DoxyCodeLine{156 }
+\DoxyCodeLine{157 \textcolor{keyword}{public}:}
+\DoxyCodeLine{158     \mbox{\hyperlink{classKeyList}{KeyList}}* keyList;}
+\DoxyCodeLine{159     std::list<FrameData> subFrames;}
+\DoxyCodeLine{160     \textcolor{comment}{//table of subframes, mapping web element of an iframe to its corresponding}}
+\DoxyCodeLine{161     \textcolor{comment}{//child frame object and host-\/key (if assigned).}}
+\DoxyCodeLine{162 }
+\DoxyCodeLine{163 }
+\DoxyCodeLine{164 \};}
+\DoxyCodeLine{165 }
+\DoxyCodeLine{166 \textcolor{preprocessor}{\#endif }\textcolor{comment}{// CLIENTCONTAINER\_H}}
+
+\end{DoxyCode}

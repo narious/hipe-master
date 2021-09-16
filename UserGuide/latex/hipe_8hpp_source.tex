@@ -1,0 +1,331 @@
+\hypertarget{hipe_8hpp_source}{}\doxysection{hipe.\+hpp}
+\label{hipe_8hpp_source}\index{api/src/hipe.hpp@{api/src/hipe.hpp}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{comment}{/*  Copyright (c) 2018 Daniel Kos, General Development Systems}}
+\DoxyCodeLine{2 \textcolor{comment}{}}
+\DoxyCodeLine{3 \textcolor{comment}{    Permission is hereby granted, free of charge, to any person obtaining a copy}}
+\DoxyCodeLine{4 \textcolor{comment}{    of this software and associated documentation files (the "{}Software"{}), to deal}}
+\DoxyCodeLine{5 \textcolor{comment}{    in the Software without restriction, including without limitation the rights}}
+\DoxyCodeLine{6 \textcolor{comment}{    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell}}
+\DoxyCodeLine{7 \textcolor{comment}{    copies of the Software, and to permit persons to whom the Software is}}
+\DoxyCodeLine{8 \textcolor{comment}{    furnished to do so, subject to the following conditions:}}
+\DoxyCodeLine{9 \textcolor{comment}{}}
+\DoxyCodeLine{10 \textcolor{comment}{    The above copyright notice and this permission notice shall be included in}}
+\DoxyCodeLine{11 \textcolor{comment}{    all copies or substantial portions of this Software library.}}
+\DoxyCodeLine{12 \textcolor{comment}{}}
+\DoxyCodeLine{13 \textcolor{comment}{    THE SOFTWARE IS PROVIDED "{}AS IS"{}, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR}}
+\DoxyCodeLine{14 \textcolor{comment}{    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,}}
+\DoxyCodeLine{15 \textcolor{comment}{    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE}}
+\DoxyCodeLine{16 \textcolor{comment}{    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER}}
+\DoxyCodeLine{17 \textcolor{comment}{    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,}}
+\DoxyCodeLine{18 \textcolor{comment}{    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN}}
+\DoxyCodeLine{19 \textcolor{comment}{    THE SOFTWARE.}}
+\DoxyCodeLine{20 \textcolor{comment}{*/}}
+\DoxyCodeLine{21 }
+\DoxyCodeLine{22 \textcolor{comment}{//Idea: provide a C++ interface to Hipe where DOM elements are objects.}}
+\DoxyCodeLine{23 \textcolor{comment}{//A copy of a DOM element object still refers to the original, but when}}
+\DoxyCodeLine{24 \textcolor{comment}{//all copies are destroyed, the identifier is deallocated from Hipe.}}
+\DoxyCodeLine{25 }
+\DoxyCodeLine{26 }
+\DoxyCodeLine{27 \textcolor{comment}{//WRAP the C hipe API.}}
+\DoxyCodeLine{28 }
+\DoxyCodeLine{29 }
+\DoxyCodeLine{30 \textcolor{comment}{//an element object has methods used to call various 'navigation' instructions;}}
+\DoxyCodeLine{31 \textcolor{comment}{//to drill down to a child element, for example.}}
+\DoxyCodeLine{32 }
+\DoxyCodeLine{33 }
+\DoxyCodeLine{34 \textcolor{comment}{//we don't need to bother with event handling here -\/-\/ the user can make use}}
+\DoxyCodeLine{35 \textcolor{comment}{//of the normal Hipe API.}}
+\DoxyCodeLine{36 }
+\DoxyCodeLine{37 }
+\DoxyCodeLine{38 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{39 }
+\DoxyCodeLine{40 \textcolor{preprocessor}{\#include <hipe.h>}}
+\DoxyCodeLine{41 \textcolor{preprocessor}{\#include <string>}}
+\DoxyCodeLine{42 \textcolor{preprocessor}{\#include <map>}}
+\DoxyCodeLine{43 \textcolor{preprocessor}{\#include <stdexcept>}}
+\DoxyCodeLine{44 \textcolor{preprocessor}{\#include <vector>}}
+\DoxyCodeLine{45 }
+\DoxyCodeLine{46 \textcolor{keyword}{namespace }hipe \{}
+\DoxyCodeLine{47 }
+\DoxyCodeLine{48 \textcolor{keyword}{class }session;}
+\DoxyCodeLine{49 }
+\DoxyCodeLine{50 \textcolor{keyword}{class }\mbox{\hyperlink{classhipe_1_1loc}{loc}} \{}
+\DoxyCodeLine{52 }
+\DoxyCodeLine{53     \textcolor{keyword}{protected}:}
+\DoxyCodeLine{54         hipe\_loc \mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}};}
+\DoxyCodeLine{55         \mbox{\hyperlink{classhipe_1_1session}{session}}* \_session;}
+\DoxyCodeLine{56 }
+\DoxyCodeLine{57         \mbox{\hyperlink{classhipe_1_1loc}{loc}}(hipe\_loc \mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}}, \mbox{\hyperlink{classhipe_1_1session}{session}}* s); \textcolor{comment}{//construct a new element object using its location value}}
+\DoxyCodeLine{58         \textcolor{comment}{//This function is protected because exposing it may lead to incorrect reference count management.}}
+\DoxyCodeLine{59     \textcolor{keyword}{public}:}
+\DoxyCodeLine{60         \mbox{\hyperlink{classhipe_1_1loc}{loc}}(); \textcolor{comment}{//create a new null instance to be reassigned later.}}
+\DoxyCodeLine{61         \mbox{\hyperlink{classhipe_1_1loc}{loc}}(\textcolor{keyword}{const} \mbox{\hyperlink{classhipe_1_1loc}{loc}}\& orig); \textcolor{comment}{//copy constructor}}
+\DoxyCodeLine{62 }
+\DoxyCodeLine{63         \mbox{\hyperlink{classhipe_1_1loc}{loc}}(\textcolor{keyword}{const} hipe\_loc\& \mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}});}
+\DoxyCodeLine{64         \textcolor{comment}{//create an instance that can be used for comparison only (no session or reference count info).}}
+\DoxyCodeLine{65 }
+\DoxyCodeLine{66         \mbox{\hyperlink{classhipe_1_1loc}{loc}}\& operator= (\textcolor{keyword}{const} \mbox{\hyperlink{classhipe_1_1loc}{loc}}\& orig); \textcolor{comment}{//copy assignment operator}}
+\DoxyCodeLine{67 }
+\DoxyCodeLine{68         \mbox{\hyperlink{classhipe_1_1loc}{loc}}\& operator= (\textcolor{keyword}{const} hipe\_loc\& \mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}});}
+\DoxyCodeLine{69         \textcolor{comment}{//assign a location that can be used for comparison only (no session or reference info).}}
+\DoxyCodeLine{70 }
+\DoxyCodeLine{71         \mbox{\hyperlink{classhipe_1_1loc}{\string~loc}}(); \textcolor{comment}{//destructor}}
+\DoxyCodeLine{72 }
+\DoxyCodeLine{74 }
+\DoxyCodeLine{75         \mbox{\hyperlink{classhipe_1_1loc}{loc}} firstChild(); \textcolor{comment}{//return first child element of this element}}
+\DoxyCodeLine{76         \mbox{\hyperlink{classhipe_1_1loc}{loc}} lastChild(); \textcolor{comment}{//return the last child element of this element.}}
+\DoxyCodeLine{77         \mbox{\hyperlink{classhipe_1_1loc}{loc}} nextSibling(); \textcolor{comment}{//return the element that follows this one at the current level.}}
+\DoxyCodeLine{78         \mbox{\hyperlink{classhipe_1_1loc}{loc}} prevSibling(); \textcolor{comment}{//return the element that precedes this one at the current level.}}
+\DoxyCodeLine{79         }
+\DoxyCodeLine{80         \textcolor{keyword}{operator} hipe\_loc() \textcolor{keyword}{const}; \textcolor{comment}{//allow casting to a hipe\_loc variable for use with hipe API C functions.}}
+\DoxyCodeLine{81         \textcolor{keywordtype}{bool} operator== (hipe\_loc) \textcolor{keyword}{const}; \textcolor{comment}{//allow comparison with hipe\_loc location handle.}}
+\DoxyCodeLine{82         \textcolor{keywordtype}{bool} operator== (\textcolor{keyword}{const} \mbox{\hyperlink{classhipe_1_1loc}{loc}}\& \mbox{\hyperlink{classhipe_1_1loc}{loc}}) \textcolor{keyword}{const}; \textcolor{comment}{//allow comparison with another loc object.}}
+\DoxyCodeLine{83         \textcolor{keywordtype}{bool} operator!= (\textcolor{keyword}{const} \mbox{\hyperlink{classhipe_1_1loc}{loc}}\& \mbox{\hyperlink{classhipe_1_1loc}{loc}}) \textcolor{keyword}{const}; \textcolor{comment}{//allow comparison with another loc object.}}
+\DoxyCodeLine{84         \textcolor{keywordtype}{bool} operator< (\textcolor{keyword}{const} \mbox{\hyperlink{classhipe_1_1loc}{loc}}\& other) \textcolor{keyword}{const};}
+\DoxyCodeLine{85         \textcolor{keyword}{operator} bool() \textcolor{keyword}{const}; \textcolor{comment}{//check if the loc object is well-\/defined.}}
+\DoxyCodeLine{86 }
+\DoxyCodeLine{87         \textcolor{keywordtype}{int} send(\textcolor{keywordtype}{char} opcode, uint64\_t requestor, \textcolor{keyword}{const} std::vector<std::string>\& args=\{\});}
+\DoxyCodeLine{88         \textcolor{comment}{//sends an instruction with this element passed as the location to act on.}}
+\DoxyCodeLine{89 }
+\DoxyCodeLine{90         \mbox{\hyperlink{classhipe_1_1loc}{loc}} appendAndGetTag(std::string type, std::string \textcolor{keywordtype}{id}=\textcolor{stringliteral}{"{}"{}});}
+\DoxyCodeLine{91         \textcolor{comment}{//convenience function to append a tag to this element and wait for its}}
+\DoxyCodeLine{92         \textcolor{comment}{//location to be returned.}}
+\DoxyCodeLine{93 \};}
+\DoxyCodeLine{94 }
+\DoxyCodeLine{95 }
+\DoxyCodeLine{96 \textcolor{keyword}{class }\mbox{\hyperlink{classhipe_1_1session}{session}} : \textcolor{keyword}{public} \mbox{\hyperlink{classhipe_1_1loc}{loc}} \{}
+\DoxyCodeLine{97 \textcolor{comment}{//This class holds session information, and is also the root loc object,}}
+\DoxyCodeLine{98 \textcolor{comment}{//representing the <body> tag of the application's output.}}
+\DoxyCodeLine{99     \textcolor{keyword}{private}:}
+\DoxyCodeLine{100         \mbox{\hyperlink{struct__hipe__session}{hipe\_session}} hipeSession=0;}
+\DoxyCodeLine{101 }
+\DoxyCodeLine{102         std::map<hipe\_loc, size\_t> referenceCounts; \textcolor{comment}{//local reference count for each location ID.}}
+\DoxyCodeLine{103         \textcolor{comment}{//keep track of these counts so we can tell hipe to free resources that we no longer have references to.}}
+\DoxyCodeLine{104     \textcolor{keyword}{protected}:}
+\DoxyCodeLine{105         \textcolor{keywordtype}{void} incrementReferenceCount(hipe\_loc \mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}});}
+\DoxyCodeLine{106         \textcolor{comment}{//increments our local reference count for the location}}
+\DoxyCodeLine{107 }
+\DoxyCodeLine{108         \textcolor{keywordtype}{void} decrementReferenceCount(hipe\_loc \mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}});}
+\DoxyCodeLine{109         \textcolor{comment}{//decrmements local reference count for a particular location, or frees the location}}
+\DoxyCodeLine{110         \textcolor{comment}{//if its reference count is zero.}}
+\DoxyCodeLine{111 }
+\DoxyCodeLine{112     \textcolor{keyword}{public}:}
+\DoxyCodeLine{113         \mbox{\hyperlink{classhipe_1_1session_adead172243f2d5f80699bde0b42eff25}{session}}();}
+\DoxyCodeLine{114 }
+\DoxyCodeLine{115         \textcolor{keywordtype}{bool} open(\textcolor{keyword}{const} \textcolor{keywordtype}{char}* host\_key, \textcolor{keyword}{const} \textcolor{keywordtype}{char}* socket\_path, \textcolor{keyword}{const} \textcolor{keywordtype}{char}* key\_path, \textcolor{keyword}{const} \textcolor{keywordtype}{char}* client\_name);}
+\DoxyCodeLine{116         \textcolor{comment}{//open a new hipe session}}
+\DoxyCodeLine{117 }
+\DoxyCodeLine{118         \textcolor{keywordtype}{void} close(); \textcolor{comment}{//close the hipe session}}
+\DoxyCodeLine{119 }
+\DoxyCodeLine{120         \textcolor{keyword}{operator} \mbox{\hyperlink{struct__hipe__session}{hipe\_session}}() \textcolor{keyword}{const}; \textcolor{comment}{//cast to the underlying hipe\_session handle}}
+\DoxyCodeLine{121 }
+\DoxyCodeLine{122         \textcolor{keyword}{friend} \textcolor{keyword}{class }\mbox{\hyperlink{classhipe_1_1loc}{loc}};}
+\DoxyCodeLine{123 \};}
+\DoxyCodeLine{124 }
+\DoxyCodeLine{125 }
+\DoxyCodeLine{128 }
+\DoxyCodeLine{129 \textcolor{keyword}{inline} \mbox{\hyperlink{classhipe_1_1session_adead172243f2d5f80699bde0b42eff25}{session::session}}() : \mbox{\hyperlink{classhipe_1_1loc}{loc}}(0,this) \{}
+\DoxyCodeLine{130 \}}
+\DoxyCodeLine{131 }
+\DoxyCodeLine{132 \textcolor{keyword}{inline} \textcolor{keywordtype}{void} session::incrementReferenceCount(hipe\_loc location) \{}
+\DoxyCodeLine{133 \textcolor{comment}{//increments our local reference count for the location}}
+\DoxyCodeLine{134     \textcolor{keywordflow}{if}(\mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}} == 0) \textcolor{keywordflow}{return}; \textcolor{comment}{//the body element is always 0, not requiring allocation.}}
+\DoxyCodeLine{135     \textcolor{keywordflow}{try} \{ \textcolor{comment}{//try to increment referenceCounts.at(location)}}
+\DoxyCodeLine{136     \textcolor{comment}{//the [] operator creates elements if they don't exist, while .at() throws exception.}}
+\DoxyCodeLine{137         referenceCounts[\mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}}] = referenceCounts.at(\mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}}) + 1;}
+\DoxyCodeLine{138     \} \textcolor{keywordflow}{catch}(\textcolor{keyword}{const} std::out\_of\_range\& e) \{ \textcolor{comment}{//throws execption if reference nonexistent.}}
+\DoxyCodeLine{139         referenceCounts[\mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}}] = 1;}
+\DoxyCodeLine{140     \}}
+\DoxyCodeLine{141 \}}
+\DoxyCodeLine{142 }
+\DoxyCodeLine{143 \textcolor{keyword}{inline} \textcolor{keywordtype}{void} session::decrementReferenceCount(hipe\_loc location) \{}
+\DoxyCodeLine{144 \textcolor{comment}{//decrmements local reference count for a particular location, or frees the location}}
+\DoxyCodeLine{145 \textcolor{comment}{//if its reference count is zero.}}
+\DoxyCodeLine{146     \textcolor{keywordflow}{if}(\mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}} == 0) \textcolor{keywordflow}{return}; \textcolor{comment}{//the body element is always 0, not requiring allocation.}}
+\DoxyCodeLine{147     \textcolor{keywordtype}{size\_t} currentCount = referenceCounts[\mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}}];}
+\DoxyCodeLine{148     \textcolor{keywordflow}{if}(currentCount == 0) \{}
+\DoxyCodeLine{149         \textcolor{comment}{//free this location.}}
+\DoxyCodeLine{150         hipe\_send((\mbox{\hyperlink{struct__hipe__session}{hipe\_session}}) *\textcolor{keyword}{this}, HIPE\_OP\_FREE\_LOCATION, 0, \mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}}, 0,0);}
+\DoxyCodeLine{151     \} \textcolor{keywordflow}{else} \{}
+\DoxyCodeLine{152         referenceCounts[\mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}}] = currentCount-\/1;}
+\DoxyCodeLine{153     \}}
+\DoxyCodeLine{154 \}}
+\DoxyCodeLine{155 }
+\DoxyCodeLine{156 \textcolor{keyword}{inline} \textcolor{keywordtype}{bool} session::open(\textcolor{keyword}{const} \textcolor{keywordtype}{char}* host\_key, \textcolor{keyword}{const} \textcolor{keywordtype}{char}* socket\_path, \textcolor{keyword}{const} \textcolor{keywordtype}{char}* key\_path, \textcolor{keyword}{const} \textcolor{keywordtype}{char}* client\_name) \{}
+\DoxyCodeLine{157 \textcolor{comment}{//open a new hipe session}}
+\DoxyCodeLine{158     hipeSession = hipe\_open\_session(host\_key, socket\_path, key\_path, client\_name);}
+\DoxyCodeLine{159     \textcolor{keywordflow}{return} (\textcolor{keywordtype}{bool}) hipeSession; \textcolor{comment}{//return true on success.}}
+\DoxyCodeLine{160 \}}
+\DoxyCodeLine{161 }
+\DoxyCodeLine{162 \textcolor{keyword}{inline} \textcolor{keywordtype}{void} session::close() \{}
+\DoxyCodeLine{163 \textcolor{comment}{//close the hipe session}}
+\DoxyCodeLine{164     hipe\_close\_session(hipeSession);}
+\DoxyCodeLine{165     hipeSession = 0;}
+\DoxyCodeLine{166 \}}
+\DoxyCodeLine{167 }
+\DoxyCodeLine{168 \textcolor{keyword}{inline} session::operator \mbox{\hyperlink{struct__hipe__session}{hipe\_session}}()\textcolor{keyword}{ const }\{}
+\DoxyCodeLine{169     \textcolor{keywordflow}{return} hipeSession;}
+\DoxyCodeLine{170 \}}
+\DoxyCodeLine{171 }
+\DoxyCodeLine{172 }
+\DoxyCodeLine{175 }
+\DoxyCodeLine{176 \textcolor{keyword}{inline} loc::loc(hipe\_loc location, \mbox{\hyperlink{classhipe_1_1session}{session}}* s) \{}
+\DoxyCodeLine{177 \textcolor{comment}{//construct a new element object using its location value}}
+\DoxyCodeLine{178     this-\/>location = \mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}};}
+\DoxyCodeLine{179     this-\/>\_session = s;}
+\DoxyCodeLine{180     \textcolor{keywordflow}{if}(\_session)}
+\DoxyCodeLine{181         \_session-\/>incrementReferenceCount(\mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}});}
+\DoxyCodeLine{182 \}}
+\DoxyCodeLine{183 }
+\DoxyCodeLine{184 \textcolor{keyword}{inline} loc::loc() \{}
+\DoxyCodeLine{185 \textcolor{comment}{//create a new loc instance set to null.}}
+\DoxyCodeLine{186     \mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}} = 0;}
+\DoxyCodeLine{187     \_session = 0;}
+\DoxyCodeLine{188 \}}
+\DoxyCodeLine{189 }
+\DoxyCodeLine{190 \textcolor{keyword}{inline} loc::loc(\textcolor{keyword}{const} hipe\_loc\& location) \{}
+\DoxyCodeLine{191 \textcolor{comment}{//creates a loc instance that can be used for comparison purposes only.}}
+\DoxyCodeLine{192 \textcolor{comment}{//This allows a C hipe API location to be passed as a key to a map of hipe::loc elements.}}
+\DoxyCodeLine{193     this-\/>location = \mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}};}
+\DoxyCodeLine{194     \_session = 0;}
+\DoxyCodeLine{195 \}}
+\DoxyCodeLine{196 }
+\DoxyCodeLine{197 \textcolor{keyword}{inline} loc::loc(\textcolor{keyword}{const} loc\& orig) \{}
+\DoxyCodeLine{198 \textcolor{comment}{//copy constructor}}
+\DoxyCodeLine{199     this-\/>location = orig.\mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}};}
+\DoxyCodeLine{200     \_session = orig.\_session;}
+\DoxyCodeLine{201     \textcolor{keywordflow}{if}(\_session)}
+\DoxyCodeLine{202         \_session-\/>incrementReferenceCount(\mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}});}
+\DoxyCodeLine{203 \}}
+\DoxyCodeLine{204 }
+\DoxyCodeLine{205 \textcolor{keyword}{inline} loc\& loc::operator= (\textcolor{keyword}{const} loc\& orig) \{}
+\DoxyCodeLine{206 \textcolor{comment}{//copy assignment operator}}
+\DoxyCodeLine{207     \textcolor{keywordflow}{if}(\&orig == \textcolor{keyword}{this}) \textcolor{keywordflow}{return} *\textcolor{keyword}{this}; \textcolor{comment}{//guard against self-\/assignment.}}
+\DoxyCodeLine{208     \textcolor{keywordflow}{if}(\_session)}
+\DoxyCodeLine{209         \_session-\/>decrementReferenceCount(\mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}});}
+\DoxyCodeLine{210     this-\/>location = orig.location;}
+\DoxyCodeLine{211     \_session = orig.\_session;}
+\DoxyCodeLine{212     \textcolor{keywordflow}{if}(\_session)}
+\DoxyCodeLine{213         \_session-\/>incrementReferenceCount(\mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}});}
+\DoxyCodeLine{214     \textcolor{keywordflow}{return} *\textcolor{keyword}{this};}
+\DoxyCodeLine{215 \}}
+\DoxyCodeLine{216 }
+\DoxyCodeLine{217 \textcolor{keyword}{inline} loc\& loc::operator= (\textcolor{keyword}{const} hipe\_loc\& location) \{}
+\DoxyCodeLine{218     this-\/>\string~loc(); \textcolor{comment}{//free what was.}}
+\DoxyCodeLine{219     \_session=0;}
+\DoxyCodeLine{220     this-\/>location = \mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}};}
+\DoxyCodeLine{221     \textcolor{keywordflow}{return} *\textcolor{keyword}{this};}
+\DoxyCodeLine{222 \}}
+\DoxyCodeLine{223 }
+\DoxyCodeLine{224 \textcolor{keyword}{inline} loc::\string~loc() \{}
+\DoxyCodeLine{225 \textcolor{comment}{//destructor. Should decrement the reference count to the hipe\_loc allocation, and}}
+\DoxyCodeLine{226 \textcolor{comment}{//send an instruction to free the allocation if the count reaches zero.}}
+\DoxyCodeLine{227     \textcolor{keywordflow}{if}(\_session)}
+\DoxyCodeLine{228         \_session-\/>decrementReferenceCount(\mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}});}
+\DoxyCodeLine{229 \}}
+\DoxyCodeLine{230 }
+\DoxyCodeLine{231 \textcolor{keyword}{inline} loc loc::firstChild() \{}
+\DoxyCodeLine{232 \textcolor{comment}{//return first child node of this element}}
+\DoxyCodeLine{233     hipe\_send(*\_session, HIPE\_OP\_GET\_FIRST\_CHILD, 0, \mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}}, 0, 0);}
+\DoxyCodeLine{234     \mbox{\hyperlink{struct__hipe__instruction}{hipe\_instruction}} instruction;}
+\DoxyCodeLine{235     hipe\_instruction\_init(\&instruction);}
+\DoxyCodeLine{236     hipe\_await\_instruction(*\_session, \&instruction, HIPE\_OP\_LOCATION\_RETURN);}
+\DoxyCodeLine{237     hipe\_loc \mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}} = instruction.location;}
+\DoxyCodeLine{238     hipe\_instruction\_clear(\&instruction);}
+\DoxyCodeLine{239     \textcolor{keywordflow}{return} \mbox{\hyperlink{classhipe_1_1loc_accfce4e811e2d8106a79761f227646cd}{loc}}(\mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}}, \_session);}
+\DoxyCodeLine{240 \}}
+\DoxyCodeLine{241 }
+\DoxyCodeLine{242 \textcolor{keyword}{inline} loc loc::lastChild() \{}
+\DoxyCodeLine{243 \textcolor{comment}{//return the last child node of this element.}}
+\DoxyCodeLine{244     hipe\_send(*\_session, HIPE\_OP\_GET\_LAST\_CHILD, 0, \mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}}, 0, 0);}
+\DoxyCodeLine{245     \mbox{\hyperlink{struct__hipe__instruction}{hipe\_instruction}} instruction;}
+\DoxyCodeLine{246     hipe\_instruction\_init(\&instruction);}
+\DoxyCodeLine{247     hipe\_await\_instruction(*\_session, \&instruction, HIPE\_OP\_LOCATION\_RETURN);}
+\DoxyCodeLine{248     hipe\_loc \mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}} = instruction.location;}
+\DoxyCodeLine{249     hipe\_instruction\_clear(\&instruction);}
+\DoxyCodeLine{250     \textcolor{keywordflow}{return} \mbox{\hyperlink{classhipe_1_1loc_accfce4e811e2d8106a79761f227646cd}{loc}}(\mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}}, \_session);}
+\DoxyCodeLine{251 \}}
+\DoxyCodeLine{252 }
+\DoxyCodeLine{253 \textcolor{keyword}{inline} loc loc::nextSibling() \{}
+\DoxyCodeLine{254     hipe\_send(*\_session, HIPE\_OP\_GET\_NEXT\_SIBLING, 0, \mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}}, 0, 0);}
+\DoxyCodeLine{255     \mbox{\hyperlink{struct__hipe__instruction}{hipe\_instruction}} instruction;}
+\DoxyCodeLine{256     hipe\_instruction\_init(\&instruction);}
+\DoxyCodeLine{257     hipe\_await\_instruction(*\_session, \&instruction, HIPE\_OP\_LOCATION\_RETURN);}
+\DoxyCodeLine{258     hipe\_loc \mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}} = instruction.location;}
+\DoxyCodeLine{259     hipe\_instruction\_clear(\&instruction);}
+\DoxyCodeLine{260     \textcolor{keywordflow}{return} \mbox{\hyperlink{classhipe_1_1loc_accfce4e811e2d8106a79761f227646cd}{loc}}(\mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}}, \_session);}
+\DoxyCodeLine{261 \}}
+\DoxyCodeLine{262 }
+\DoxyCodeLine{263 \textcolor{keyword}{inline} loc loc::prevSibling() \{}
+\DoxyCodeLine{264     hipe\_send(*\_session, HIPE\_OP\_GET\_PREV\_SIBLING, 0, \mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}}, 0, 0);}
+\DoxyCodeLine{265     \mbox{\hyperlink{struct__hipe__instruction}{hipe\_instruction}} instruction;}
+\DoxyCodeLine{266     hipe\_instruction\_init(\&instruction);}
+\DoxyCodeLine{267     hipe\_await\_instruction(*\_session, \&instruction, HIPE\_OP\_LOCATION\_RETURN);}
+\DoxyCodeLine{268     hipe\_loc \mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}} = instruction.location;}
+\DoxyCodeLine{269     hipe\_instruction\_clear(\&instruction);}
+\DoxyCodeLine{270     \textcolor{keywordflow}{return} \mbox{\hyperlink{classhipe_1_1loc_accfce4e811e2d8106a79761f227646cd}{loc}}(\mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}}, \_session);}
+\DoxyCodeLine{271 \}}
+\DoxyCodeLine{272 }
+\DoxyCodeLine{273 \textcolor{keyword}{inline} loc loc::appendAndGetTag(std::string type, std::string \textcolor{keywordtype}{id}) \{}
+\DoxyCodeLine{274     hipe\_send(*\_session, HIPE\_OP\_APPEND\_TAG, 0, \mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}}, 3, type.c\_str(), \textcolor{keywordtype}{id}.c\_str(), \textcolor{stringliteral}{"{}1"{}});}
+\DoxyCodeLine{275     \mbox{\hyperlink{struct__hipe__instruction}{hipe\_instruction}} instruction;}
+\DoxyCodeLine{276     hipe\_instruction\_init(\&instruction);}
+\DoxyCodeLine{277     hipe\_await\_instruction(*\_session, \&instruction, HIPE\_OP\_LOCATION\_RETURN);}
+\DoxyCodeLine{278     hipe\_loc \mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}} = instruction.location;}
+\DoxyCodeLine{279     hipe\_instruction\_clear(\&instruction);}
+\DoxyCodeLine{280     \textcolor{keywordflow}{return} \mbox{\hyperlink{classhipe_1_1loc_accfce4e811e2d8106a79761f227646cd}{loc}}(\mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}}, \_session);}
+\DoxyCodeLine{281 \}}
+\DoxyCodeLine{282 }
+\DoxyCodeLine{283 \textcolor{keyword}{inline} loc::operator hipe\_loc()\textcolor{keyword}{ const }\{ \textcolor{comment}{//allow casting to a hipe\_loc variable for use with hipe API C functions.}}
+\DoxyCodeLine{284     \textcolor{keywordflow}{return} location;}
+\DoxyCodeLine{285 \}}
+\DoxyCodeLine{286 }
+\DoxyCodeLine{287 \textcolor{keyword}{inline} \textcolor{keywordtype}{int} loc::send(\textcolor{keywordtype}{char} opcode, uint64\_t requestor, \textcolor{keyword}{const} std::vector<std::string>\& args) \{}
+\DoxyCodeLine{288 \textcolor{comment}{//sends an instruction with this element passed as the location to act on.}}
+\DoxyCodeLine{289 }
+\DoxyCodeLine{290     \textcolor{keywordtype}{int} result;}
+\DoxyCodeLine{291     \mbox{\hyperlink{struct__hipe__instruction}{hipe\_instruction}} instruction;}
+\DoxyCodeLine{292     hipe\_instruction\_init(\&instruction);}
+\DoxyCodeLine{293     instruction.opcode = opcode;}
+\DoxyCodeLine{294     instruction.requestor = requestor;}
+\DoxyCodeLine{295     instruction.location = \mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}};}
+\DoxyCodeLine{296     \textcolor{keywordtype}{int} i;}
+\DoxyCodeLine{297     \textcolor{keywordflow}{for}(i=0; i<args.size(); i++) \{}
+\DoxyCodeLine{298         \textcolor{keywordflow}{if}(args[i].size()) \{}
+\DoxyCodeLine{299             instruction.arg[i] = (\textcolor{keywordtype}{char}*) args[i].data();}
+\DoxyCodeLine{300             instruction.arg\_length[i] = args[i].size();}
+\DoxyCodeLine{301         \}}
+\DoxyCodeLine{302     \}}
+\DoxyCodeLine{303     result = hipe\_send\_instruction(*\_session, instruction);}
+\DoxyCodeLine{304     \textcolor{keywordflow}{return} result;}
+\DoxyCodeLine{305 \}}
+\DoxyCodeLine{306 }
+\DoxyCodeLine{307 \textcolor{keyword}{inline} \textcolor{keywordtype}{bool} loc::operator== (hipe\_loc other)\textcolor{keyword}{ const }\{}
+\DoxyCodeLine{308     \textcolor{keywordflow}{return} \mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}} == other;}
+\DoxyCodeLine{309 \}}
+\DoxyCodeLine{310 }
+\DoxyCodeLine{311 \textcolor{keyword}{inline} \textcolor{keywordtype}{bool} loc::operator== (\textcolor{keyword}{const} loc\& other)\textcolor{keyword}{ const }\{}
+\DoxyCodeLine{312     \textcolor{keywordflow}{return} \mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}} == other.location;}
+\DoxyCodeLine{313 \}}
+\DoxyCodeLine{314 }
+\DoxyCodeLine{315 \textcolor{keyword}{inline} \textcolor{keywordtype}{bool} loc::operator!= (\textcolor{keyword}{const} loc\& other)\textcolor{keyword}{ const }\{}
+\DoxyCodeLine{316     \textcolor{keywordflow}{return} \mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}} == other.location;}
+\DoxyCodeLine{317 \}}
+\DoxyCodeLine{318 }
+\DoxyCodeLine{319 \textcolor{keyword}{inline} loc::operator bool()\textcolor{keyword}{ const }\{}
+\DoxyCodeLine{320 \textcolor{comment}{//bool cast evaluates to true if the loc object is valid. A 'null' loc will evaluate to false.}}
+\DoxyCodeLine{321     \textcolor{keywordflow}{return} (\_session != 0); \textcolor{comment}{//note, location==0 would be valid as that's the root element.}}
+\DoxyCodeLine{322 \}}
+\DoxyCodeLine{323 }
+\DoxyCodeLine{324 \textcolor{keyword}{inline} \textcolor{keywordtype}{bool} loc::operator< (\textcolor{keyword}{const} loc\& other)\textcolor{keyword}{ const }\{}
+\DoxyCodeLine{325 \textcolor{comment}{//needed by C++ STL library for using loc as key in maps, etc.}}
+\DoxyCodeLine{326 \textcolor{comment}{//Note that it's valid to compare one loc with a defined session against another loc without a well-\/defined session instance.}}
+\DoxyCodeLine{327     \textcolor{keywordflow}{return} (\mbox{\hyperlink{classhipe_1_1loc_aa79ca08d1676516e74e730b652f91511}{location}} < other.location);}
+\DoxyCodeLine{328 \}}
+\DoxyCodeLine{329 }
+\DoxyCodeLine{330 }
+\DoxyCodeLine{331 \};\textcolor{comment}{//end of hipe:: namespace}}
+
+\end{DoxyCode}

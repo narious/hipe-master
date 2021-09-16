@@ -1,0 +1,62 @@
+\hypertarget{Timer_8h_source}{}\doxysection{Timer.\+h}
+\label{Timer_8h_source}\index{api/gtest/src/Timer.h@{api/gtest/src/Timer.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{preprocessor}{\#ifndef TIMER\_H}}
+\DoxyCodeLine{2 \textcolor{preprocessor}{\#define TIMER\_H}}
+\DoxyCodeLine{3 }
+\DoxyCodeLine{4 \textcolor{preprocessor}{\#include "{}Timer.h"{}}}
+\DoxyCodeLine{5 \textcolor{preprocessor}{\#include <iostream>}}
+\DoxyCodeLine{6 \textcolor{preprocessor}{\#include <string>}}
+\DoxyCodeLine{7 \textcolor{preprocessor}{\#include <chrono>}}
+\DoxyCodeLine{8 \textcolor{preprocessor}{\#include <spdlog/spdlog.h>}}
+\DoxyCodeLine{9 }
+\DoxyCodeLine{10 \textcolor{comment}{/*}}
+\DoxyCodeLine{11 \textcolor{comment}{* This is a Timer class to be used to time functions}}
+\DoxyCodeLine{12 \textcolor{comment}{* Timer also takes cares of logging.}}
+\DoxyCodeLine{13 \textcolor{comment}{* e.g. of use}}
+\DoxyCodeLine{14 \textcolor{comment}{* }}
+\DoxyCodeLine{15 \textcolor{comment}{*   \{}}
+\DoxyCodeLine{16 \textcolor{comment}{*       Timer timer;}}
+\DoxyCodeLine{17 \textcolor{comment}{*       <Code to time here>}}
+\DoxyCodeLine{18 \textcolor{comment}{*   \}}}
+\DoxyCodeLine{19 \textcolor{comment}{* }}
+\DoxyCodeLine{20 \textcolor{comment}{*   Results of the timer should be configured to a file}}
+\DoxyCodeLine{21 \textcolor{comment}{*/}}
+\DoxyCodeLine{22 }
+\DoxyCodeLine{23 \textcolor{keyword}{class }\mbox{\hyperlink{classTimer}{Timer}}}
+\DoxyCodeLine{24 \{}
+\DoxyCodeLine{25     std::string testname;}
+\DoxyCodeLine{26 }
+\DoxyCodeLine{27 \textcolor{keyword}{public}:}
+\DoxyCodeLine{28     \mbox{\hyperlink{classTimer}{Timer}}(std::string testname)}
+\DoxyCodeLine{29     \{}
+\DoxyCodeLine{30         std::chrono::high\_resolution\_clock::now();}
+\DoxyCodeLine{31         this-\/>testname = testname;}
+\DoxyCodeLine{32     \}}
+\DoxyCodeLine{33 }
+\DoxyCodeLine{34     \mbox{\hyperlink{classTimer}{\string~Timer}}()}
+\DoxyCodeLine{35     \{}
+\DoxyCodeLine{36         Stop();}
+\DoxyCodeLine{37     \}}
+\DoxyCodeLine{38 }
+\DoxyCodeLine{39     \textcolor{keywordtype}{void} Stop()}
+\DoxyCodeLine{40     \{}
+\DoxyCodeLine{41         \textcolor{keyword}{auto} endTimePoint = std::chrono::high\_resolution\_clock::now();}
+\DoxyCodeLine{42 }
+\DoxyCodeLine{43         \textcolor{keyword}{auto} start = std::chrono::time\_point\_cast<std::chrono::microseconds>(m\_StartTimePoint).time\_since\_epoch().count();}
+\DoxyCodeLine{44         \textcolor{keyword}{auto} endtime = std::chrono::time\_point\_cast<std::chrono::microseconds>(endTimePoint).time\_since\_epoch().count();}
+\DoxyCodeLine{45 }
+\DoxyCodeLine{46         \textcolor{keyword}{auto} timetaken = endtime -\/ start;}
+\DoxyCodeLine{47         \textcolor{keywordtype}{double} ms = timetaken * 0.001;}
+\DoxyCodeLine{48 }
+\DoxyCodeLine{49         printf(\textcolor{stringliteral}{"{}\%s: \%d ms\(\backslash\)n"{}},this-\/>testname, ms);}
+\DoxyCodeLine{50 }
+\DoxyCodeLine{51     \}}
+\DoxyCodeLine{52 \textcolor{keyword}{private}:}
+\DoxyCodeLine{53     std::chrono::time\_point<std::chrono::high\_resolution\_clock> m\_StartTimePoint;}
+\DoxyCodeLine{54 \};}
+\DoxyCodeLine{55 }
+\DoxyCodeLine{56 \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

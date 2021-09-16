@@ -1,0 +1,115 @@
+\hypertarget{src_2common_8h_source}{}\doxysection{common.\+h}
+\label{src_2common_8h_source}\index{server/src/common.h@{server/src/common.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{comment}{/*  Copyright (c) 2015-\/2018 Daniel Kos, General Development Systems}}
+\DoxyCodeLine{2 \textcolor{comment}{}}
+\DoxyCodeLine{3 \textcolor{comment}{    Permission is hereby granted, free of charge, to any person obtaining a copy}}
+\DoxyCodeLine{4 \textcolor{comment}{    of this software and associated documentation files (the "{}Software"{}), to deal}}
+\DoxyCodeLine{5 \textcolor{comment}{    in the Software without restriction, including without limitation the rights}}
+\DoxyCodeLine{6 \textcolor{comment}{    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell}}
+\DoxyCodeLine{7 \textcolor{comment}{    copies of the Software, and to permit persons to whom the Software is}}
+\DoxyCodeLine{8 \textcolor{comment}{    furnished to do so, subject to the following conditions:}}
+\DoxyCodeLine{9 \textcolor{comment}{}}
+\DoxyCodeLine{10 \textcolor{comment}{    The above copyright notice and this permission notice shall be included in}}
+\DoxyCodeLine{11 \textcolor{comment}{    all copies or substantial portions of this Software library.}}
+\DoxyCodeLine{12 \textcolor{comment}{}}
+\DoxyCodeLine{13 \textcolor{comment}{    THE SOFTWARE IS PROVIDED "{}AS IS"{}, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR}}
+\DoxyCodeLine{14 \textcolor{comment}{    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,}}
+\DoxyCodeLine{15 \textcolor{comment}{    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE}}
+\DoxyCodeLine{16 \textcolor{comment}{    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER}}
+\DoxyCodeLine{17 \textcolor{comment}{    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,}}
+\DoxyCodeLine{18 \textcolor{comment}{    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN}}
+\DoxyCodeLine{19 \textcolor{comment}{    THE SOFTWARE.}}
+\DoxyCodeLine{20 \textcolor{comment}{*/}}
+\DoxyCodeLine{21 }
+\DoxyCodeLine{22 \textcolor{preprocessor}{\#ifdef \_\_cplusplus}}
+\DoxyCodeLine{23 \textcolor{keyword}{extern} \textcolor{stringliteral}{"{}C"{}} \{}
+\DoxyCodeLine{24 \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{25 }
+\DoxyCodeLine{36 \textcolor{preprocessor}{\#ifndef COMMON\_H}}
+\DoxyCodeLine{37 \textcolor{preprocessor}{\#define COMMON\_H}}
+\DoxyCodeLine{38 }
+\DoxyCodeLine{39 \textcolor{preprocessor}{\#define \_HIPE\_ARG\_WIDTH 8 }}
+\DoxyCodeLine{40 \textcolor{comment}{/*number of bytes needed to encode the length of an argument*/}}
+\DoxyCodeLine{41 }
+\DoxyCodeLine{42 \textcolor{preprocessor}{\#define PREAMBLE\_LENGTH (1+8+8+(\_HIPE\_ARG\_WIDTH * HIPE\_NARGS)) }}
+\DoxyCodeLine{43 \textcolor{comment}{/*number of bytes you need to read before you can determine the total instruction length.*/}}
+\DoxyCodeLine{44 }
+\DoxyCodeLine{45 \textcolor{preprocessor}{\#include <stdint.h>}}
+\DoxyCodeLine{46 \textcolor{preprocessor}{\#include <sys/types.h>}}
+\DoxyCodeLine{47 }
+\DoxyCodeLine{48 \textcolor{preprocessor}{\#include "{}hipe\_instruction.h"{}}}
+\DoxyCodeLine{49 }
+\DoxyCodeLine{50 }
+\DoxyCodeLine{51 \textcolor{keywordtype}{int} default\_runtime\_dir(\textcolor{keywordtype}{char} path\_ret[], \textcolor{keywordtype}{size\_t} buffer\_size);}
+\DoxyCodeLine{52 \textcolor{comment}{/* Determines a suitable default runtime path for storing files shared between}}
+\DoxyCodeLine{53 \textcolor{comment}{the server and clients, copies the path (including trailing slash) into passed}}
+\DoxyCodeLine{54 \textcolor{comment}{array pathRet (with maximum array size given), and returns the character length}}
+\DoxyCodeLine{55 \textcolor{comment}{of the path (not counting the final null-\/terminator).}}
+\DoxyCodeLine{56 \textcolor{comment}{Returns -\/1 if bufferSize is too small to fit the path.}}
+\DoxyCodeLine{57 \textcolor{comment}{ */}}
+\DoxyCodeLine{58 }
+\DoxyCodeLine{59 }
+\DoxyCodeLine{73 \textcolor{keyword}{struct }\mbox{\hyperlink{struct__instruction__decoder}{\_instruction\_decoder}} \{}
+\DoxyCodeLine{74     \textcolor{keywordtype}{char} preamble[PREAMBLE\_LENGTH];}
+\DoxyCodeLine{75 }
+\DoxyCodeLine{76     \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{int} instruction\_chars\_read;}
+\DoxyCodeLine{77     \textcolor{comment}{/* number of characters of the instruction that have been read in so far.}}
+\DoxyCodeLine{78 \textcolor{comment}{     * Once this reaches the predefined preamble length, we have collected enough information to}}
+\DoxyCodeLine{79 \textcolor{comment}{     * determine the total instruction length and allocate a full-\/sized array accordingly.*/}}
+\DoxyCodeLine{80 }
+\DoxyCodeLine{81     \mbox{\hyperlink{struct__hipe__instruction}{hipe\_instruction}} output;}
+\DoxyCodeLine{82 \};}
+\DoxyCodeLine{83 \textcolor{keyword}{typedef} \textcolor{keyword}{struct }\mbox{\hyperlink{struct__instruction__decoder}{\_instruction\_decoder}} \mbox{\hyperlink{struct__instruction__decoder}{instruction\_decoder}};}
+\DoxyCodeLine{84 }
+\DoxyCodeLine{85 \textcolor{keywordtype}{void} instruction\_decoder\_init(\mbox{\hyperlink{struct__instruction__decoder}{instruction\_decoder}}*);}
+\DoxyCodeLine{86 \textcolor{comment}{/*analogous to an object constructor. Must be called on any new}}
+\DoxyCodeLine{87 \textcolor{comment}{  instruction\_decoder instance before first use.*/}}
+\DoxyCodeLine{88 }
+\DoxyCodeLine{89 \textcolor{keywordtype}{void} instruction\_decoder\_clear(\mbox{\hyperlink{struct__instruction__decoder}{instruction\_decoder}}*);}
+\DoxyCodeLine{90 \textcolor{comment}{/*must be called before freeing memory associated with an instruction\_decoder}}
+\DoxyCodeLine{91 \textcolor{comment}{  instance, or to reset an instance to a clean state for reuse.*/}}
+\DoxyCodeLine{92 }
+\DoxyCodeLine{93 \textcolor{keywordtype}{size\_t} instruction\_decoder\_feed(\mbox{\hyperlink{struct__instruction__decoder}{instruction\_decoder}}*, \textcolor{keywordtype}{char}* buffer, \textcolor{keywordtype}{size\_t} bufferLen);}
+\DoxyCodeLine{94 \textcolor{comment}{/*feed the next character(s) into the decoder.}}
+\DoxyCodeLine{95 \textcolor{comment}{  Always returns a value >=1 indicating the number of incoming characters in buffer}}
+\DoxyCodeLine{96 \textcolor{comment}{  that were consumed before the function returned. The starting position of the buffer}}
+\DoxyCodeLine{97 \textcolor{comment}{  should then be incremented by this offset before calling the function again.}}
+\DoxyCodeLine{98 \textcolor{comment}{*/}}
+\DoxyCodeLine{99 }
+\DoxyCodeLine{100 \textcolor{keywordtype}{short} instruction\_decoder\_iscomplete(\mbox{\hyperlink{struct__instruction__decoder}{instruction\_decoder}}*);}
+\DoxyCodeLine{101 \textcolor{comment}{/*use this to check if the complete instruction has been read and decoded.}}
+\DoxyCodeLine{102 \textcolor{comment}{  If it returns true, the completed instruction may be read from the output}}
+\DoxyCodeLine{103 \textcolor{comment}{  member variable.*/}}
+\DoxyCodeLine{104 }
+\DoxyCodeLine{105 }
+\DoxyCodeLine{106 }
+\DoxyCodeLine{107 \textcolor{keywordtype}{void} decodeInstructionPreamble(\textcolor{keyword}{const} \textcolor{keywordtype}{char}* preamble, \textcolor{keywordtype}{char}* opcode, uint64\_t* requestor, hipe\_loc* location, uint64\_t arglen[]);}
+\DoxyCodeLine{108 }
+\DoxyCodeLine{109 }
+\DoxyCodeLine{110 }
+\DoxyCodeLine{111 }
+\DoxyCodeLine{124 \textcolor{keyword}{struct }\mbox{\hyperlink{struct__instruction__encoder}{\_instruction\_encoder}} \{}
+\DoxyCodeLine{125     \textcolor{keywordtype}{unsigned} \textcolor{keywordtype}{char}* encoded\_output;}
+\DoxyCodeLine{126     \textcolor{keywordtype}{size\_t} encoded\_length;}
+\DoxyCodeLine{127 \};}
+\DoxyCodeLine{128 \textcolor{keyword}{typedef} \textcolor{keyword}{struct }\mbox{\hyperlink{struct__instruction__encoder}{\_instruction\_encoder}} \mbox{\hyperlink{struct__instruction__encoder}{instruction\_encoder}};}
+\DoxyCodeLine{129 }
+\DoxyCodeLine{130 \textcolor{keywordtype}{void} instruction\_encoder\_init(\mbox{\hyperlink{struct__instruction__encoder}{instruction\_encoder}}*);}
+\DoxyCodeLine{131 \textcolor{comment}{/*equivalent to a constructor for an instruction\_encoder object.}}
+\DoxyCodeLine{132 \textcolor{comment}{  Must be called in initialise the struct.*/}}
+\DoxyCodeLine{133 }
+\DoxyCodeLine{134 \textcolor{keywordtype}{void} instruction\_encoder\_clear(\mbox{\hyperlink{struct__instruction__encoder}{instruction\_encoder}}*);}
+\DoxyCodeLine{135 \textcolor{comment}{/*clears the contents of an instruction\_encoder struct for re-\/use,}}
+\DoxyCodeLine{136 \textcolor{comment}{  or to free memory prior to destruction.*/}}
+\DoxyCodeLine{137 }
+\DoxyCodeLine{138 \textcolor{keywordtype}{void} instruction\_encoder\_encodeinstruction(\mbox{\hyperlink{struct__instruction__encoder}{instruction\_encoder}}*, \mbox{\hyperlink{struct__hipe__instruction}{hipe\_instruction}});}
+\DoxyCodeLine{139 }
+\DoxyCodeLine{140 }
+\DoxyCodeLine{141 \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{142 \textcolor{preprocessor}{\#ifdef \_\_cplusplus}}
+\DoxyCodeLine{143 \}}
+\DoxyCodeLine{144 \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

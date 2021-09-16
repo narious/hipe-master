@@ -1,0 +1,531 @@
+\hypertarget{hipe__instruction_8h_source}{}\doxysection{hipe\+\_\+instruction.\+h}
+\label{hipe__instruction_8h_source}\index{server/src/hipe\_instruction.h@{server/src/hipe\_instruction.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{comment}{/* Copyright (c) 2015-\/2019 Daniel Kos, General Development Systems}}
+\DoxyCodeLine{2 \textcolor{comment}{}}
+\DoxyCodeLine{3 \textcolor{comment}{Permission is hereby granted, free of charge, to any person obtaining a copy}}
+\DoxyCodeLine{4 \textcolor{comment}{of this software and associated documentation files (the "{}Software"{}), to deal}}
+\DoxyCodeLine{5 \textcolor{comment}{in the Software without restriction, including without limitation the rights}}
+\DoxyCodeLine{6 \textcolor{comment}{to use, copy, modify, merge, publish, distribute, sublicense, and/or sell}}
+\DoxyCodeLine{7 \textcolor{comment}{copies of the Software, and to permit persons to whom the Software is}}
+\DoxyCodeLine{8 \textcolor{comment}{furnished to do so, subject to the following conditions:}}
+\DoxyCodeLine{9 \textcolor{comment}{}}
+\DoxyCodeLine{10 \textcolor{comment}{The above copyright notice and this permission notice shall be included in}}
+\DoxyCodeLine{11 \textcolor{comment}{all copies or substantial portions of this Software library.}}
+\DoxyCodeLine{12 \textcolor{comment}{}}
+\DoxyCodeLine{13 \textcolor{comment}{THE SOFTWARE IS PROVIDED "{}AS IS"{}, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR}}
+\DoxyCodeLine{14 \textcolor{comment}{IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,}}
+\DoxyCodeLine{15 \textcolor{comment}{FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE}}
+\DoxyCodeLine{16 \textcolor{comment}{AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER}}
+\DoxyCodeLine{17 \textcolor{comment}{LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,}}
+\DoxyCodeLine{18 \textcolor{comment}{OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN}}
+\DoxyCodeLine{19 \textcolor{comment}{THE SOFTWARE.}}
+\DoxyCodeLine{20 \textcolor{comment}{*/}}
+\DoxyCodeLine{21 }
+\DoxyCodeLine{22 \textcolor{preprocessor}{\#ifdef \_\_cplusplus}}
+\DoxyCodeLine{23 \textcolor{keyword}{extern} \textcolor{stringliteral}{"{}C"{}} \{}
+\DoxyCodeLine{24 \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{25 }
+\DoxyCodeLine{30 \textcolor{preprocessor}{\#ifndef HIPECOM\_H}}
+\DoxyCodeLine{31 \textcolor{preprocessor}{\#define HIPECOM\_H}}
+\DoxyCodeLine{32 }
+\DoxyCodeLine{33 \textcolor{preprocessor}{\#include <sys/types.h>}}
+\DoxyCodeLine{34 \textcolor{preprocessor}{\#include <stdint.h>}}
+\DoxyCodeLine{35 }
+\DoxyCodeLine{36 \textcolor{preprocessor}{\#define HIPE\_OP\_CLEAR              1}}
+\DoxyCodeLine{37 \textcolor{comment}{/*clear the contents of the tag given by location (removing all child elements),}}
+\DoxyCodeLine{38 \textcolor{comment}{ *or clear body if location==0.*/}}
+\DoxyCodeLine{39 }
+\DoxyCodeLine{40 \textcolor{preprocessor}{\#define HIPE\_OP\_SET\_TEXT           2}}
+\DoxyCodeLine{41 \textcolor{comment}{/* set a tag's contents to a string of plain text given in arg[0], overwriting}}
+\DoxyCodeLine{42 \textcolor{comment}{ * previous contents.}}
+\DoxyCodeLine{43 \textcolor{comment}{ * if location==0 this applies to the entire body tag.}}
+\DoxyCodeLine{44 \textcolor{comment}{ */}}
+\DoxyCodeLine{45 }
+\DoxyCodeLine{46 \textcolor{preprocessor}{\#define HIPE\_OP\_APPEND\_TEXT        3}}
+\DoxyCodeLine{47 \textcolor{comment}{/* append plain text inside the tag given by location, or inside body if location==0.}}
+\DoxyCodeLine{48 \textcolor{comment}{ * arg[0] is the text content to append. HTML-\/style special character entities may be used.}}
+\DoxyCodeLine{49 \textcolor{comment}{ */}}
+\DoxyCodeLine{50 }
+\DoxyCodeLine{51 \textcolor{preprocessor}{\#define HIPE\_OP\_APPEND\_TAG         4}}
+\DoxyCodeLine{52 \textcolor{comment}{/* append a tag element inside the tag given by location, or inside body if location==0.}}
+\DoxyCodeLine{53 \textcolor{comment}{ * arg[0] is the tag type,}}
+\DoxyCodeLine{54 \textcolor{comment}{ * arg[1] is an optional identifier for the tag}}
+\DoxyCodeLine{55 \textcolor{comment}{ * arg[2] is an optional argument. If "{}1"{} is passed here, the server will send back a}}
+\DoxyCodeLine{56 \textcolor{comment}{ * HIPE\_OP\_LOCATION\_RETURN instruction with the location of the newly created tag. */}}
+\DoxyCodeLine{57 }
+\DoxyCodeLine{58 \textcolor{preprocessor}{\#define HIPE\_OP\_ATTRIBUTE\_RETURN   5}}
+\DoxyCodeLine{59 \textcolor{comment}{/* arg[0] is the name of the attribute and arg[1] is the retrieved value */}}
+\DoxyCodeLine{60 }
+\DoxyCodeLine{61 \textcolor{preprocessor}{\#define HIPE\_OP\_CONTAINER\_GRANT    6}}
+\DoxyCodeLine{62 \textcolor{comment}{/* Server response to container request. Arg1 is "{}0"{} if the container request}}
+\DoxyCodeLine{63 \textcolor{comment}{ * was denied, or "{}1"{} if a new container has been granted. */}}
+\DoxyCodeLine{64 }
+\DoxyCodeLine{65 \textcolor{preprocessor}{\#define HIPE\_OP\_EVENT              7}}
+\DoxyCodeLine{66 \textcolor{comment}{/* Sent by the server to the client whenever a requested event occurs.}}
+\DoxyCodeLine{67 \textcolor{comment}{ * 'arg[0]' is the type of event, and 'location' is the tag for which events of 'arg[0]' were requested.}}
+\DoxyCodeLine{68 \textcolor{comment}{ * 'requestor' returns the same client-\/supplied value as was used for HIPE\_OP\_EVENT\_REQUEST.}}
+\DoxyCodeLine{69 \textcolor{comment}{ * 'arg[1]' provides event-\/specific detail about the event -\/-\/ e.g. for "{}click"{} events it returns the}}
+\DoxyCodeLine{70 \textcolor{comment}{ * number of clicks registered.}}
+\DoxyCodeLine{71 \textcolor{comment}{ * */}}
+\DoxyCodeLine{72 }
+\DoxyCodeLine{73 \textcolor{preprocessor}{\#define HIPE\_OP\_EVENT\_CANCEL       8}}
+\DoxyCodeLine{74 \textcolor{comment}{/* Sent by the client to cancel notification of further events of type 'arg[0]' on location 'location'.}}
+\DoxyCodeLine{75 \textcolor{comment}{ * if arg[1]=="{}1"{}, the server will reply with the same instruction to acknowledge that the event has been}}
+\DoxyCodeLine{76 \textcolor{comment}{ * cancelled. This may be useful to a client that needs to know when it is safe to clean up event listeners.}}
+\DoxyCodeLine{77 \textcolor{comment}{ * */}}
+\DoxyCodeLine{78 }
+\DoxyCodeLine{79 \textcolor{preprocessor}{\#define HIPE\_OP\_EVENT\_REQUEST      9}}
+\DoxyCodeLine{80 \textcolor{comment}{/*Sent by the client to request notification of event 'arg[0]' on location 'location'.}}
+\DoxyCodeLine{81 \textcolor{comment}{ * */}}
+\DoxyCodeLine{82 }
+\DoxyCodeLine{83 \textcolor{preprocessor}{\#define HIPE\_OP\_FREE\_LOCATION      10}}
+\DoxyCodeLine{84 \textcolor{comment}{/* Sent by the client to the server to de-\/allocate a location index that is no longer required.*/}}
+\DoxyCodeLine{85 }
+\DoxyCodeLine{86 \textcolor{preprocessor}{\#define HIPE\_OP\_GET\_ATTRIBUTE      11}}
+\DoxyCodeLine{87 \textcolor{comment}{/* arg[0] is the name of the attribute*/}}
+\DoxyCodeLine{88 }
+\DoxyCodeLine{89 \textcolor{preprocessor}{\#define HIPE\_OP\_GET\_BY\_ID          12}}
+\DoxyCodeLine{90 \textcolor{comment}{/* Request a location index for the HTML tag with id attribute == arg[0]*/}}
+\DoxyCodeLine{91 }
+\DoxyCodeLine{92 \textcolor{preprocessor}{\#define HIPE\_OP\_GET\_FIRST\_CHILD    13}}
+\DoxyCodeLine{93 }
+\DoxyCodeLine{94 \textcolor{preprocessor}{\#define HIPE\_OP\_GET\_GEOMETRY       14}}
+\DoxyCodeLine{95 \textcolor{comment}{/* Request a HIPE\_OP\_GEOMETRY reply with the x,y,width,height coordinates of location.*/}}
+\DoxyCodeLine{96 }
+\DoxyCodeLine{97 \textcolor{preprocessor}{\#define HIPE\_OP\_GET\_LAST\_CHILD     15}}
+\DoxyCodeLine{98 \textcolor{preprocessor}{\#define HIPE\_OP\_GET\_NEXT\_SIBLING   16}}
+\DoxyCodeLine{99 \textcolor{preprocessor}{\#define HIPE\_OP\_GET\_PREV\_SIBLING   17}}
+\DoxyCodeLine{100 \textcolor{comment}{/* Sent by client to request a location index relative to the supplied location*/}}
+\DoxyCodeLine{101 }
+\DoxyCodeLine{102 \textcolor{preprocessor}{\#define HIPE\_OP\_LOCATION\_RETURN    18}}
+\DoxyCodeLine{103 \textcolor{comment}{/* Sent from server to client in immediate response to a 'get child' request.}}
+\DoxyCodeLine{104 \textcolor{comment}{ * Args are undefined (0), requestor is copied from the request, location is the requested location.*/}}
+\DoxyCodeLine{105 }
+\DoxyCodeLine{106 \textcolor{preprocessor}{\#define HIPE\_OP\_GEOMETRY\_RETURN    19}}
+\DoxyCodeLine{107 \textcolor{comment}{/* arg[0] is x position and arg[1] is y position relative to containing frame.}}
+\DoxyCodeLine{108 \textcolor{comment}{ * arg[2] is the width and arg[3] is the height of the element itself. */}}
+\DoxyCodeLine{109 }
+\DoxyCodeLine{110 \textcolor{preprocessor}{\#define HIPE\_OP\_REQUEST\_CONTAINER  20}}
+\DoxyCodeLine{111 \textcolor{comment}{/* this must be the first instruction received. arg[0] is the key and arg[1] is a short client name.*/}}
+\DoxyCodeLine{112 }
+\DoxyCodeLine{113 \textcolor{preprocessor}{\#define HIPE\_OP\_SERVER\_DENIED      21}}
+\DoxyCodeLine{114 \textcolor{comment}{/*Sent by the server when a request is received but cannot be acted on due to}}
+\DoxyCodeLine{115 \textcolor{comment}{ *some critical violation. Usually this means that the client has not followed}}
+\DoxyCodeLine{116 \textcolor{comment}{ *protocol, e.g. is trying to send instructions even though a container request}}
+\DoxyCodeLine{117 \textcolor{comment}{ *was previously denied. Or, the session has been terminated at the server end.}}
+\DoxyCodeLine{118 \textcolor{comment}{ */}}
+\DoxyCodeLine{119 }
+\DoxyCodeLine{120 \textcolor{preprocessor}{\#define HIPE\_OP\_SET\_ATTRIBUTE      22}}
+\DoxyCodeLine{121 \textcolor{comment}{/* arg[0] is the property and arg[1] is the new value */}}
+\DoxyCodeLine{122 }
+\DoxyCodeLine{123 \textcolor{preprocessor}{\#define HIPE\_OP\_SET\_STYLE          23}}
+\DoxyCodeLine{124 \textcolor{comment}{/* arg[0] is the property and arg[1] is the new value */}}
+\DoxyCodeLine{125 }
+\DoxyCodeLine{126 \textcolor{preprocessor}{\#define HIPE\_OP\_ADD\_STYLE\_RULE     24 }\textcolor{comment}{//to replace SET\_STYLESHEET}}
+\DoxyCodeLine{127 \textcolor{comment}{/* Used to apply CSS style rules before other content is displayed.}}
+\DoxyCodeLine{128 \textcolor{comment}{ * arg[0] is the CSS descriptor of element(s) that the rule will apply to, and}}
+\DoxyCodeLine{129 \textcolor{comment}{ * arg[1] is the styling to apply, e.g. "{}border:0; width:100\%;"{}}}
+\DoxyCodeLine{130 \textcolor{comment}{ */}}
+\DoxyCodeLine{131 }
+\DoxyCodeLine{132 \textcolor{preprocessor}{\#define HIPE\_OP\_SET\_SRC            25}}
+\DoxyCodeLine{133 \textcolor{comment}{/*}}
+\DoxyCodeLine{134 \textcolor{comment}{ * arg[0] is the binary contents of the media file to be applied to the element.}}
+\DoxyCodeLine{135 \textcolor{comment}{ * arg[1] is the mime type of the source file to be applied to the element, e.g. "{}image/jpeg"{}}}
+\DoxyCodeLine{136 \textcolor{comment}{ */}}
+\DoxyCodeLine{137 }
+\DoxyCodeLine{138 \textcolor{preprocessor}{\#define HIPE\_OP\_SET\_TITLE          26}}
+\DoxyCodeLine{139 \textcolor{comment}{/* arg[0] overwrites the container's title with a new one.*/}}
+\DoxyCodeLine{140 }
+\DoxyCodeLine{141 \textcolor{preprocessor}{\#define HIPE\_OP\_GET\_FRAME\_KEY      28}}
+\DoxyCodeLine{142 \textcolor{comment}{/* Sent by client to request the hostkey for connecting to a particular iframe}}
+\DoxyCodeLine{143 \textcolor{comment}{ * location is the handle corresponding to the particular iframe.}}
+\DoxyCodeLine{144 \textcolor{comment}{ */}}
+\DoxyCodeLine{145 }
+\DoxyCodeLine{146 \textcolor{preprocessor}{\#define HIPE\_OP\_KEY\_RETURN         29}}
+\DoxyCodeLine{147 \textcolor{comment}{/* Sent by the server in response to a GET\_FRAME\_KEY request.}}
+\DoxyCodeLine{148 \textcolor{comment}{ * arg[0] is the returned host key and location is the frame on which the request was made.}}
+\DoxyCodeLine{149 \textcolor{comment}{ */}}
+\DoxyCodeLine{150 }
+\DoxyCodeLine{151 \textcolor{preprocessor}{\#define HIPE\_OP\_FRAME\_EVENT        30}}
+\DoxyCodeLine{152 \textcolor{comment}{/* Sent by the server to indicate an event affecting a direct sub-\/frame of this one,}}
+\DoxyCodeLine{153 \textcolor{comment}{ * such as a client connecting to the sub-\/frame, or the title having been changed by}}
+\DoxyCodeLine{154 \textcolor{comment}{ * the client.}}
+\DoxyCodeLine{155 \textcolor{comment}{ * Frame events are sent automatically once HIPE\_OP\_GET\_FRAME\_KEY has been requested for that frame.}}
+\DoxyCodeLine{156 \textcolor{comment}{ * The framing client doesn't specify which events should be received.}}
+\DoxyCodeLine{157 \textcolor{comment}{ * requestor is the requestor value that was originally passed last time GET\_FRAME\_KEY was called.}}
+\DoxyCodeLine{158 \textcolor{comment}{ * location is the iframe element.}}
+\DoxyCodeLine{159 \textcolor{comment}{ * arg[0] is the event type}}
+\DoxyCodeLine{160 \textcolor{comment}{ * arg[1] is event detail (if applicable).}}
+\DoxyCodeLine{161 \textcolor{comment}{ */}}
+\DoxyCodeLine{162 }
+\DoxyCodeLine{163 \textcolor{preprocessor}{\#define HIPE\_OP\_FRAME\_CLOSE        31}}
+\DoxyCodeLine{164 \textcolor{comment}{/* Sent by a client that manages a subframe to indicate a request for the client occupying that}}
+\DoxyCodeLine{165 \textcolor{comment}{ * frame to terminate.}}
+\DoxyCodeLine{166 \textcolor{comment}{ * Location: the frame element}}
+\DoxyCodeLine{167 \textcolor{comment}{ * arg[0]: non-\/null string -\/ convey a user's request to close that client (e.g. user clicks close button).}}
+\DoxyCodeLine{168 \textcolor{comment}{ *       null -\/ tells hipe server to terminate client connection forcibly.}}
+\DoxyCodeLine{169 \textcolor{comment}{ */}}
+\DoxyCodeLine{170 }
+\DoxyCodeLine{171 \textcolor{preprocessor}{\#define HIPE\_OP\_TOGGLE\_CLASS       32}}
+\DoxyCodeLine{172 \textcolor{comment}{/* Applies or removes a CSS class to/from an element.}}
+\DoxyCodeLine{173 \textcolor{comment}{ * arg[0]: the class name to apply/remove.}}
+\DoxyCodeLine{174 \textcolor{comment}{ */}}
+\DoxyCodeLine{175 }
+\DoxyCodeLine{176 \textcolor{preprocessor}{\#define HIPE\_OP\_SET\_FOCUS          33}}
+\DoxyCodeLine{177 \textcolor{comment}{/* Keyboard-\/focuses the element at location */}}
+\DoxyCodeLine{178 }
+\DoxyCodeLine{179 \textcolor{preprocessor}{\#define HIPE\_OP\_SET\_STYLE\_SRC 34}}
+\DoxyCodeLine{180 \textcolor{comment}{/* Applies a background image or other property to the element at location.}}
+\DoxyCodeLine{181 \textcolor{comment}{ * arg[0] is the CSS property (e.g. background-\/image)}}
+\DoxyCodeLine{182 \textcolor{comment}{ * arg[1] is the binary contents of the media file.}}
+\DoxyCodeLine{183 \textcolor{comment}{ * arg[2] is the mime type of the binary data.}}
+\DoxyCodeLine{184 \textcolor{comment}{ * arg[3] is an optional suffix value: some CSS properties take an additional parameter, e.g.}}
+\DoxyCodeLine{185 \textcolor{comment}{ *        background may take a source image, followed by "{}repeat-\/x repeat-\/y"{} or similar.}}
+\DoxyCodeLine{186 \textcolor{comment}{ */}}
+\DoxyCodeLine{187 }
+\DoxyCodeLine{188 \textcolor{preprocessor}{\#define HIPE\_OP\_TAKE\_SNAPSHOT      35}}
+\DoxyCodeLine{189 \textcolor{comment}{/* Takes a screenshot of the client frame.}}
+\DoxyCodeLine{190 \textcolor{comment}{ * arg[0] is the file format. ("{}pdf"{} for vector screenshots, or "{}png"{} for raster screenshots.)}}
+\DoxyCodeLine{191 \textcolor{comment}{ */}}
+\DoxyCodeLine{192 }
+\DoxyCodeLine{193 \textcolor{preprocessor}{\#define HIPE\_OP\_FILE\_RETURN        36}}
+\DoxyCodeLine{194 \textcolor{comment}{/* Sent to the client when the client requests a file (e.g. a snapshot of the frame contents).}}
+\DoxyCodeLine{195 \textcolor{comment}{ * requestor carries the value of the instruction that requested the file.}}
+\DoxyCodeLine{196 \textcolor{comment}{ */}}
+\DoxyCodeLine{197 }
+\DoxyCodeLine{198 \textcolor{preprocessor}{\#define HIPE\_OP\_ADD\_STYLE\_RULE\_SRC 37}}
+\DoxyCodeLine{199 \textcolor{comment}{/* Sets background image data for a particular CSS style rule.}}
+\DoxyCodeLine{200 \textcolor{comment}{ * arg[0] is the CSS designator and arg[1] is the image file data, which should be PNG format.}}
+\DoxyCodeLine{201 \textcolor{comment}{ */}}
+\DoxyCodeLine{202 }
+\DoxyCodeLine{203 \textcolor{preprocessor}{\#define HIPE\_OP\_USE\_CANVAS         38}}
+\DoxyCodeLine{204 \textcolor{comment}{/* Sets a canvas object at location to be the active canvas for drawing.}}
+\DoxyCodeLine{205 \textcolor{comment}{ * arg[0] is the canvas drawing context to be used (e.g. "{}2d"{}).}}
+\DoxyCodeLine{206 \textcolor{comment}{ */}}
+\DoxyCodeLine{207 }
+\DoxyCodeLine{208 \textcolor{preprocessor}{\#define HIPE\_OP\_CANVAS\_ACTION      39}}
+\DoxyCodeLine{209 \textcolor{comment}{/* Carries out a drawing method on the canvas object selected with HIPE\_OP\_USE\_CANVAS.}}
+\DoxyCodeLine{210 \textcolor{comment}{ * arg[0] is the method to use (e.g. "{}fillRect"{}) and arg[1] is a string of comma-\/separated}}
+\DoxyCodeLine{211 \textcolor{comment}{ * parameters (e.g "{}0,0,150,75"{}).}}
+\DoxyCodeLine{212 \textcolor{comment}{ */}}
+\DoxyCodeLine{213 }
+\DoxyCodeLine{214 \textcolor{preprocessor}{\#define HIPE\_OP\_CANVAS\_SET\_PROPERTY 40}}
+\DoxyCodeLine{215 \textcolor{comment}{/* Sets a property on the current canvas context.}}
+\DoxyCodeLine{216 \textcolor{comment}{ * arg[0] is the property, arg[1] is the desired value.}}
+\DoxyCodeLine{217 \textcolor{comment}{ */}}
+\DoxyCodeLine{218 }
+\DoxyCodeLine{219 \textcolor{preprocessor}{\#define HIPE\_OP\_SET\_ICON           41}}
+\DoxyCodeLine{220 \textcolor{comment}{/* Sets the client application's icon, which will be passed to the client's}}
+\DoxyCodeLine{221 \textcolor{comment}{ * parent environment for the purpose of helping the user identify this application.}}
+\DoxyCodeLine{222 \textcolor{comment}{ * arg[0] is the image file in PNG format. arg[1] is unused.}}
+\DoxyCodeLine{223 \textcolor{comment}{ */}}
+\DoxyCodeLine{224 }
+\DoxyCodeLine{225 \textcolor{preprocessor}{\#define HIPE\_OP\_REMOVE\_ATTRIBUTE   42}}
+\DoxyCodeLine{226 \textcolor{comment}{/* Removes (unsets) the attribute specified in arg[0]. arg[1] is unused.}}
+\DoxyCodeLine{227 \textcolor{comment}{ */}}
+\DoxyCodeLine{228 }
+\DoxyCodeLine{229 \textcolor{preprocessor}{\#define HIPE\_OP\_MESSAGE            43}}
+\DoxyCodeLine{230 \textcolor{comment}{/* Sends an arbitrary message to another Hipe client with a direct parent/child relationship.}}
+\DoxyCodeLine{231 \textcolor{comment}{ * Or receives a message from another client.}}
+\DoxyCodeLine{232 \textcolor{comment}{ * Location: * 0 (or body element) means the message is being passed to/from the direct parent}}
+\DoxyCodeLine{233 \textcolor{comment}{ *               (which manages the client frame)}}
+\DoxyCodeLine{234 \textcolor{comment}{ *           * a frame element means message is being passed to/from that child frame's client.}}
+\DoxyCodeLine{235 \textcolor{comment}{ * arg[0], arg[1], requestor: passed through to other client unmodified. User-\/defined message data can be passed through here.}}
+\DoxyCodeLine{236 \textcolor{comment}{ */}}
+\DoxyCodeLine{237 }
+\DoxyCodeLine{238 \textcolor{preprocessor}{\#define HIPE\_OP\_GET\_SCROLL\_GEOMETRY 44}}
+\DoxyCodeLine{239 \textcolor{comment}{/*Requests the scroll geometry of the specified element. No arguments. Return}}
+\DoxyCodeLine{240 \textcolor{comment}{ *instruction is a HIPE\_OP\_GEOMETRY\_RETURN instruction, where arg[0] is the x}}
+\DoxyCodeLine{241 \textcolor{comment}{ *scroll position at the left hand side, arg[1] is the y scroll position at the}}
+\DoxyCodeLine{242 \textcolor{comment}{ *visible top of the element, arg[2] is the total scrollable width of the}}
+\DoxyCodeLine{243 \textcolor{comment}{ *element content, and arg[3] is the total scrollable height.}}
+\DoxyCodeLine{244 \textcolor{comment}{ */}}
+\DoxyCodeLine{245 }
+\DoxyCodeLine{246 \textcolor{preprocessor}{\#define HIPE\_OP\_SCROLL\_TO          45}}
+\DoxyCodeLine{247 \textcolor{preprocessor}{\#define HIPE\_OP\_SCROLL\_BY          46}}
+\DoxyCodeLine{248 \textcolor{comment}{/*Scrolls the contents of the element TO an absolute position or BY a relative}}
+\DoxyCodeLine{249 \textcolor{comment}{ *(\_BY) amount. arg[0] is the horizontal pixel offset to scroll to (or by).}}
+\DoxyCodeLine{250 \textcolor{comment}{ *arg[1] is the vertical pixel offset to scroll to (or by) To scroll in one}}
+\DoxyCodeLine{251 \textcolor{comment}{ *direction only, leave the unwanted argument unspecified.}}
+\DoxyCodeLine{252 \textcolor{comment}{ *arg[2] can be specified as "{}\%"{} in which case a percentage of the scroll track}}
+\DoxyCodeLine{253 \textcolor{comment}{ *is used. Otherwise scrolling is in pixels.}}
+\DoxyCodeLine{254 \textcolor{comment}{ */}}
+\DoxyCodeLine{255 }
+\DoxyCodeLine{256 \textcolor{preprocessor}{\#define HIPE\_OP\_GET\_CONTENT       47}}
+\DoxyCodeLine{257 \textcolor{comment}{/*Requests inner content of location; either flattened to unformatted plain}}
+\DoxyCodeLine{258 \textcolor{comment}{ *text or formatted to HTML (if arg[0] == "{}1"{} or "{}2"{}). Response is sent back from the}}
+\DoxyCodeLine{259 \textcolor{comment}{ *server as a HIPE\_OP\_CONTENT\_RETURN instruction.}}
+\DoxyCodeLine{260 \textcolor{comment}{ * arg[0] == 0 -\/-\/ unformatted plain text (default)}}
+\DoxyCodeLine{261 \textcolor{comment}{ * arg[0] == 1 -\/-\/ contents formatted to HTML}}
+\DoxyCodeLine{262 \textcolor{comment}{ * arg[0] == 2 -\/-\/ contents returned as formatted plain text (line breaks etc.)}}
+\DoxyCodeLine{263 \textcolor{comment}{ */}}
+\DoxyCodeLine{264 }
+\DoxyCodeLine{265 \textcolor{preprocessor}{\#define HIPE\_OP\_CONTENT\_RETURN    48}}
+\DoxyCodeLine{266 \textcolor{comment}{/*Sent to client in response to a HIPE\_OP\_GET\_CONTENT request. arg[0] contains}}
+\DoxyCodeLine{267 \textcolor{comment}{ *the requested content. requestor contains whatever was passed to the initial}}
+\DoxyCodeLine{268 \textcolor{comment}{ *request. Await this instruction after making a HIPE\_OP\_GET\_CONTENT request.}}
+\DoxyCodeLine{269 \textcolor{comment}{ */}}
+\DoxyCodeLine{270 }
+\DoxyCodeLine{271 \textcolor{preprocessor}{\#define HIPE\_OP\_DELETE 49}}
+\DoxyCodeLine{272 \textcolor{comment}{/*Request that the location itself be removed from the document.}}
+\DoxyCodeLine{273 \textcolor{comment}{ */}}
+\DoxyCodeLine{274 }
+\DoxyCodeLine{275 \textcolor{preprocessor}{\#define HIPE\_OP\_CARAT\_POSITION 50}}
+\DoxyCodeLine{276 \textcolor{comment}{/*Sets the position of the text entry carat in an input element such as a}}
+\DoxyCodeLine{277 \textcolor{comment}{ *<textarea> tag.}}
+\DoxyCodeLine{278 \textcolor{comment}{ * arg[0] == character index of cursor within element}}
+\DoxyCodeLine{279 \textcolor{comment}{ * arg[1] == character index of the end of the selection, or same as arg[0]}}
+\DoxyCodeLine{280 \textcolor{comment}{ * if text is not selected.}}
+\DoxyCodeLine{281 \textcolor{comment}{ * Note: additional arguments may be added in future if deemed necessary.}}
+\DoxyCodeLine{282 \textcolor{comment}{ */}}
+\DoxyCodeLine{283 }
+\DoxyCodeLine{284 \textcolor{preprocessor}{\#define HIPE\_OP\_GET\_CARAT\_POSITION 51}}
+\DoxyCodeLine{285 \textcolor{comment}{/*Requests the sever to send the client a HIPE\_OP\_CARAT\_POSITION instruction}}
+\DoxyCodeLine{286 \textcolor{comment}{ *containing the *current* state of the input element.}}
+\DoxyCodeLine{287 \textcolor{comment}{ */}}
+\DoxyCodeLine{288 }
+\DoxyCodeLine{289 \textcolor{preprocessor}{\#define HIPE\_OP\_FIND\_TEXT 52}}
+\DoxyCodeLine{290 \textcolor{comment}{/*Searches for the next instance of a text string in the entire client-\/frame}}
+\DoxyCodeLine{291 \textcolor{comment}{ *hierarchy, in the style of a web browser's 'find on page' feature.}}
+\DoxyCodeLine{292 \textcolor{comment}{ *Matches are selected for the user.}}
+\DoxyCodeLine{293 \textcolor{comment}{ *For security reasons, only functional for the top-\/level frame.}}
+\DoxyCodeLine{294 \textcolor{comment}{ */}}
+\DoxyCodeLine{295 }
+\DoxyCodeLine{296 \textcolor{preprocessor}{\#define HIPE\_OP\_ADD\_FONT 53}}
+\DoxyCodeLine{297 \textcolor{comment}{/*Adds a @fontface style rule to the document}}
+\DoxyCodeLine{298 \textcolor{comment}{ *arg[0] == the name to be used to specify the font face in subsequent styling}}
+\DoxyCodeLine{299 \textcolor{comment}{ *arg[1] == the mime type for the font data (e.g. "{}application/x-\/font-\/woff"{})}}
+\DoxyCodeLine{300 \textcolor{comment}{ *arg[2] == the raw font file data itself.}}
+\DoxyCodeLine{301 \textcolor{comment}{ */}}
+\DoxyCodeLine{302 }
+\DoxyCodeLine{303 \textcolor{preprocessor}{\#define HIPE\_OP\_AUDIOVIDEO\_STATE 54}}
+\DoxyCodeLine{304 \textcolor{comment}{/*If sent from the client to the server, modifies the state of an <audio> or}}
+\DoxyCodeLine{305 \textcolor{comment}{ *<video> tag. If received, this is in response to a ...\_GET\_AUDIOVIDEO\_STATE}}
+\DoxyCodeLine{306 \textcolor{comment}{ *request and reflects the current status of the media element}}
+\DoxyCodeLine{307 \textcolor{comment}{ *arg[0] == the current playback position (in seconds) and the total duration (in seconds)}}
+\DoxyCodeLine{308 \textcolor{comment}{ *          separated by a ','. When setting the current playback position, it is}}
+\DoxyCodeLine{309 \textcolor{comment}{            sufficient to specify the desired position without the total duration.}}
+\DoxyCodeLine{310 \textcolor{comment}{ *arg[1] == the playback speed (1 == normal speed)}}
+\DoxyCodeLine{311 \textcolor{comment}{ *arg[2] == the playing/paused status. ("{}1"{} or "{}0"{})}}
+\DoxyCodeLine{312 \textcolor{comment}{ *arg[3] == the playback volume (fraction of 1.0)}}
+\DoxyCodeLine{313 \textcolor{comment}{ *-\/-\/nonrequired arguments can be left empty.}}
+\DoxyCodeLine{314 \textcolor{comment}{ */}}
+\DoxyCodeLine{315 }
+\DoxyCodeLine{316 \textcolor{preprocessor}{\#define HIPE\_OP\_GET\_AUDIOVIDEO\_STATE 55}}
+\DoxyCodeLine{317 \textcolor{comment}{/*Requests a HIPE\_OP\_AUDIOVIDEO\_STATE instruction containing the current state}}
+\DoxyCodeLine{318 \textcolor{comment}{ *of an <audio> or <video> tag.}}
+\DoxyCodeLine{319 \textcolor{comment}{ */}}
+\DoxyCodeLine{320 }
+\DoxyCodeLine{321 \textcolor{preprocessor}{\#define HIPE\_OP\_DIALOG 56}}
+\DoxyCodeLine{322 \textcolor{comment}{/*A dialog is a modal dialog display containing one or more forward options}}
+\DoxyCodeLine{323 \textcolor{comment}{ *and a built-\/in ability to close (cancel) the dialog without selecting an option.}}
+\DoxyCodeLine{324 \textcolor{comment}{}}
+\DoxyCodeLine{325 \textcolor{comment}{ *"{}Modal"{} may be implemented with at least two possible behaviours: either}}
+\DoxyCodeLine{326 \textcolor{comment}{ *(a) the user cannot interact with the client until answering or dismissing}}
+\DoxyCodeLine{327 \textcolor{comment}{ *the dialog, or (b), refocusing the client (e.g. clicking outside the dialog)}}
+\DoxyCodeLine{328 \textcolor{comment}{ *automatically invokes dismissal of the dialog. The sending client cannot choose}}
+\DoxyCodeLine{329 \textcolor{comment}{ *this behaviour; it depends on how the message-\/receiver is designed.}}
+\DoxyCodeLine{330 \textcolor{comment}{}}
+\DoxyCodeLine{331 \textcolor{comment}{ *If sent from the top level, Hipe handles rudimentary display of the dialog,}}
+\DoxyCodeLine{332 \textcolor{comment}{ *however the nominal case in a complete Hipe environment is for this to be}}
+\DoxyCodeLine{333 \textcolor{comment}{ *handled by a framing manager.}}
+\DoxyCodeLine{334 \textcolor{comment}{ *Otherwise, the next client up receives the instruction with the clientFrame}}
+\DoxyCodeLine{335 \textcolor{comment}{ *as the location. A client may}}
+\DoxyCodeLine{336 \textcolor{comment}{ *opt to retransmit the instruction up to the next level and then relay the}}
+\DoxyCodeLine{337 \textcolor{comment}{ *reply back to the client}}
+\DoxyCodeLine{338 \textcolor{comment}{ *}}
+\DoxyCodeLine{339 \textcolor{comment}{ *location == when sending: 0. When receiving: the clientFrame that sent it.}}
+\DoxyCodeLine{340 \textcolor{comment}{ *arg[0] == Dialog title text}}
+\DoxyCodeLine{341 \textcolor{comment}{ *arg[1] == Dialog prompt text; multiple lines allowed.}}
+\DoxyCodeLine{342 \textcolor{comment}{ *arg[2] == Choices, separated by newlines.}}
+\DoxyCodeLine{343 \textcolor{comment}{ *   (The cancel choice is not specifiable and is always provided)}}
+\DoxyCodeLine{344 \textcolor{comment}{ *   A separator may be specified by leaving a line blank.}}
+\DoxyCodeLine{345 \textcolor{comment}{ *}}
+\DoxyCodeLine{346 \textcolor{comment}{ *arg[3] == Character symbol (UTF8) for each option, separated by \(\backslash\)n newlines.}}
+\DoxyCodeLine{347 \textcolor{comment}{ *   If no symbol is required, or a separator occupies that 'slot', a blank}}
+\DoxyCodeLine{348 \textcolor{comment}{ *   line should be supplied.}}
+\DoxyCodeLine{349 \textcolor{comment}{ *   -\/ An additional symbol at the end of the list specifies a symbol for}}
+\DoxyCodeLine{350 \textcolor{comment}{ *     the dialog itself, e.g. "{}🛈"{}}}
+\DoxyCodeLine{351 \textcolor{comment}{ *}}
+\DoxyCodeLine{352 \textcolor{comment}{ */}}
+\DoxyCodeLine{353 }
+\DoxyCodeLine{354 }
+\DoxyCodeLine{355 \textcolor{preprocessor}{\#define HIPE\_OP\_DIALOG\_RETURN 57}}
+\DoxyCodeLine{356 \textcolor{comment}{/* Location: always 0 when received. When sending, use the client-\/frame that}}
+\DoxyCodeLine{357 \textcolor{comment}{ *  awaits the response.}}
+\DoxyCodeLine{358 \textcolor{comment}{ *}}
+\DoxyCodeLine{359 \textcolor{comment}{ * Requestor: relays the value that was ued in requesting the dialog.}}
+\DoxyCodeLine{360 \textcolor{comment}{ * arg[0]: The text of the response chosen (or blank if cancelled)}}
+\DoxyCodeLine{361 \textcolor{comment}{ * arg[1]: The index (numbered from 1) or the response chosen, or 0 if cancelled.}}
+\DoxyCodeLine{362 \textcolor{comment}{ */}}
+\DoxyCodeLine{363 }
+\DoxyCodeLine{364 }
+\DoxyCodeLine{365 \textcolor{preprocessor}{\#define HIPE\_OP\_DIALOG\_INPUT 58}}
+\DoxyCodeLine{366 \textcolor{comment}{/* An alternate version of HIPE\_OP\_DIALOG that allows free text input by the}}
+\DoxyCodeLine{367 \textcolor{comment}{ * User.}}
+\DoxyCodeLine{368 \textcolor{comment}{ * arg[0] == Dialog title text}}
+\DoxyCodeLine{369 \textcolor{comment}{ * arg[1] == Dialog prompt text. Multiple lines allowed, in which case the}}
+\DoxyCodeLine{370 \textcolor{comment}{ *   implementor may opt to style the final line differently as the main caption}}
+\DoxyCodeLine{371 \textcolor{comment}{ *   alongside the prompt itself, with prior lines preceding as explanatory text.}}
+\DoxyCodeLine{372 \textcolor{comment}{ * arg[2] == Suggested inputs, separated by newlines. The first line is the}}
+\DoxyCodeLine{373 \textcolor{comment}{ *   suggested default input. If the first line is blank, the input box should}}
+\DoxyCodeLine{374 \textcolor{comment}{ *   initially be empty. If the whole argument is blank, no suggestions are}}
+\DoxyCodeLine{375 \textcolor{comment}{ *   provided. Suggestions should be based on recent history (e.g. 5 recent commands)}}
+\DoxyCodeLine{376 \textcolor{comment}{ * arg[3] == Unicode character symbol (UTF8) for the question prompt.}}
+\DoxyCodeLine{377 \textcolor{comment}{ */}}
+\DoxyCodeLine{378 }
+\DoxyCodeLine{379 }
+\DoxyCodeLine{380 \textcolor{preprocessor}{\#define HIPE\_OP\_GET\_SELECTION 59}}
+\DoxyCodeLine{381 \textcolor{comment}{/* Returns selected text in the current frame, or in all frames (top-\/level}}
+\DoxyCodeLine{382 \textcolor{comment}{ * frame only can request this). Selection is returned as plain text.}}
+\DoxyCodeLine{383 \textcolor{comment}{ * Response is sent back from the server as a HIPE\_OP\_CONTENT\_RETURN instruction.}}
+\DoxyCodeLine{384 \textcolor{comment}{ * arg[0] == 0 -\/-\/ get selection in current frame (default)}}
+\DoxyCodeLine{385 \textcolor{comment}{ * arg[0] == '1' -\/-\/ get global selection (returns empty string if not the top-\/level element).}}
+\DoxyCodeLine{386 \textcolor{comment}{ */}}
+\DoxyCodeLine{387 }
+\DoxyCodeLine{388 }
+\DoxyCodeLine{389 \textcolor{preprocessor}{\#define HIPE\_OP\_EDIT\_ACTION 60}}
+\DoxyCodeLine{390 \textcolor{comment}{/* Performs a cut/copy/paste or other edit operation on text the user has selected. This operation will}}
+\DoxyCodeLine{391 \textcolor{comment}{ * succeed or fail silently; there is no response from the server.}}
+\DoxyCodeLine{392 \textcolor{comment}{ * It can only be carried out by a top-\/level frame; if the selection or insertion point exists in a child of this frame, it will be carried out on behalf of that child frame.}}
+\DoxyCodeLine{393 \textcolor{comment}{ * arg[0] == "{}x"{} -\/-\/ attempts to perform a cut operation on selected text}}
+\DoxyCodeLine{394 \textcolor{comment}{ * arg[0] == "{}c"{} -\/-\/ performs a copy operation on selected text}}
+\DoxyCodeLine{395 \textcolor{comment}{ * arg[0] == "{}v"{} -\/-\/ performs a paste operation (matching destination formatting)}}
+\DoxyCodeLine{396 \textcolor{comment}{ * arg[0] == "{}V"{} -\/-\/ performs a paste operation preserving source formatting.}}
+\DoxyCodeLine{397 \textcolor{comment}{ * arg[0] == "{}b"{} -\/-\/ toggles bold if applicable}}
+\DoxyCodeLine{398 \textcolor{comment}{ * arg[0] == "{}i"{} -\/-\/ italic}}
+\DoxyCodeLine{399 \textcolor{comment}{ * arg[0] == "{}u"{} -\/-\/ underline}}
+\DoxyCodeLine{400 \textcolor{comment}{ * arg[0] == "{}k"{} -\/-\/ strikethrough}}
+\DoxyCodeLine{401 \textcolor{comment}{ */}}
+\DoxyCodeLine{402 }
+\DoxyCodeLine{403 \textcolor{preprocessor}{\#define HIPE\_OP\_EDIT\_STATUS 61}}
+\DoxyCodeLine{404 \textcolor{comment}{/* Used for checking which edit actions are available (applicable to the}}
+\DoxyCodeLine{405 \textcolor{comment}{ * currently selected content or focused element). Takes a string of characters}}
+\DoxyCodeLine{406 \textcolor{comment}{ * (character codes used for HIPE\_OP\_EDIT\_ACTION) and returns a corresponding}}
+\DoxyCodeLine{407 \textcolor{comment}{ * string of status characters.}}
+\DoxyCodeLine{408 \textcolor{comment}{ */}}
+\DoxyCodeLine{409 }
+\DoxyCodeLine{410 }
+\DoxyCodeLine{411 \textcolor{preprocessor}{\#define HIPE\_OP\_FIFO\_ADD\_ABILITY 62}}
+\DoxyCodeLine{412 \textcolor{preprocessor}{\#define HIPE\_OP\_FIFO\_REMOVE\_ABILITY 63}}
+\DoxyCodeLine{413 \textcolor{preprocessor}{\#define HIPE\_OP\_FIFO\_GET\_PEER 64}}
+\DoxyCodeLine{414 \textcolor{preprocessor}{\#define HIPE\_OP\_FIFO\_DROP\_PEER 65}}
+\DoxyCodeLine{415 \textcolor{preprocessor}{\#define HIPE\_OP\_FIFO\_OPEN 66}}
+\DoxyCodeLine{416 \textcolor{preprocessor}{\#define HIPE\_OP\_FIFO\_CLOSE 67}}
+\DoxyCodeLine{417 \textcolor{preprocessor}{\#define HIPE\_OP\_FIFO\_RESPONSE 68}}
+\DoxyCodeLine{418 \textcolor{comment}{/* Most of the FIFO operations have the same internal operation as the }}
+\DoxyCodeLine{419 \textcolor{comment}{ * HIPE\_OP\_MESSAGE instruction, since the interpretation of these instructions}}
+\DoxyCodeLine{420 \textcolor{comment}{ * is left up to the framing manager rather than the hipe server itself.}}
+\DoxyCodeLine{421 \textcolor{comment}{}}
+\DoxyCodeLine{422 \textcolor{comment}{ * The exception is HIPE\_OP\_FIFO\_GET\_PEER which, if the application is already}}
+\DoxyCodeLine{423 \textcolor{comment}{   a top-\/level frame, will display a system prompt for the user to select a real file}}
+\DoxyCodeLine{424 \textcolor{comment}{   to open/save rather than return a FIFO resource. (FIFOs are like 'virtual files')}}
+\DoxyCodeLine{425 \textcolor{comment}{}}
+\DoxyCodeLine{426 \textcolor{comment}{   This allows native file open/save functionality on systems where a framing manager is}}
+\DoxyCodeLine{427 \textcolor{comment}{   not used.}}
+\DoxyCodeLine{428 \textcolor{comment}{ */}}
+\DoxyCodeLine{429 }
+\DoxyCodeLine{430 \textcolor{preprocessor}{\#define HIPE\_OP\_OPEN\_LINK 69}}
+\DoxyCodeLine{431 \textcolor{comment}{/* Used to communicate a hyperlink to the framing manager to be made available to the user}}
+\DoxyCodeLine{432 \textcolor{comment}{ * Same internal logic as HIPE\_OP\_MESSAGE.}}
+\DoxyCodeLine{433 \textcolor{comment}{ */}}
+\DoxyCodeLine{434 }
+\DoxyCodeLine{435 \textcolor{preprocessor}{\#define HIPE\_OP\_IMPORT\_CSS 70}}
+\DoxyCodeLine{436 \textcolor{comment}{/* Used to import a CSS file to apply to a container.}}
+\DoxyCodeLine{437 \textcolor{comment}{ * arg[0] == file path of the CSS file}}
+\DoxyCodeLine{438 \textcolor{comment}{ * arg[1] == string ("{}1"{} or "{}0"{}) to specify if stylesheet is to be overwritten ("{}1"{}) or have the imported file appended ("{}0"{}).}}
+\DoxyCodeLine{439 \textcolor{comment}{ */}}
+\DoxyCodeLine{440 }
+\DoxyCodeLine{441 \textcolor{preprocessor}{\#define HIPE\_OP\_RUN\_SCRIPT 71}}
+\DoxyCodeLine{442 \textcolor{comment}{/* Used to run JavaScript for a element, use `this` to refer the element.}}
+\DoxyCodeLine{443 \textcolor{comment}{ * hipe\_loc == 0 points to bodyElement}}
+\DoxyCodeLine{444 \textcolor{comment}{ * arg[0] == JavaScript string}}
+\DoxyCodeLine{445 \textcolor{comment}{ * arg[1] == "{}1"{} to print debug info.}}
+\DoxyCodeLine{446 \textcolor{comment}{ * Example:}}
+\DoxyCodeLine{447 \textcolor{comment}{ *     hipe\_send(session, HIPE\_OP\_RUN\_SCRIPT, 0, h1, 1, "{}this.textContent='new content'"{});}}
+\DoxyCodeLine{448 \textcolor{comment}{ *     hipe\_send(session, HIPE\_OP\_RUN\_SCRIPT, 0, h1, 1, "{}alert(this)"{});}}
+\DoxyCodeLine{449 \textcolor{comment}{ * */}}
+\DoxyCodeLine{450 }
+\DoxyCodeLine{451 \textcolor{comment}{/*-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/-\/*/}}
+\DoxyCodeLine{452 }
+\DoxyCodeLine{453 }
+\DoxyCodeLine{454 \textcolor{preprocessor}{\#define HIPE\_FRAME\_EVENT\_CLIENT\_CONNECTED    1 }\textcolor{comment}{//arg[1] is client name}}
+\DoxyCodeLine{455 \textcolor{preprocessor}{\#define HIPE\_FRAME\_EVENT\_CLIENT\_DISCONNECTED 2}}
+\DoxyCodeLine{456 \textcolor{preprocessor}{\#define HIPE\_FRAME\_EVENT\_TITLE\_CHANGED       3 }\textcolor{comment}{//arg[1] is new title}}
+\DoxyCodeLine{457 \textcolor{preprocessor}{\#define HIPE\_FRAME\_EVENT\_ICON\_CHANGED        4 }\textcolor{comment}{//arg[1] is binary PNG image data.}}
+\DoxyCodeLine{458 \textcolor{preprocessor}{\#define HIPE\_FRAME\_EVENT\_COLOR\_CHANGED       5 }\textcolor{comment}{//arg[1] is the new foreground color}}
+\DoxyCodeLine{459 \textcolor{preprocessor}{\#define HIPE\_FRAME\_EVENT\_BACKGROUND\_CHANGED  6 }\textcolor{comment}{//arg[1] is the new background color}}
+\DoxyCodeLine{460 }
+\DoxyCodeLine{461 \textcolor{preprocessor}{\#define HIPE\_NARGS 4 }\textcolor{comment}{//fixed maximum number of arguments per hipe instruction.}}
+\DoxyCodeLine{462 }
+\DoxyCodeLine{463 \textcolor{keyword}{typedef} uint64\_t hipe\_loc;}
+\DoxyCodeLine{464 }
+\DoxyCodeLine{465 \textcolor{keyword}{struct }\mbox{\hyperlink{struct__hipe__instruction}{\_hipe\_instruction}} \{ \textcolor{comment}{/*for storing the (decoded) values of an instruction*/}}
+\DoxyCodeLine{466     \textcolor{keywordtype}{char} opcode;}
+\DoxyCodeLine{467     uint64\_t requestor;}
+\DoxyCodeLine{468     hipe\_loc location;}
+\DoxyCodeLine{469     \textcolor{keywordtype}{char}* arg[HIPE\_NARGS]; \textcolor{comment}{//up to 4 arguments may be transmitted per instruction.}}
+\DoxyCodeLine{470     uint64\_t arg\_length[HIPE\_NARGS]; \textcolor{comment}{//each argument's length is transmitted as a 64 bit value.}}
+\DoxyCodeLine{471 }
+\DoxyCodeLine{472     \textcolor{keyword}{struct }\mbox{\hyperlink{struct__hipe__instruction}{\_hipe\_instruction}}* next; \textcolor{comment}{/*for implementing a linked list.*/}}
+\DoxyCodeLine{473 \};}
+\DoxyCodeLine{474 \textcolor{keyword}{typedef} \textcolor{keyword}{struct }\mbox{\hyperlink{struct__hipe__instruction}{\_hipe\_instruction}} \mbox{\hyperlink{struct__hipe__instruction}{hipe\_instruction}};}
+\DoxyCodeLine{475 }
+\DoxyCodeLine{476 \textcolor{comment}{/*Must be called on any new hipe\_instruction instance (excepting shallow copies}}
+\DoxyCodeLine{477 \textcolor{comment}{ *of an existing instance). The same applies if a struct previously modified by}}
+\DoxyCodeLine{478 \textcolor{comment}{ *the user (e.g. assigning arg strings to it) is going to be reused for}}
+\DoxyCodeLine{479 \textcolor{comment}{ *collecting new input from hipe. This function doesn't allocate or free memory,}}
+\DoxyCodeLine{480 \textcolor{comment}{ *but it initialises the struct's values into a consistent state so that other}}
+\DoxyCodeLine{481 \textcolor{comment}{ *hipe functions can do so safely.}}
+\DoxyCodeLine{482 \textcolor{comment}{ *}}
+\DoxyCodeLine{483 \textcolor{comment}{ * O(1) worst case time complexity.}}
+\DoxyCodeLine{484 \textcolor{comment}{ */}}
+\DoxyCodeLine{485 \textcolor{keywordtype}{void} hipe\_instruction\_init(\mbox{\hyperlink{struct__hipe__instruction}{hipe\_instruction}}* obj);}
+\DoxyCodeLine{486 }
+\DoxyCodeLine{487 \textcolor{comment}{/*Allocates memory to store each argument in obj, according to arg\_length[]}}
+\DoxyCodeLine{488 \textcolor{comment}{ *values already assigned to obj. Arguments allocated in this way should later}}
+\DoxyCodeLine{489 \textcolor{comment}{ *be freed with hipe\_instruction\_clear().}}
+\DoxyCodeLine{490 \textcolor{comment}{ *}}
+\DoxyCodeLine{491 \textcolor{comment}{ * O(n) worst case complexity where n is the length of an argument from mallocing}}
+\DoxyCodeLine{492 \textcolor{comment}{ * arguments, but may as well be O(1) because the max length of a string is 64 bits.}}
+\DoxyCodeLine{493 \textcolor{comment}{ */}}
+\DoxyCodeLine{494 \textcolor{keywordtype}{void} hipe\_instruction\_alloc(\mbox{\hyperlink{struct__hipe__instruction}{hipe\_instruction}}* obj);}
+\DoxyCodeLine{495 }
+\DoxyCodeLine{496 \textcolor{comment}{/*Frees memory previously allocated within the instruction, and leaves the}}
+\DoxyCodeLine{497 \textcolor{comment}{ *struct in a clean state ready for reuse. Do not use this function to clear a}}
+\DoxyCodeLine{498 \textcolor{comment}{ *hipe\_instruction for which you have allocated values yourself. Instead,}}
+\DoxyCodeLine{499 \textcolor{comment}{ *de-\/allocate the argument strings in a way consistent with how you allocated}}
+\DoxyCodeLine{500 \textcolor{comment}{ *them, then call hipe\_instruction\_init() to re-\/initialise the values into a}}
+\DoxyCodeLine{501 \textcolor{comment}{ *clean state.}}
+\DoxyCodeLine{502 \textcolor{comment}{ *}}
+\DoxyCodeLine{503 \textcolor{comment}{ * O(1) worst case time complexity.}}
+\DoxyCodeLine{504 \textcolor{comment}{ */}}
+\DoxyCodeLine{505 \textcolor{keywordtype}{void} hipe\_instruction\_clear(\mbox{\hyperlink{struct__hipe__instruction}{hipe\_instruction}}* obj);}
+\DoxyCodeLine{506 }
+\DoxyCodeLine{507 \textcolor{comment}{/*Deeply copies src values into dest, allocating memory for args.}}
+\DoxyCodeLine{508 \textcolor{comment}{ *Does not do any initialisation or deallocation of any previous values that may}}
+\DoxyCodeLine{509 \textcolor{comment}{ *have been present in dest previously.}}
+\DoxyCodeLine{510 \textcolor{comment}{ *When done with the instruction in dest, free the memory of its internal}}
+\DoxyCodeLine{511 \textcolor{comment}{ *variables with hipe\_instruction\_clear().}}
+\DoxyCodeLine{512 \textcolor{comment}{ *}}
+\DoxyCodeLine{513 \textcolor{comment}{ * See hipe\_instruction\_alloc for complexity.}}
+\DoxyCodeLine{514 \textcolor{comment}{ */}}
+\DoxyCodeLine{515 \textcolor{keywordtype}{void} hipe\_instruction\_copy(\mbox{\hyperlink{struct__hipe__instruction}{hipe\_instruction}}* dest, \mbox{\hyperlink{struct__hipe__instruction}{hipe\_instruction}}* src);}
+\DoxyCodeLine{516 }
+\DoxyCodeLine{517 \textcolor{comment}{/*Moves allocations from src to dest. Similar to hipe\_instruction\_copy except no}}
+\DoxyCodeLine{518 \textcolor{comment}{ *new memory is allocated; the memory allocated to src is reassigned to dest,}}
+\DoxyCodeLine{519 \textcolor{comment}{ *and src is then re-\/initialised. The memory in dest should later be freed in a}}
+\DoxyCodeLine{520 \textcolor{comment}{ *manner consistent with how src was previously allocated. }}
+\DoxyCodeLine{521 \textcolor{comment}{ *}}
+\DoxyCodeLine{522 \textcolor{comment}{ * O(1) worst case time complexity.}}
+\DoxyCodeLine{523 \textcolor{comment}{ */}}
+\DoxyCodeLine{524 \textcolor{keywordtype}{void} hipe\_instruction\_move(\mbox{\hyperlink{struct__hipe__instruction}{hipe\_instruction}}* dest, \mbox{\hyperlink{struct__hipe__instruction}{hipe\_instruction}}* src);}
+\DoxyCodeLine{525 }
+\DoxyCodeLine{526 \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{527 \textcolor{preprocessor}{\#ifdef \_\_cplusplus}}
+\DoxyCodeLine{528 \}}
+\DoxyCodeLine{529 \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

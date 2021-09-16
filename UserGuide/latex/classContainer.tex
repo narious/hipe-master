@@ -1,0 +1,149 @@
+\hypertarget{classContainer}{}\doxysection{Container Class Reference}
+\label{classContainer}\index{Container@{Container}}
+Inheritance diagram for Container\+:\begin{figure}[H]
+\begin{center}
+\leavevmode
+\includegraphics[height=3.000000cm]{classContainer}
+\end{center}
+\end{figure}
+\doxysubsection*{Signals}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classContainer_aa190d1123333b87af1fa082f3cb0eb52}\label{classContainer_aa190d1123333b87af1fa082f3cb0eb52}} 
+void {\bfseries receive\+Gui\+Event} (QString location, QString requestor, QString event, QString detail)
+\item 
+\mbox{\Hypertarget{classContainer_a0ba2ff343bb28e52d706f180b64ce0da}\label{classContainer_a0ba2ff343bb28e52d706f180b64ce0da}} 
+void {\bfseries receive\+Key\+Event\+On\+Body} (bool key\+Up, QString keycode)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Member Functions}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classContainer_a3ff5f24acfc1fe59b3ab7e0ca570def9}\label{classContainer_a3ff5f24acfc1fe59b3ab7e0ca570def9}} 
+{\bfseries Container} (\mbox{\hyperlink{classConnection}{Connection}} $\ast$client, std\+::string client\+Name)
+\item 
+\mbox{\Hypertarget{classContainer_aba57a243d19378abcc2057e12e169ba0}\label{classContainer_aba57a243d19378abcc2057e12e169ba0}} 
+void {\bfseries receive\+Instruction} (\mbox{\hyperlink{struct__hipe__instruction}{hipe\+\_\+instruction}} instruction)
+\item 
+\mbox{\Hypertarget{classContainer_afe7178bc01d09e77196b03f357e2f3dc}\label{classContainer_afe7178bc01d09e77196b03f357e2f3dc}} 
+virtual void {\bfseries set\+Title} (std\+::string new\+Title)=0
+\item 
+\mbox{\Hypertarget{classContainer_a2261d5629ceb5faa15fecf6d1ff471e0}\label{classContainer_a2261d5629ceb5faa15fecf6d1ff471e0}} 
+virtual void {\bfseries set\+Icon} (const char $\ast$img\+Data, size\+\_\+t length)=0
+\item 
+\mbox{\Hypertarget{classContainer_a29197905c18132b7b34be7cb6059d1cf}\label{classContainer_a29197905c18132b7b34be7cb6059d1cf}} 
+virtual void {\bfseries set\+Body} (std\+::string new\+Body\+Html, bool overwrite=true)=0
+\item 
+\mbox{\Hypertarget{classContainer_ad1842084b39511a43800a0d07ebeee93}\label{classContainer_ad1842084b39511a43800a0d07ebeee93}} 
+void {\bfseries apply\+Stylesheet} ()
+\item 
+\mbox{\Hypertarget{classContainer_af5734df42f8b5fc0b4ac96a2904b49bd}\label{classContainer_af5734df42f8b5fc0b4ac96a2904b49bd}} 
+void {\bfseries container\+Closed} ()
+\item 
+\mbox{\Hypertarget{classContainer_a11261f2ca69c792eaa840836172c2049}\label{classContainer_a11261f2ca69c792eaa840836172c2049}} 
+\mbox{\hyperlink{classContainer}{Container}} $\ast$ {\bfseries request\+New} (std\+::string key, std\+::string client\+Name, uint64\+\_\+t pid, \mbox{\hyperlink{classConnection}{Connection}} $\ast$c)
+\item 
+\mbox{\Hypertarget{classContainer_acba52c2bdb7b6404278e0d8880910a93}\label{classContainer_acba52c2bdb7b6404278e0d8880910a93}} 
+void {\bfseries receive\+Sub\+Frame\+Event} (short evt\+Type, QWeb\+Frame $\ast$sender, std\+::string detail)
+\item 
+\mbox{\Hypertarget{classContainer_a4857f2df9f6a84715eaa43809f611e39}\label{classContainer_a4857f2df9f6a84715eaa43809f611e39}} 
+void {\bfseries receive\+Message} (char opcode, int64\+\_\+t requestor, const std\+::vector$<$ std\+::string $>$ \&args, QWeb\+Frame $\ast$sender, bool propagate\+To\+Parent=false)
+\item 
+\mbox{\Hypertarget{classContainer_ac86b357304eba2fbd5285decfaf09b65}\label{classContainer_ac86b357304eba2fbd5285decfaf09b65}} 
+void {\bfseries key\+Event\+On\+Child\+Frame} (QWeb\+Frame $\ast$origin, bool key\+Up, QString keycode)
+\item 
+\mbox{\Hypertarget{classContainer_aec9833c9c3f630efa52ce181e24c2694}\label{classContainer_aec9833c9c3f630efa52ce181e24c2694}} 
+virtual \mbox{\hyperlink{classContainer}{Container}} $\ast$ {\bfseries get\+Parent} ()=0
+\item 
+\mbox{\Hypertarget{classContainer_aefadd761a5aa10244cb7d0037411f652}\label{classContainer_aefadd761a5aa10244cb7d0037411f652}} 
+virtual char {\bfseries edit\+Action\+Status} (char)
+\item 
+\mbox{\Hypertarget{classContainer_afc44881cb02a1253ca72476d7efd44f4}\label{classContainer_afc44881cb02a1253ca72476d7efd44f4}} 
+size\+\_\+t {\bfseries add\+Referenceable\+Element} (const QWeb\+Element \&)
+\item 
+\mbox{\Hypertarget{classContainer_a64cbdf792c2529a6c904ad3f34a40406}\label{classContainer_a64cbdf792c2529a6c904ad3f34a40406}} 
+void {\bfseries remove\+Referenceable\+Element} (size\+\_\+t)
+\item 
+\mbox{\Hypertarget{classContainer_a4723defc8579b3b54a50f7bfc0de797c}\label{classContainer_a4723defc8579b3b54a50f7bfc0de797c}} 
+QWeb\+Element {\bfseries get\+Referenceable\+Element} (size\+\_\+t)
+\item 
+\mbox{\Hypertarget{classContainer_a9d01ccea4d5c45903b9538371c06e2f1}\label{classContainer_a9d01ccea4d5c45903b9538371c06e2f1}} 
+size\+\_\+t {\bfseries find\+Referenceable\+Element} (QWeb\+Element)
+\item 
+\mbox{\Hypertarget{classContainer_a8572288aaa3615d2bfb68bb2ff86ead0}\label{classContainer_a8572288aaa3615d2bfb68bb2ff86ead0}} 
+size\+\_\+t {\bfseries get\+Index\+Of\+Element} (QWeb\+Element)
+\end{DoxyCompactItemize}
+\doxysubsection*{Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classContainer_aeeb9743013f6e0d3c44d866465fe8318}\label{classContainer_aeeb9743013f6e0d3c44d866465fe8318}} 
+QWeb\+Frame $\ast$ {\bfseries frame}
+\item 
+\mbox{\Hypertarget{classContainer_ab7b959254a6d5d757e99a39fd413796d}\label{classContainer_ab7b959254a6d5d757e99a39fd413796d}} 
+\mbox{\hyperlink{classConnection}{Connection}} $\ast$ {\bfseries client}
+\item 
+\mbox{\Hypertarget{classContainer_aeff74b95596feeee45313f6952c2a7d1}\label{classContainer_aeff74b95596feeee45313f6952c2a7d1}} 
+QWeb\+Element {\bfseries web\+Element}
+\item 
+\mbox{\Hypertarget{classContainer_ae65e6acabbea654b18e9b648ff3a26b5}\label{classContainer_ae65e6acabbea654b18e9b648ff3a26b5}} 
+std\+::string {\bfseries stylesheet}
+\item 
+\mbox{\Hypertarget{classContainer_ae6551df003b4279f198232d24383ef29}\label{classContainer_ae6551df003b4279f198232d24383ef29}} 
+bool {\bfseries is\+Top\+Level} = false
+\item 
+\mbox{\Hypertarget{classContainer_a634feb7329dfec7ce60377731f75d040}\label{classContainer_a634feb7329dfec7ce60377731f75d040}} 
+bool {\bfseries report\+Keydown\+On\+Body} =false
+\item 
+\mbox{\Hypertarget{classContainer_a7fdfc2152b09104d49659a01fbb454b7}\label{classContainer_a7fdfc2152b09104d49659a01fbb454b7}} 
+bool {\bfseries report\+Keyup\+On\+Body} =false
+\item 
+\mbox{\Hypertarget{classContainer_a0b6f23a0d23f56d1b99907c5ec003130}\label{classContainer_a0b6f23a0d23f56d1b99907c5ec003130}} 
+uint64\+\_\+t {\bfseries key\+Down\+On\+Body\+Requestor} =0
+\item 
+\mbox{\Hypertarget{classContainer_aa9ba3ddbb56b76529137ad87dacbc367}\label{classContainer_aa9ba3ddbb56b76529137ad87dacbc367}} 
+uint64\+\_\+t {\bfseries key\+Up\+On\+Body\+Requestor} =0
+\item 
+\mbox{\Hypertarget{classContainer_aa824060414d35726d813f2c01f9ca11c}\label{classContainer_aa824060414d35726d813f2c01f9ca11c}} 
+\mbox{\hyperlink{classKeyList}{Key\+List}} $\ast$ {\bfseries key\+List}
+\item 
+\mbox{\Hypertarget{classContainer_a8804572cde00d93b2c19d60a7bc0435d}\label{classContainer_a8804572cde00d93b2c19d60a7bc0435d}} 
+std\+::list$<$ \mbox{\hyperlink{classFrameData}{Frame\+Data}} $>$ {\bfseries sub\+Frames}
+\end{DoxyCompactItemize}
+\doxysubsection*{Static Public Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classContainer_af77c2ace64debe2ab86e61e9f4fa2625}\label{classContainer_af77c2ace64debe2ab86e61e9f4fa2625}} 
+static std\+::string {\bfseries global\+Style\+Rules} =\char`\"{}\char`\"{}
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Slots}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classContainer_afc4e46c717ed639301186ac0442475be}\label{classContainer_afc4e46c717ed639301186ac0442475be}} 
+void {\bfseries \+\_\+receive\+Gui\+Event} (QString location, QString requestor, QString event, QString detail)
+\item 
+\mbox{\Hypertarget{classContainer_a732ab08d6f009f989441a7c54394b325}\label{classContainer_a732ab08d6f009f989441a7c54394b325}} 
+void {\bfseries \+\_\+receive\+Key\+Event\+On\+Body} (bool key\+Up, QString keycode)
+\item 
+\mbox{\Hypertarget{classContainer_ae983abbad9f4868f4267ecd11b38d9f1}\label{classContainer_ae983abbad9f4868f4267ecd11b38d9f1}} 
+void {\bfseries frame\+Cleared} ()
+\item 
+\mbox{\Hypertarget{classContainer_a4b50de2327f2fe00f7ea6fd86066777e}\label{classContainer_a4b50de2327f2fe00f7ea6fd86066777e}} 
+void {\bfseries frame\+Destroyed} ()
+\end{DoxyCompactItemize}
+\doxysubsection*{Protected Attributes}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classContainer_aee92ad8cda41bac39120ff21195769b6}\label{classContainer_aee92ad8cda41bac39120ff21195769b6}} 
+bool {\bfseries init\+Yet}
+\end{DoxyCompactItemize}
+\doxysubsection*{Friends}
+\begin{DoxyCompactItemize}
+\item 
+\mbox{\Hypertarget{classContainer_afd60e4603fa0884e580bfd8c3c5c8b34}\label{classContainer_afd60e4603fa0884e580bfd8c3c5c8b34}} 
+class {\bfseries Container\+Manager}
+\end{DoxyCompactItemize}
+
+
+The documentation for this class was generated from the following files\+:\begin{DoxyCompactItemize}
+\item 
+server/src/container.\+h\item 
+server/src/container.\+cpp\end{DoxyCompactItemize}

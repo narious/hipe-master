@@ -1,0 +1,50 @@
+\hypertarget{containerframe_8h_source}{}\doxysection{containerframe.\+h}
+\label{containerframe_8h_source}\index{server/src/containerframe.h@{server/src/containerframe.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{comment}{/*  Copyright (c) 2015-\/2018 Daniel Kos, General Development Systems}}
+\DoxyCodeLine{2 \textcolor{comment}{}}
+\DoxyCodeLine{3 \textcolor{comment}{    This file is part of Hipe.}}
+\DoxyCodeLine{4 \textcolor{comment}{}}
+\DoxyCodeLine{5 \textcolor{comment}{    Hipe is free software: you can redistribute it and/or modify}}
+\DoxyCodeLine{6 \textcolor{comment}{    it under the terms of the GNU General Public License as published by}}
+\DoxyCodeLine{7 \textcolor{comment}{    the Free Software Foundation, either version 3 of the License, or}}
+\DoxyCodeLine{8 \textcolor{comment}{    (at your option) any later version.}}
+\DoxyCodeLine{9 \textcolor{comment}{}}
+\DoxyCodeLine{10 \textcolor{comment}{    Hipe is distributed in the hope that it will be useful,}}
+\DoxyCodeLine{11 \textcolor{comment}{    but WITHOUT ANY WARRANTY; without even the implied warranty of}}
+\DoxyCodeLine{12 \textcolor{comment}{    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the}}
+\DoxyCodeLine{13 \textcolor{comment}{    GNU General Public License for more details.}}
+\DoxyCodeLine{14 \textcolor{comment}{}}
+\DoxyCodeLine{15 \textcolor{comment}{    You should have received a copy of the GNU General Public License}}
+\DoxyCodeLine{16 \textcolor{comment}{    along with Hipe.  If not, see <http://www.gnu.org/licenses/>.}}
+\DoxyCodeLine{17 \textcolor{comment}{*/}}
+\DoxyCodeLine{18 }
+\DoxyCodeLine{19 \textcolor{preprocessor}{\#ifndef CLIENTFRAME\_H}}
+\DoxyCodeLine{20 \textcolor{preprocessor}{\#define CLIENTFRAME\_H}}
+\DoxyCodeLine{21 }
+\DoxyCodeLine{22 \textcolor{preprocessor}{\#include "{}container.h"{}}}
+\DoxyCodeLine{23 }
+\DoxyCodeLine{24 \textcolor{keyword}{class }\mbox{\hyperlink{classContainerFrame}{ContainerFrame}} : \textcolor{keyword}{public} \mbox{\hyperlink{classContainer}{Container}} \{}
+\DoxyCodeLine{25 }
+\DoxyCodeLine{26 \textcolor{comment}{//Lifetime:}}
+\DoxyCodeLine{27 \textcolor{comment}{//Created when a client is granted a connection to an existing iframe with a}}
+\DoxyCodeLine{28 \textcolor{comment}{//valid hostkey as determined by the parent container.}}
+\DoxyCodeLine{29 }
+\DoxyCodeLine{30 \textcolor{keyword}{public}:}
+\DoxyCodeLine{31     \mbox{\hyperlink{classContainerFrame}{ContainerFrame}}(\mbox{\hyperlink{classConnection}{Connection}}* client, std::string clientName, QWebFrame* frame, \mbox{\hyperlink{classContainer}{Container}}* parent); \textcolor{comment}{//object is not created until an iframe is actually assigned to a client.}}
+\DoxyCodeLine{32     \mbox{\hyperlink{classContainerFrame}{\string~ContainerFrame}}();}
+\DoxyCodeLine{33 }
+\DoxyCodeLine{34     \mbox{\hyperlink{classContainer}{Container}}* getParent();}
+\DoxyCodeLine{35 }
+\DoxyCodeLine{36     \textcolor{keywordtype}{void} setBody(std::string newBodyHtml, \textcolor{keywordtype}{bool} overwrite=\textcolor{keyword}{true});}
+\DoxyCodeLine{37 \textcolor{keyword}{protected}:}
+\DoxyCodeLine{38     \textcolor{keywordtype}{void} setTitle(std::string newTitle);}
+\DoxyCodeLine{39     \textcolor{keywordtype}{void} setIcon(\textcolor{keyword}{const} \textcolor{keywordtype}{char}* imgData, \textcolor{keywordtype}{size\_t} length);}
+\DoxyCodeLine{40 \textcolor{keyword}{private}:}
+\DoxyCodeLine{41     \mbox{\hyperlink{classContainer}{Container}}* parent;}
+\DoxyCodeLine{42 \};}
+\DoxyCodeLine{43 }
+\DoxyCodeLine{44 \textcolor{preprocessor}{\#endif }\textcolor{comment}{// CLIENTFRAME\_H}}
+
+\end{DoxyCode}

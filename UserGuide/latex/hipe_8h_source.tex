@@ -1,0 +1,94 @@
+\hypertarget{hipe_8h_source}{}\doxysection{hipe.\+h}
+\label{hipe_8h_source}\index{api/src/hipe.h@{api/src/hipe.h}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{comment}{/*  Copyright (c) 2015-\/2018 Daniel Kos, General Development Systems}}
+\DoxyCodeLine{2 \textcolor{comment}{}}
+\DoxyCodeLine{3 \textcolor{comment}{    Permission is hereby granted, free of charge, to any person obtaining a copy}}
+\DoxyCodeLine{4 \textcolor{comment}{    of this software and associated documentation files (the "{}Software"{}), to deal}}
+\DoxyCodeLine{5 \textcolor{comment}{    in the Software without restriction, including without limitation the rights}}
+\DoxyCodeLine{6 \textcolor{comment}{    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell}}
+\DoxyCodeLine{7 \textcolor{comment}{    copies of the Software, and to permit persons to whom the Software is}}
+\DoxyCodeLine{8 \textcolor{comment}{    furnished to do so, subject to the following conditions:}}
+\DoxyCodeLine{9 \textcolor{comment}{}}
+\DoxyCodeLine{10 \textcolor{comment}{    The above copyright notice and this permission notice shall be included in}}
+\DoxyCodeLine{11 \textcolor{comment}{    all copies or substantial portions of this Software library.}}
+\DoxyCodeLine{12 \textcolor{comment}{}}
+\DoxyCodeLine{13 \textcolor{comment}{    THE SOFTWARE IS PROVIDED "{}AS IS"{}, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR}}
+\DoxyCodeLine{14 \textcolor{comment}{    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,}}
+\DoxyCodeLine{15 \textcolor{comment}{    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE}}
+\DoxyCodeLine{16 \textcolor{comment}{    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER}}
+\DoxyCodeLine{17 \textcolor{comment}{    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,}}
+\DoxyCodeLine{18 \textcolor{comment}{    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN}}
+\DoxyCodeLine{19 \textcolor{comment}{    THE SOFTWARE.}}
+\DoxyCodeLine{20 \textcolor{comment}{*/}}
+\DoxyCodeLine{21 }
+\DoxyCodeLine{22 \textcolor{preprocessor}{\#ifdef \_\_cplusplus}}
+\DoxyCodeLine{23 \textcolor{keyword}{extern} \textcolor{stringliteral}{"{}C"{}} \{}
+\DoxyCodeLine{24 \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{25 }
+\DoxyCodeLine{26 \textcolor{preprocessor}{\#ifndef \_HIPE\_H}}
+\DoxyCodeLine{27 \textcolor{preprocessor}{\#define \_HIPE\_H}}
+\DoxyCodeLine{28 }
+\DoxyCodeLine{29 \textcolor{preprocessor}{\#include <sys/types.h>}}
+\DoxyCodeLine{30 \textcolor{preprocessor}{\#include "{}hipe\_instruction.h"{}}}
+\DoxyCodeLine{31 }
+\DoxyCodeLine{32 \textcolor{keyword}{struct }\mbox{\hyperlink{struct__hipe__session}{\_hipe\_session}};}
+\DoxyCodeLine{33 \textcolor{keyword}{typedef} \textcolor{keyword}{struct }\mbox{\hyperlink{struct__hipe__session}{\_hipe\_session}}* \mbox{\hyperlink{struct__hipe__session}{hipe\_session}};}
+\DoxyCodeLine{34 }
+\DoxyCodeLine{35 }
+\DoxyCodeLine{36 \mbox{\hyperlink{struct__hipe__session}{hipe\_session}} hipe\_open\_session(\textcolor{keyword}{const} \textcolor{keywordtype}{char}* host\_key, \textcolor{keyword}{const} \textcolor{keywordtype}{char}* socket\_path, \textcolor{keyword}{const} \textcolor{keywordtype}{char}* key\_path, \textcolor{keyword}{const} \textcolor{keywordtype}{char}* client\_name);}
+\DoxyCodeLine{37 }
+\DoxyCodeLine{38 \textcolor{keywordtype}{short} hipe\_close\_session(\mbox{\hyperlink{struct__hipe__session}{hipe\_session}});}
+\DoxyCodeLine{39 }
+\DoxyCodeLine{40 \textcolor{keywordtype}{int} hipe\_send\_instruction(\mbox{\hyperlink{struct__hipe__session}{hipe\_session}} session, \mbox{\hyperlink{struct__hipe__instruction}{hipe\_instruction}} instruction);}
+\DoxyCodeLine{41 \textcolor{comment}{/*encodes and transmits an instruction.*/}}
+\DoxyCodeLine{42 }
+\DoxyCodeLine{43 \textcolor{keywordtype}{short} hipe\_next\_instruction(\mbox{\hyperlink{struct__hipe__session}{hipe\_session}} session, \mbox{\hyperlink{struct__hipe__instruction}{hipe\_instruction}}* instruction\_ret, \textcolor{keywordtype}{short} blocking);}
+\DoxyCodeLine{44 \textcolor{comment}{/* optional blocking-\/wait for an instruction to be received from the server.}}
+\DoxyCodeLine{45 \textcolor{comment}{ * Returns 1 if a new instruction has been returned in instruction\_ret, or 0 if nothing is available}}
+\DoxyCodeLine{46 \textcolor{comment}{ * and !blocking.}}
+\DoxyCodeLine{47 \textcolor{comment}{ */}}
+\DoxyCodeLine{48 }
+\DoxyCodeLine{49 \textcolor{keywordtype}{short} hipe\_await\_instruction(\mbox{\hyperlink{struct__hipe__session}{hipe\_session}} session, \mbox{\hyperlink{struct__hipe__instruction}{hipe\_instruction}}* instruction\_ret, \textcolor{keywordtype}{short} opcode);}
+\DoxyCodeLine{50 \textcolor{comment}{/* Awaits an instruction with a particular opcode, then returns that instruction without adding it}}
+\DoxyCodeLine{51 \textcolor{comment}{ * to the session queue.}}
+\DoxyCodeLine{52 \textcolor{comment}{ * Any other instructions that arrive in the meantime are placed in the session queue so they}}
+\DoxyCodeLine{53 \textcolor{comment}{ * can be retrieved as normal by hipe\_next\_instruction when checking for events.}}
+\DoxyCodeLine{54 \textcolor{comment}{ * The awaited instruction must not already be in the session queue when this function is called.}}
+\DoxyCodeLine{55 \textcolor{comment}{ * This means you should never call hipe\_next\_instruction in between making a request and retrieving}}
+\DoxyCodeLine{56 \textcolor{comment}{ * an acknowledgement from the server.}}
+\DoxyCodeLine{57 \textcolor{comment}{ */}}
+\DoxyCodeLine{58 }
+\DoxyCodeLine{59 \textcolor{keywordtype}{int} hipe\_send(\mbox{\hyperlink{struct__hipe__session}{hipe\_session}} session, \textcolor{keywordtype}{char} opcode, uint64\_t requestor, hipe\_loc location, \textcolor{keywordtype}{int} n\_args, ...);}
+\DoxyCodeLine{60 \textcolor{comment}{/* Convenience function to send instructions when the arguments (0 or more) are null-\/terminated strings expressed}}
+\DoxyCodeLine{61 \textcolor{comment}{ * as char* or const char*}}
+\DoxyCodeLine{62 \textcolor{comment}{ */}}
+\DoxyCodeLine{63 }
+\DoxyCodeLine{64 hipe\_loc append\_tag\_getLoc(\mbox{\hyperlink{struct__hipe__session}{hipe\_session}} session, hipe\_loc parent, \textcolor{keywordtype}{char}* tag\_type, \textcolor{keywordtype}{char}* tag\_id);}
+\DoxyCodeLine{65 \textcolor{comment}{/* Convenience function to append new tag and immediately return the hipe\_loc of said tag.}}
+\DoxyCodeLine{66 \textcolor{comment}{*  tag\_id is a string that gives the id attribute to the created tag but if no id is required}}
+\DoxyCodeLine{67 \textcolor{comment}{*  just pass an empty string ("{}"{}).}}
+\DoxyCodeLine{68 \textcolor{comment}{*/}}
+\DoxyCodeLine{69 }
+\DoxyCodeLine{70 hipe\_loc getLoc(\mbox{\hyperlink{struct__hipe__session}{hipe\_session}} session, \textcolor{keywordtype}{char}* \textcolor{keywordtype}{id});}
+\DoxyCodeLine{71 \textcolor{comment}{/* Convenience function to get the hipe\_loc of a HTML element by id */}}
+\DoxyCodeLine{72 }
+\DoxyCodeLine{73 hipe\_loc last\_child\_getLoc(\mbox{\hyperlink{struct__hipe__session}{hipe\_session}} session, hipe\_loc parent);}
+\DoxyCodeLine{74 \textcolor{comment}{/* Convenience function to get the hipe\_loc of the last child of a HTML element*/}}
+\DoxyCodeLine{75 }
+\DoxyCodeLine{76 hipe\_loc first\_child\_getLoc(\mbox{\hyperlink{struct__hipe__session}{hipe\_session}} session, hipe\_loc parent);}
+\DoxyCodeLine{77 \textcolor{comment}{/* Convenience function to get the hipe\_loc of the first child of a HTML element*/}}
+\DoxyCodeLine{78 }
+\DoxyCodeLine{79 }
+\DoxyCodeLine{80 hipe\_loc next\_sibling\_getLoc(\mbox{\hyperlink{struct__hipe__session}{hipe\_session}} session, hipe\_loc child);}
+\DoxyCodeLine{81 \textcolor{comment}{/* Convenience function to get the hipe\_loc of the next sibling of a HTML element*/}}
+\DoxyCodeLine{82 }
+\DoxyCodeLine{83 }
+\DoxyCodeLine{84 \textcolor{preprocessor}{\#endif}}
+\DoxyCodeLine{85 }
+\DoxyCodeLine{86 \textcolor{preprocessor}{\#ifdef \_\_cplusplus}}
+\DoxyCodeLine{87 \}}
+\DoxyCodeLine{88 \textcolor{preprocessor}{\#endif}}
+
+\end{DoxyCode}

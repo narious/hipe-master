@@ -1,0 +1,148 @@
+\hypertarget{ExpArray_8hh_source}{}\doxysection{Exp\+Array.\+hh}
+\label{ExpArray_8hh_source}\index{server/src/ExpArray.hh@{server/src/ExpArray.hh}}
+
+\begin{DoxyCode}{0}
+\DoxyCodeLine{1 \textcolor{comment}{/*  Copyright (c) 2018 Daniel Kos, General Development Systems}}
+\DoxyCodeLine{2 \textcolor{comment}{}}
+\DoxyCodeLine{3 \textcolor{comment}{    This program is free software: you can redistribute it and/or modify}}
+\DoxyCodeLine{4 \textcolor{comment}{    it under the terms of the GNU General Public License as published by}}
+\DoxyCodeLine{5 \textcolor{comment}{    the Free Software Foundation, either version 3 of the License, or}}
+\DoxyCodeLine{6 \textcolor{comment}{    (at your option) any later version.}}
+\DoxyCodeLine{7 \textcolor{comment}{}}
+\DoxyCodeLine{8 \textcolor{comment}{    This program is distributed in the hope that it will be useful,}}
+\DoxyCodeLine{9 \textcolor{comment}{    but WITHOUT ANY WARRANTY; without even the implied warranty of}}
+\DoxyCodeLine{10 \textcolor{comment}{    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the}}
+\DoxyCodeLine{11 \textcolor{comment}{    GNU General Public License for more details.}}
+\DoxyCodeLine{12 \textcolor{comment}{}}
+\DoxyCodeLine{13 \textcolor{comment}{    You should have received a copy of the GNU General Public License}}
+\DoxyCodeLine{14 \textcolor{comment}{    along with this program.  If not, see <http://www.gnu.org/licenses/>.}}
+\DoxyCodeLine{15 \textcolor{comment}{*/}}
+\DoxyCodeLine{16 }
+\DoxyCodeLine{17 \textcolor{comment}{//ExpArray and AutoExpArray.}}
+\DoxyCodeLine{18 }
+\DoxyCodeLine{19 \textcolor{comment}{//ExpArray abstract data type}}
+\DoxyCodeLine{20 \textcolor{comment}{//useful for arrays that need to be resized in O(1) time while preserving pointers to existing elements.}}
+\DoxyCodeLine{21 \textcolor{comment}{//otherwise similar to ordinary arrays, including (theoretical) O(1) access time to known element index.}}
+\DoxyCodeLine{22 }
+\DoxyCodeLine{23 \textcolor{comment}{//has size 1 initially.}}
+\DoxyCodeLine{24 }
+\DoxyCodeLine{25 \textcolor{comment}{//note that elements are numbered from [1]. There is no [0].}}
+\DoxyCodeLine{26 }
+\DoxyCodeLine{27 \textcolor{preprocessor}{\#pragma once}}
+\DoxyCodeLine{28 }
+\DoxyCodeLine{29 \textcolor{preprocessor}{\#include <cstdlib>}}
+\DoxyCodeLine{30 \textcolor{preprocessor}{\#include <stddef.h>} \textcolor{comment}{//for size\_t type}}
+\DoxyCodeLine{31 }
+\DoxyCodeLine{32 }
+\DoxyCodeLine{33 \textcolor{keyword}{template} <\textcolor{keyword}{class} T> \textcolor{keyword}{class }\mbox{\hyperlink{classExpArray}{ExpArray}} \{}
+\DoxyCodeLine{34 \textcolor{keyword}{private}:}
+\DoxyCodeLine{35     T** data; \textcolor{comment}{//data is an array of T arrays}}
+\DoxyCodeLine{36     \textcolor{keywordtype}{short} capacityMsb; \textcolor{comment}{//capacity of the most-\/significant-\/bit array}}
+\DoxyCodeLine{37     \textcolor{keywordtype}{short} sizeMsb; \textcolor{comment}{//most significant bit position in the currently allocated array size. E.g. sizeMsb==0 means 2\string^0==1}}
+\DoxyCodeLine{38 }
+\DoxyCodeLine{39     \textcolor{comment}{//returns the place of the most significant bit of the binary representation of num}}
+\DoxyCodeLine{40     \textcolor{comment}{//with the least significant bit represented as zero (2\string^0 = 1)}}
+\DoxyCodeLine{41     \textcolor{comment}{//if num==0, -\/1 is returned.}}
+\DoxyCodeLine{42     \textcolor{keywordtype}{short} msbOf(\textcolor{keywordtype}{size\_t} num) \{}
+\DoxyCodeLine{43         \textcolor{keywordtype}{short} msbExponent = -\/1;}
+\DoxyCodeLine{44         \textcolor{keywordflow}{while}(num) \{}
+\DoxyCodeLine{45             num >>= 1;}
+\DoxyCodeLine{46             msbExponent++;}
+\DoxyCodeLine{47         \}}
+\DoxyCodeLine{48         \textcolor{keywordflow}{return} msbExponent;}
+\DoxyCodeLine{49     \}}
+\DoxyCodeLine{50 \textcolor{keyword}{public}:}
+\DoxyCodeLine{51     \mbox{\hyperlink{classExpArray}{ExpArray}}() \{}
+\DoxyCodeLine{52         capacityMsb=0;}
+\DoxyCodeLine{53         data = (T**) malloc((capacityMsb+1) * \textcolor{keyword}{sizeof}(T**));}
+\DoxyCodeLine{54         sizeMsb=0; \textcolor{comment}{//initial size is 1==2\string^0}}
+\DoxyCodeLine{55         data[0] = \textcolor{keyword}{new} T[1](); \textcolor{comment}{//allocate a size 1 array to store the first element}}
+\DoxyCodeLine{56     \}}
+\DoxyCodeLine{57 }
+\DoxyCodeLine{58     \mbox{\hyperlink{classExpArray}{ExpArray}}(\textcolor{keyword}{const} \mbox{\hyperlink{classExpArray}{ExpArray}}\&) \{}
+\DoxyCodeLine{59     \textcolor{comment}{//copy constructor to prevent dangerous copying.}}
+\DoxyCodeLine{60         \mbox{\hyperlink{classExpArray}{ExpArray}}(); \textcolor{comment}{//just make a new blank array for now.}}
+\DoxyCodeLine{61         \textcolor{comment}{//TODO: make a proper copy.}}
+\DoxyCodeLine{62     \}}
+\DoxyCodeLine{63 }
+\DoxyCodeLine{64     \mbox{\hyperlink{classExpArray}{\string~ExpArray}}() \{}
+\DoxyCodeLine{65         \textcolor{keywordflow}{while}(sizeMsb>=0) shrink();}
+\DoxyCodeLine{66         free(data);}
+\DoxyCodeLine{67     \}}
+\DoxyCodeLine{68 }
+\DoxyCodeLine{69     \textcolor{keywordtype}{size\_t} size() \{ \textcolor{comment}{//returns the number of elements available}}
+\DoxyCodeLine{70         \textcolor{keywordflow}{return} ((1<<sizeMsb)<<1) -\/ 1; \textcolor{comment}{//subtract 1 because element [0] unused}}
+\DoxyCodeLine{71     \}}
+\DoxyCodeLine{72 }
+\DoxyCodeLine{73     \textcolor{keywordtype}{size\_t} shrunkSize() \{ \textcolor{comment}{//returns what the size() will become if the array is shrunk with shrink()}}
+\DoxyCodeLine{74         \textcolor{keywordflow}{return} ((1<<(sizeMsb-\/1))<<1) -\/ 1; \textcolor{comment}{//same form as size() with sizeMsb decremented}}
+\DoxyCodeLine{75     \}}
+\DoxyCodeLine{76 }
+\DoxyCodeLine{77     \textcolor{keywordtype}{void} grow() \{ \textcolor{comment}{//approximately double the array size}}
+\DoxyCodeLine{78         \textcolor{keywordflow}{if}(sizeMsb == capacityMsb) \textcolor{comment}{//need to grow the data array-\/of-\/arrays to add the next array}}
+\DoxyCodeLine{79             data = (T**) realloc(data, (++capacityMsb+1) * \textcolor{keyword}{sizeof}(T));}
+\DoxyCodeLine{80         sizeMsb++;}
+\DoxyCodeLine{81         data[sizeMsb] = \textcolor{keyword}{new} T[1<<sizeMsb]();}
+\DoxyCodeLine{82     \}}
+\DoxyCodeLine{83 }
+\DoxyCodeLine{84     \textcolor{keywordtype}{void} shrink() \{ \textcolor{comment}{//approximately halve the array size}}
+\DoxyCodeLine{85         \textcolor{keyword}{delete}[] data[sizeMsb-\/-\/];}
+\DoxyCodeLine{86     \}}
+\DoxyCodeLine{87 }
+\DoxyCodeLine{88     \textcolor{comment}{//elements numbered from [1]. Element [0] makes no sense in the context of this data structure.}}
+\DoxyCodeLine{89     \textcolor{comment}{//the 'by reference' return allows this to be used for both accessing and assigning values.}}
+\DoxyCodeLine{90     T\& operator[](\textcolor{keywordtype}{size\_t} i) \{}
+\DoxyCodeLine{91         \textcolor{keywordtype}{short} msb = msbOf(i);}
+\DoxyCodeLine{92         i \&= \string~(1<<msb); \textcolor{comment}{//remove most significant bit}}
+\DoxyCodeLine{93         \textcolor{keywordflow}{return} data[msb][i];}
+\DoxyCodeLine{94     \}}
+\DoxyCodeLine{95 }
+\DoxyCodeLine{96 \};}
+\DoxyCodeLine{97 }
+\DoxyCodeLine{98 }
+\DoxyCodeLine{99 \textcolor{comment}{//AutoExpArray -\/-\/ a user-\/friendlyness wrapper for ExpArray.}}
+\DoxyCodeLine{100 \textcolor{comment}{//Purpose: Allow user to worry about number of elements used, rather than current allocated capacity.}}
+\DoxyCodeLine{101 \textcolor{comment}{//Automatically increase the capacity if the user requests more elements than allocated, and shrink}}
+\DoxyCodeLine{102 \textcolor{comment}{//automatically too to conserve memory.}}
+\DoxyCodeLine{103 }
+\DoxyCodeLine{104 }
+\DoxyCodeLine{105 \textcolor{comment}{//New usage: Use inheritance rather than wrapping (save 4 bytes per instance).}}
+\DoxyCodeLine{106 \textcolor{comment}{//Instead of having addElement and delElement functions, use setSize to resize the number of 'used'}}
+\DoxyCodeLine{107 \textcolor{comment}{//elements dynamically. Behind the scenes, the array grows and shrinks in 2\string^n increments -\/-\/ not}}
+\DoxyCodeLine{108 \textcolor{comment}{//every setSize results in a resize behind the scenes. (So elements may or may not be freed following}}
+\DoxyCodeLine{109 \textcolor{comment}{//a setSize call. At any rate, they should no longer be referenced.}}
+\DoxyCodeLine{110 \textcolor{comment}{//-\/ base class functions grow() or shrink(), these are called automatically,}}
+\DoxyCodeLine{111 \textcolor{comment}{//and we insulate the user from these.}}
+\DoxyCodeLine{112 }
+\DoxyCodeLine{113 }
+\DoxyCodeLine{114 }
+\DoxyCodeLine{115 \textcolor{keyword}{template} <\textcolor{keyword}{class} T> \textcolor{keyword}{class }\mbox{\hyperlink{classAutoExpArray}{AutoExpArray}} : \textcolor{keyword}{protected} \mbox{\hyperlink{classExpArray}{ExpArray}}<T> \{}
+\DoxyCodeLine{116     \textcolor{keyword}{private}:}
+\DoxyCodeLine{117         \textcolor{keywordtype}{size\_t} used; \textcolor{comment}{//the number of elements in use}}
+\DoxyCodeLine{118     \textcolor{keyword}{public}:}
+\DoxyCodeLine{119         \mbox{\hyperlink{classAutoExpArray}{AutoExpArray}}() \{}
+\DoxyCodeLine{120             used = 0;}
+\DoxyCodeLine{121         \}}
+\DoxyCodeLine{122 }
+\DoxyCodeLine{123         \textcolor{keywordtype}{size\_t} size() \{}
+\DoxyCodeLine{124         \textcolor{comment}{//use ExpArray::size() for base class meaning}}
+\DoxyCodeLine{125             \textcolor{keywordflow}{return} used;}
+\DoxyCodeLine{126         \}}
+\DoxyCodeLine{127 }
+\DoxyCodeLine{128         \textcolor{keywordtype}{void} setSize(\textcolor{keywordtype}{size\_t} newSize) \{}
+\DoxyCodeLine{129             \textcolor{keywordflow}{if}(newSize > used) \{}
+\DoxyCodeLine{130                 \textcolor{keywordflow}{while}(newSize > \mbox{\hyperlink{classExpArray}{ExpArray<T>::size}}())}
+\DoxyCodeLine{131                     \mbox{\hyperlink{classExpArray}{ExpArray<T>::grow}}();}
+\DoxyCodeLine{132             \} \textcolor{keywordflow}{else} \{ \textcolor{comment}{//determine if shrinking is worthwhile based on amortised cost as discussed in Katajainen and Mortensen}}
+\DoxyCodeLine{133                 \textcolor{keywordflow}{if}(newSize < (\mbox{\hyperlink{classExpArray}{ExpArray<T>::size}}() >> 2))}
+\DoxyCodeLine{134                     \mbox{\hyperlink{classExpArray}{ExpArray<T>::shrink}}();}
+\DoxyCodeLine{135             \}}
+\DoxyCodeLine{136             used = newSize;}
+\DoxyCodeLine{137         \}}
+\DoxyCodeLine{138 }
+\DoxyCodeLine{139         T\& operator[](\textcolor{keywordtype}{size\_t} i) \{}
+\DoxyCodeLine{140             \textcolor{keywordflow}{return} \mbox{\hyperlink{classExpArray}{ExpArray<T>::operator[]}}(i);}
+\DoxyCodeLine{141         \}}
+\DoxyCodeLine{142 \};}
+
+\end{DoxyCode}
