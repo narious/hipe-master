@@ -18,5 +18,3 @@ build/%.o: src/%.cpp
 clean:
 	rm test build/*.o
 
-ctags:
-	myctags -R . /usr/include/gtest
